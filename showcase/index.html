@@ -407,8 +407,159 @@
     </div>
   </div>
 </div>
-      <div class="section" id="product"></div>
-      <div class="section" id="your-stack"></div>
+      <div class="section" id="product">
+  <div class="section-label">⑥ The Product</div>
+  <div class="section-title">AIMEE — AI-Managed Employee Experience</div>
+  <div class="section-subtitle">Everything you need to run AI employees. Managed by us.</div>
+
+  <!-- Pricing cards -->
+  <div class="pricing-row">
+    <div class="pricing-card featured">
+      <div class="pricing-amount">$500</div>
+      <div class="pricing-period">/month</div>
+      <div class="pricing-title">Starter</div>
+      <div class="pricing-desc">3 agents, Slack, managed SOPs, monitoring, dashboard</div>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-amount">$200</div>
+      <div class="pricing-period">/month each</div>
+      <div class="pricing-title">Additional Agents</div>
+      <div class="pricing-desc">Scale your team with more specialized AI workers</div>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-amount">$150</div>
+      <div class="pricing-period">/hour</div>
+      <div class="pricing-title">Custom Work</div>
+      <div class="pricing-desc">Custom workflows, integrations, and agent training</div>
+    </div>
+  </div>
+
+  <!-- Unit Economics -->
+  <div class="card">
+    <div class="section-label" style="margin-bottom: 1rem;">Unit Economics</div>
+    <div class="economics-row">
+      <div>
+        <div class="econ-item"><span class="econ-label">Revenue</span><span class="econ-value">$500/mo</span></div>
+        <div class="econ-item"><span class="econ-label">API Cost</span><span class="econ-value">$50–150/mo</span></div>
+        <div class="econ-item"><span class="econ-label">Infrastructure</span><span class="econ-value">~$20/mo</span></div>
+      </div>
+      <div>
+        <div class="econ-item"><span class="econ-label">Ops Time</span><span class="econ-value">~$50/mo</span></div>
+        <div class="econ-item"><span class="econ-label">Total Cost</span><span class="econ-value">$120–220/mo</span></div>
+        <div class="econ-item"><span class="econ-label">Gross Margin</span><span class="econ-value green">55–75%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What's Included -->
+  <div class="card">
+    <div class="section-label" style="margin-bottom: 1rem;">What's Included</div>
+    <ul class="included-list">
+      <li>3 AI agents (Primary, Engineer, Dispatch)</li>
+      <li>Slack integration with multi-account support</li>
+      <li>Mission Control dashboard</li>
+      <li>Managed SOPs (onboarding, daily ops, incident response)</li>
+      <li>Health monitoring and alerting</li>
+      <li>Remote management via Parent Relay</li>
+      <li>Weekly check-ins and optimization</li>
+    </ul>
+  </div>
+</div>
+      <div class="section" id="your-stack">
+  <div class="section-label">⑦ Your Stack</div>
+  <div class="section-title">Here's what yours looks like.</div>
+  <div class="section-subtitle">These are the 3 CTG Core starter agents — your dedicated AI team.</div>
+
+  <!-- Agent cards -->
+  <div class="your-agents">
+    <div class="your-agent-card">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+      <div class="your-agent-name">Primary</div>
+      <div class="your-agent-model">Claude Sonnet 4.6</div>
+      <div class="your-agent-role">Comms, triage, delegation. Your front-line agent — handles incoming messages, routes to specialists, drafts responses.</div>
+    </div>
+    <div class="your-agent-card">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔧</div>
+      <div class="your-agent-name">Engineer</div>
+      <div class="your-agent-model">Claude Opus 4.6</div>
+      <div class="your-agent-role">Code, architecture, analysis. The heavy thinker — deep work, complex reasoning, technical documentation.</div>
+    </div>
+    <div class="your-agent-card">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+      <div class="your-agent-name">Dispatch</div>
+      <div class="your-agent-model">Claude Haiku 4.5</div>
+      <div class="your-agent-role">Health checks, cron, routing. Fast and cheap — handles high-frequency, low-complexity operational tasks.</div>
+    </div>
+  </div>
+
+  <!-- Channels -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <div class="section-label" style="margin-bottom: 0.75rem;">Your Channels</div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="background: var(--layer-openclaw-light); border: 1px solid var(--layer-openclaw-border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 1.2rem;">💬</span>
+        <span style="font-weight: 600; font-size: 0.85rem;">Slack</span>
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-left: 0.5rem;"></span>
+        <span style="font-size: 0.75rem; color: var(--green);">Connected</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hub Connection -->
+  <div class="card">
+    <div class="section-label" style="margin-bottom: 0.75rem;">Remote Management</div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+      <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.25rem; text-align: center;">
+        <div style="font-weight: 600; font-size: 0.85rem;">Parent Relay</div>
+        <div style="font-size: 0.7rem; color: var(--text-muted);">Your deployment</div>
+      </div>
+      <div class="arch-connector">
+        <div class="arch-connector-line"></div>
+        <div class="arch-connector-label">Polling</div>
+        <div class="arch-connector-line"></div>
+      </div>
+      <div style="background: var(--accent-light); border: 1px solid var(--accent); border-radius: 8px; padding: 0.75rem 1.25rem; text-align: center;">
+        <div style="font-weight: 600; font-size: 0.85rem; color: var(--accent);">CTG Hub</div>
+        <div style="font-size: 0.7rem; color: var(--text-muted);">Managed by CTG</div>
+      </div>
+    </div>
+    <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">Health monitoring, config pushes, SOP updates. No data leaves your infrastructure — only metadata and status.</p>
+  </div>
+
+  <!-- Dashboard Preview -->
+  <div class="dashboard-preview">
+    <div class="dashboard-preview-label">Your Dashboard</div>
+    <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+      <div class="mock-header">
+        <span class="mock-header-logo">AIMEE</span>
+        <span style="color: var(--text-muted); font-size: 0.75rem;">Mission Control</span>
+        <span class="mock-header-badge">LIVE</span>
+      </div>
+      <div class="mock-cards-row">
+        <div class="mock-card">
+          <div class="mock-card-label">Services</div>
+          <div class="mock-card-value">3/3</div>
+          <div class="mock-card-sub">All healthy</div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-label">Agents</div>
+          <div class="mock-card-value">3</div>
+          <div class="mock-card-sub">Registered</div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-label">Uptime</div>
+          <div class="mock-card-value">99.9%</div>
+          <div class="mock-card-sub">Running 14d</div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-label">Relay</div>
+          <div class="mock-card-value" style="font-size: 0.85rem;">OK</div>
+          <div class="mock-card-sub">Hub connected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
       <div class="section" id="lets-go"></div>
     </main>
   </div>
