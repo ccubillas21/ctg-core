@@ -288,8 +288,125 @@
     <div><span class="dept-swatch" style="background: var(--dept-support);"></span>Support</div>
   </div>
 </div>
-      <div class="section" id="architecture"></div>
-      <div class="section" id="deployment"></div>
+      <div class="section" id="architecture">
+  <div class="section-label">④ Architecture</div>
+  <div class="section-title">Under the hood.</div>
+  <div class="section-subtitle">Five Docker services. One command to deploy.</div>
+
+  <div class="card">
+    <div class="arch-diagram">
+      <!-- Row 1: Core services -->
+      <div class="arch-row">
+        <div class="arch-service">
+          <div class="arch-service-name">PostgreSQL</div>
+          <div class="arch-service-port">:5432</div>
+          <div class="arch-service-health">● healthy</div>
+        </div>
+        <div class="arch-connector">
+          <div class="arch-connector-line"></div>
+          <div class="arch-connector-label">SQL</div>
+          <div class="arch-connector-line"></div>
+        </div>
+        <div class="arch-service">
+          <div class="arch-service-name">Paperclip</div>
+          <div class="arch-service-port">:13100</div>
+          <div class="arch-service-health">● healthy</div>
+        </div>
+        <div class="arch-connector">
+          <div class="arch-connector-line"></div>
+          <div class="arch-connector-label">REST</div>
+          <div class="arch-connector-line"></div>
+        </div>
+        <div class="arch-service">
+          <div class="arch-service-name">OpenClaw Gateway</div>
+          <div class="arch-service-port">:28789</div>
+          <div class="arch-service-health">● healthy</div>
+        </div>
+      </div>
+
+      <!-- Vertical connector -->
+      <div class="arch-vertical-line"></div>
+      <div style="text-align: center;"><span class="arch-connector-label">WebSocket</span></div>
+      <div class="arch-vertical-line"></div>
+
+      <!-- Row 2: Relay + Hub -->
+      <div class="arch-row">
+        <div class="arch-service">
+          <div class="arch-service-name">Parent Relay</div>
+          <div class="arch-service-port">:19090</div>
+          <div class="arch-service-health">● healthy</div>
+        </div>
+        <div class="arch-connector">
+          <div class="arch-connector-line"></div>
+          <div class="arch-connector-label">Polling</div>
+          <div class="arch-connector-line"></div>
+        </div>
+        <div class="arch-service">
+          <div class="arch-service-name">CTG Hub</div>
+          <div class="arch-service-port">:9100</div>
+          <div class="arch-service-health">● healthy</div>
+        </div>
+      </div>
+
+      <!-- Channel connections -->
+      <div class="arch-label">Channels</div>
+      <div class="arch-channels">
+        <div class="arch-channel">💬 Slack</div>
+        <div class="arch-channel">👥 Teams</div>
+        <div class="arch-channel">✈️ Telegram</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 1rem;">
+    <p style="font-size: 0.85rem; color: var(--text-secondary); text-align: center;">All services run in Docker containers on a single VPS. The Parent Relay phones home to CTG Hub for remote management — config pushes, health monitoring, and SOP updates. No client data leaves the client's infrastructure.</p>
+  </div>
+</div>
+      <div class="section" id="deployment">
+  <div class="section-label">⑤ Deployment</div>
+  <div class="section-title">From zero to live in one command.</div>
+  <div class="section-subtitle">A repeatable, automated deployment — not a consulting engagement.</div>
+
+  <div class="card">
+    <div class="deploy-flow">
+      <div class="deploy-step complete">
+        <div class="deploy-step-num">✓</div>
+        <div class="deploy-step-title">Copy CTG Core</div>
+        <div class="deploy-step-desc">35 files, one package</div>
+      </div>
+      <div class="deploy-arrow">→</div>
+      <div class="deploy-step complete">
+        <div class="deploy-step-num">✓</div>
+        <div class="deploy-step-title">Run setup.sh</div>
+        <div class="deploy-step-desc">Interactive first-run</div>
+      </div>
+      <div class="deploy-arrow">→</div>
+      <div class="deploy-step complete">
+        <div class="deploy-step-num">✓</div>
+        <div class="deploy-step-title">Services Start</div>
+        <div class="deploy-step-desc">Docker Compose up</div>
+      </div>
+      <div class="deploy-arrow">→</div>
+      <div class="deploy-step">
+        <div class="deploy-step-num">4</div>
+        <div class="deploy-step-title">Connect Slack</div>
+        <div class="deploy-step-desc">Self-serve skill</div>
+      </div>
+      <div class="deploy-arrow">→</div>
+      <div class="deploy-step">
+        <div class="deploy-step-num">5</div>
+        <div class="deploy-step-title">Agents Go Live</div>
+        <div class="deploy-step-desc">Ready to chat</div>
+      </div>
+      <div class="deploy-arrow">→</div>
+      <div class="deploy-step">
+        <div class="deploy-step-num">6</div>
+        <div class="deploy-step-title">Relay Phones Home</div>
+        <div class="deploy-step-desc">CTG Hub connected</div>
+      </div>
+    </div>
+  </div>
+</div>
       <div class="section" id="product"></div>
       <div class="section" id="your-stack"></div>
       <div class="section" id="lets-go"></div>
