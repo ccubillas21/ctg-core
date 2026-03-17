@@ -204,7 +204,90 @@
     </div>
   </div>
 </div>
-      <div class="section" id="team"></div>
+      <div class="section" id="team">
+  <div class="section-label">③ The Team</div>
+  <div class="section-title">Meet the org chart.</div>
+  <div class="section-subtitle">Click any agent card to see their role details.</div>
+
+  <div class="org-chart">
+    <!-- Row 1: CEO -->
+    <div class="org-row">
+      <div class="org-node dept-ceo">
+        <div class="org-name">Charlie</div>
+        <div class="org-role">CEO</div>
+        <div class="org-model">Human</div>
+        <div class="org-detail">Founder &amp; CEO. Sets vision, makes final calls, reviews all client commitments.</div>
+      </div>
+    </div>
+
+    <!-- Connector + branch: CEO → Row 2 -->
+    <div class="org-connector"></div>
+    <div class="org-branch children-3"></div>
+
+    <!-- Row 2: C-Suite -->
+    <div class="org-row">
+      <div class="org-node dept-operations">
+        <div class="org-name">Dude</div>
+        <div class="org-role">CGO / Chief of Staff / PMO Director</div>
+        <div class="org-model">Claude Sonnet 4.6</div>
+        <div class="org-detail">Chief Growth Officer. Handles communications, Slack, Teams, Telegram. Manages the PMO team. Reports directly to Charlie.</div>
+      </div>
+      <div class="org-node dept-engineering">
+        <div class="org-name">Walter</div>
+        <div class="org-role">CTO / Technical Lead</div>
+        <div class="org-model">Claude Opus 4.6</div>
+        <div class="org-detail">Chief Technology Officer. Deep architecture work, code review, system design. The heaviest reasoning model for the hardest problems.</div>
+      </div>
+      <div class="org-node dept-support">
+        <div class="org-name">Bonny</div>
+        <div class="org-role">Junior Assistant</div>
+        <div class="org-model">Qwen 3.5 Plus</div>
+        <div class="org-detail">Junior support agent. Admin tasks, research, Slack support. Cost-effective model for high-volume, lower-complexity work.</div>
+      </div>
+    </div>
+
+    <!-- Connector + branch: Dude → Row 3 -->
+    <div class="org-connector"></div>
+    <div class="org-branch children-4"></div>
+
+    <!-- Row 3: PMO Team -->
+    <div class="org-row">
+      <div class="org-node dept-pmo">
+        <div class="org-name">Scout</div>
+        <div class="org-role">Product PM</div>
+        <div class="org-model">Ollama Nemotron 3 Nano (local, free)</div>
+        <div class="org-detail">Product roadmap ownership. Tracks features, priorities, and release planning.</div>
+      </div>
+      <div class="org-node dept-pmo">
+        <div class="org-name">Maude</div>
+        <div class="org-role">Delivery PM</div>
+        <div class="org-model">Ollama Nemotron 3 Nano (local, free)</div>
+        <div class="org-detail">Sprint execution. Tracks progress, unblocks agents, reports status.</div>
+      </div>
+      <div class="org-node dept-pmo">
+        <div class="org-name">Donny</div>
+        <div class="org-role">Client PM</div>
+        <div class="org-model">Ollama Nemotron 3 Nano (local, free)</div>
+        <div class="org-detail">Client onboarding and relationship management. Tracks client deployments.</div>
+      </div>
+      <div class="org-node dept-pmo">
+        <div class="org-name">Atlas</div>
+        <div class="org-role">VP of AI Resources</div>
+        <div class="org-model">Claude Sonnet 4.6</div>
+        <div class="org-detail">Agent capacity planning, task-agent matching, cost optimization. The HR department for AI workers.</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; font-style: italic;">This is Charlie's live organization — the team that builds and manages client deployments.</p>
+
+  <div class="dept-legend">
+    <div><span class="dept-swatch" style="background: var(--dept-operations);"></span>Operations</div>
+    <div><span class="dept-swatch" style="background: var(--dept-engineering);"></span>Engineering</div>
+    <div><span class="dept-swatch" style="background: var(--dept-pmo);"></span>PMO</div>
+    <div><span class="dept-swatch" style="background: var(--dept-support);"></span>Support</div>
+  </div>
+</div>
       <div class="section" id="architecture"></div>
       <div class="section" id="deployment"></div>
       <div class="section" id="product"></div>
