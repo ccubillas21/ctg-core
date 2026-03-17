@@ -1,0 +1,13 @@
+{
+  "name": "ctg-core-parent-relay",
+  "version": "1.0.0",
+  "description": "CTG Core parent hub relay sidecar — health check-ins and config management",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=22"
+  }
+}

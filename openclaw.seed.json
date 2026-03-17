@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.13",
+    "package": "ctg-core",
+    "packageVersion": "1.0.0"
+  },
+  "env": {
+    "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+    "PAPERCLIP_API_KEY": "${PAPERCLIP_API_KEY}",
+    "PAPERCLIP_API_URL": "${PAPERCLIP_API_URL}",
+    "PAPERCLIP_COMPANY_ID": "${COMPANY_ID}"
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {}
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6"
+      },
+      "tools": {
+        "allow": ["lobster"],
+        "fs": { "workspaceOnly": true }
+      }
+    },
+    "list": [
+      {
+        "id": "primary",
+        "name": "Primary",
+        "workspace": "/home/ctg/.openclaw/agents/primary",
+        "agentDir": "/home/ctg/.openclaw/agents/primary",
+        "model": {
+          "primary": "anthropic/claude-sonnet-4-6"
+        },
+        "tools": {
+          "allow": ["lobster", "messaging", "paperclip", "qmd"],
+          "fs": { "workspaceOnly": true }
+        }
+      },
+      {
+        "id": "engineer",
+        "name": "Engineer",
+        "workspace": "/home/ctg/.openclaw/agents/engineer",
+        "agentDir": "/home/ctg/.openclaw/agents/engineer",
+        "model": {
+          "primary": "anthropic/claude-opus-4-6"
+        },
+        "tools": {
+          "allow": ["lobster", "coding", "paperclip", "qmd", "shell"],
+          "fs": { "workspaceOnly": true }
+        }
+      },
+      {
+        "id": "dispatch",
+        "name": "Dispatch",
+        "workspace": "/home/ctg/.openclaw/agents/dispatch",
+        "agentDir": "/home/ctg/.openclaw/agents/dispatch",
+        "model": {
+          "primary": "anthropic/claude-haiku-4-5"
+        },
+        "tools": {
+          "allow": ["lobster", "shell", "paperclip", "qmd"],
+          "fs": { "workspaceOnly": true }
+        }
+      }
+    ]
+  },
+  "channels": {
+    "slack": {
+      "enabled": false,
+      "mode": "socket",
+      "accounts": {},
+      "defaultAccount": ""
+    },
+    "msteams": {
+      "enabled": false,
+      "accounts": {}
+    }
+  },
+  "bindings": [],
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "0.0.0.0",
+    "auth": {
+      "mode": "token",
+      "token": "${OPENCLAW_AUTH_TOKEN}"
+    }
+  },
+  "memory": {
+    "backend": "qmd",
+    "citations": "auto",
+    "qmd": {
+      "searchMode": "search",
+      "includeDefaultMemory": true,
+      "paths": [
+        {
+          "path": "/home/ctg/.openclaw/sops",
+          "name": "corporate-sops",
+          "pattern": "**/*.md"
+        },
+        {
+          "path": "/home/ctg/.openclaw/lobster",
+          "name": "workflows",
+          "pattern": "**/*.lobster"
+        }
+      ],
+      "update": {
+        "interval": "5m",
+        "debounceMs": 2000
+      }
+    }
+  },
+  "plugins": {
+    "lobster": {
+      "enabled": true,
+      "workflowDir": "/home/ctg/.openclaw/lobster"
+    },
+    "paperclip": {
+      "enabled": true,
+      "url": "${PAPERCLIP_API_URL}",
+      "apiKey": "${PAPERCLIP_API_KEY}",
+      "companyId": "${COMPANY_ID}"
+    }
+  }
+}

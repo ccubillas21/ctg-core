@@ -1,0 +1,96 @@
+# CTG Core — OpenClaw + QMD + Lobster Container
+# Multi-stage build for production deployment
+# Author: CTG Core Package
+
+# ---- Stage 1: Build dependencies ----
+FROM node:22-alpine AS builder
+
+RUN apk add --no-cache git python3 make g++
+
+# Install OpenClaw globally
+RUN npm install -g @openclaw/cli@latest
+
+# Install QMD (local markdown search)
+RUN npm install -g @tobilu/qmd@latest
+
+# ---- Stage 2: Production image ----
+FROM node:22-alpine
+
+RUN apk add --no-cache \
+    curl \
+    wget \
+    bash \
+    jq \
+    openssl \
+    tini
+
+# Copy globally installed packages from builder
+COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=builder /usr/local/bin/openclaw /usr/local/bin/openclaw
+COPY --from=builder /usr/local/bin/qmd /usr/local/bin/qmd
+
+# Lobster is bundled with OpenClaw — no separate install needed
+
+# Create non-root user
+RUN addgroup -g 1000 ctg && \
+    adduser -u 1000 -G ctg -s /bin/bash -D ctg
+
+# Create workspace directories
+RUN mkdir -p /home/ctg/.openclaw/workspace \
+             /home/ctg/.openclaw/agents \
+             /home/ctg/.openclaw/qmd \
+             /home/ctg/.openclaw/lobster \
+             /home/ctg/.openclaw/sops \
+             /home/ctg/.openclaw/skills && \
+    chown -R ctg:ctg /home/ctg
+
+# Copy seed configs (populated at build time or via volume mount)
+COPY --chown=ctg:ctg agents/ /home/ctg/.openclaw/agents/
+COPY --chown=ctg:ctg sops/ /home/ctg/.openclaw/sops/
+COPY --chown=ctg:ctg lobster/ /home/ctg/.openclaw/lobster/
+COPY --chown=ctg:ctg skills/ /home/ctg/.openclaw/skills/
+COPY --chown=ctg:ctg openclaw.seed.json /home/ctg/.openclaw/openclaw.seed.json
+
+# First-boot entrypoint: copies seed config if no config exists
+COPY --chown=ctg:ctg <<'ENTRYPOINT' /home/ctg/entrypoint.sh
+#!/bin/bash
+set -e
+
+CONFIG="/home/ctg/.openclaw/openclaw.json"
+SEED="/home/ctg/.openclaw/openclaw.seed.json"
+
+# First boot: seed config if none exists
+if [ ! -f "$CONFIG" ]; then
+  echo "[ctg-core] First boot — seeding config from template..."
+  cp "$SEED" "$CONFIG"
+
+  # Substitute environment variables into config
+  for var in ANTHROPIC_API_KEY PAPERCLIP_API_KEY PAPERCLIP_API_URL \
+             OPENCLAW_AUTH_TOKEN COMPANY_ID PARENT_HUB_URL PARENT_HUB_TOKEN; do
+    val="${!var}"
+    if [ -n "$val" ]; then
+      sed -i "s|\${${var}}|${val}|g" "$CONFIG"
+    fi
+  done
+  echo "[ctg-core] Config seeded."
+fi
+
+# Index SOPs into QMD
+if command -v qmd &>/dev/null; then
+  echo "[ctg-core] Indexing SOPs into QMD..."
+  qmd index /home/ctg/.openclaw/sops --collection corporate-sops 2>/dev/null || true
+fi
+
+echo "[ctg-core] Starting OpenClaw gateway..."
+exec openclaw serve --bind 0.0.0.0 --port "${OPENCLAW_PORT:-18789}"
+ENTRYPOINT
+
+RUN chmod +x /home/ctg/entrypoint.sh
+
+USER ctg
+WORKDIR /home/ctg
+
+EXPOSE 18789
+
+ENTRYPOINT ["tini", "--"]
+CMD ["/home/ctg/entrypoint.sh"]

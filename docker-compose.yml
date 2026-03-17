@@ -1,0 +1,185 @@
+# CTG Core — Corporate Deployment Stack
+# Version: 1.0.0
+# Architecture: Option B (independent tenant stack + parent relay)
+#
+# Services: PostgreSQL, Paperclip, OpenClaw, Mission Control, Parent Relay
+# Network: Isolated bridge (ctg-core-net)
+# Ports: Offset +10000 from container ports
+
+services:
+  # ---------- Database ----------
+  postgresql:
+    image: postgres:16-alpine
+    container_name: ctg-core-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PG_USER:-ctgcore}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:?Set PG_PASSWORD in .env}
+      POSTGRES_DB: ${PG_DB:-ctgcore}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - ctg-core-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-ctgcore}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    user: "999:999"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- Paperclip (Task Management + Agent Registry) ----------
+  paperclip:
+    image: reeoss/paperclipai-paperclip:latest
+    container_name: ctg-core-paperclip
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3100"
+      HOST: "0.0.0.0"
+      DATABASE_URL: "postgresql://${PG_USER:-ctgcore}:${PG_PASSWORD}@postgresql:5432/${PG_DB:-ctgcore}"
+      SERVE_UI: "true"
+      DEPLOYMENT_MODE: "local_trusted"
+    ports:
+      - "${PAPERCLIP_PORT:-13100}:3100"
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - ctg-core-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3100/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    user: "1000:1000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- OpenClaw (Gateway + Agents) ----------
+  openclaw:
+    build:
+      context: .
+      dockerfile: Dockerfile.openclaw
+    container_name: ctg-core-openclaw
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      OPENCLAW_PORT: "18789"
+      OPENCLAW_BIND: "0.0.0.0"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY in .env}
+      OPENCLAW_AUTH_TOKEN: ${OPENCLAW_AUTH_TOKEN}
+      PAPERCLIP_API_URL: "http://paperclip:3100"
+      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-}
+      COMPANY_ID: ${COMPANY_ID}
+      PARENT_HUB_URL: ${PARENT_HUB_URL:-}
+      PARENT_HUB_TOKEN: ${PARENT_HUB_TOKEN:-}
+    ports:
+      - "${GW_PORT:-28789}:18789"
+    volumes:
+      - openclaw-data:/home/ctg/.openclaw/workspace
+      - openclaw-config:/home/ctg/.openclaw
+    depends_on:
+      paperclip:
+        condition: service_healthy
+    networks:
+      - ctg-core-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:18789/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    user: "1000:1000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- Mission Control (Dashboard) ----------
+  mission-control:
+    image: node:22-alpine
+    container_name: ctg-core-mc
+    restart: unless-stopped
+    working_dir: /app
+    command: ["npx", "@openclaw/mission-control", "--port", "4000"]
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      PAPERCLIP_URL: "http://paperclip:3100"
+    ports:
+      - "${MC_PORT:-14000}:4000"
+    depends_on:
+      paperclip:
+        condition: service_healthy
+    networks:
+      - ctg-core-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/status || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    user: "1000:1000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- Parent Relay (Hub Communication Sidecar) ----------
+  parent-relay:
+    build:
+      context: ./parent-relay
+      dockerfile: Dockerfile
+    container_name: ctg-core-relay
+    restart: unless-stopped
+    environment:
+      PARENT_HUB_URL: ${PARENT_HUB_URL:-}
+      PARENT_HUB_TOKEN: ${PARENT_HUB_TOKEN:-}
+      COMPANY_ID: ${COMPANY_ID:-}
+      OPENCLAW_URL: "http://openclaw:18789"
+      PAPERCLIP_URL: "http://paperclip:3100"
+      CHECKIN_INTERVAL_MS: ${CHECKIN_INTERVAL_MS:-300000}
+      RELAY_PORT: "9090"
+    ports:
+      - "${RELAY_PORT:-19090}:9090"
+    depends_on:
+      openclaw:
+        condition: service_healthy
+      paperclip:
+        condition: service_healthy
+    networks:
+      - ctg-core-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    user: "1000:1000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  pgdata:
+    driver: local
+  openclaw-data:
+    driver: local
+  openclaw-config:
+    driver: local
+
+networks:
+  ctg-core-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16

@@ -1,0 +1,10 @@
+.git
+.env
+*.log
+node_modules
+hub/node_modules
+parent-relay/node_modules
+.DS_Store
+*.swp
+*.bak
+backups/
