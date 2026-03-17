@@ -7,605 +7,1078 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="lang-bar">
+    <button class="lang-btn active" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="es">ES</button>
+  </div>
   <div class="shell">
     <nav class="sidebar">
       <div class="sidebar-logo">CTG</div>
-      <div class="sidebar-subtitle">AI Operations Platform</div>
+      <div class="sidebar-subtitle" data-es="Plataforma de Operaciones con IA">AI Operations Platform</div>
 
-      <div class="sidebar-label">The Story</div>
-      <a class="nav-item active" data-section="vision">① The Vision</a>
-      <a class="nav-item" data-section="stack">② The Stack</a>
-      <a class="nav-item" data-section="team">③ The Team</a>
-      <a class="nav-item" data-section="architecture">④ Architecture</a>
-      <a class="nav-item" data-section="deployment">⑤ Deployment</a>
-      <a class="nav-item" data-section="product">⑥ The Product</a>
+      <div class="sidebar-label" data-es="La Historia">The Story</div>
+      <a class="nav-item active" data-section="vision" data-es="<i data-lucide='eye' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>La Visi&oacute;n"><i data-lucide="eye" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Vision</a>
+      <a class="nav-item" data-section="stack" data-es="<i data-lucide='layers' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>El Stack"><i data-lucide="layers" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Stack</a>
+      <a class="nav-item" data-section="team" data-es="<i data-lucide='users' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>El Equipo"><i data-lucide="users" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Team</a>
+      <a class="nav-item" data-section="architecture" data-es="<i data-lucide='server' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>Arquitectura"><i data-lucide="server" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>Architecture</a>
+      <a class="nav-item" data-section="deployment" data-es="<i data-lucide='rocket' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>Despliegue"><i data-lucide="rocket" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>Deployment</a>
+      <a class="nav-item" data-section="product" data-es="<i data-lucide='package' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>El Producto"><i data-lucide="package" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Product</a>
+      <a class="nav-item" data-section="opportunity" data-es="<i data-lucide='trending-up' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>La Oportunidad"><i data-lucide="trending-up" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Opportunity</a>
 
-      <div class="sidebar-label for-you">For You</div>
-      <a class="nav-item" data-section="your-stack">⑦ Your Stack</a>
-      <a class="nav-item" data-section="lets-go">⑧ Let's Go</a>
+      <div class="sidebar-links">
+        <a href="https://mc.cubillastechnologygroup.com" target="_blank" class="sidebar-link" data-es="Centro de Control">Mission Control</a>
+        <a href="https://paperclip.cubillastechnologygroup.com" target="_blank" class="sidebar-link">Paperclip</a>
+        <a href="https://gateway.cubillastechnologygroup.com" target="_blank" class="sidebar-link">Gateway</a>
+        <a href="https://hub.cubillastechnologygroup.com" target="_blank" class="sidebar-link">Hub</a>
+      </div>
 
       <div class="sidebar-progress">
         <div class="progress-bar">
-          <div class="progress-fill" id="progress-fill" style="width: 12.5%"></div>
+          <div class="progress-fill" id="progress-fill" style="width: 14.3%"></div>
         </div>
-        <div class="progress-label" id="progress-label">1 of 8</div>
+        <div class="progress-label" id="progress-label">1 of 7</div>
       </div>
     </nav>
 
     <main class="content">
-      <div class="section" id="vision">
-  <div class="section-label">① The Vision</div>
-  <div class="section-title">What if your company had AI employees?</div>
 
-  <div class="card">
-    <p class="body-text">Not chatbots. Not copilots. Actual team members with roles, responsibilities, reporting chains, and communication channels — that work 24/7, cost a fraction of a human hire, and get better every week.</p>
-    <p style="margin-top: 1rem;">We built the infrastructure to run an AI-native company. Then we packaged it so any business can have the same thing.</p>
-  </div>
+      <!-- ── Section 1: The Vision ──────────────────── -->
+      <section class="section" id="vision">
 
-  <div class="card">
-    <div class="section-label" style="margin-bottom: 1rem;">Platform Overview</div>
-    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; align-items: center;">
-      <div style="background: var(--layer-paperclip-light); border: 1px solid var(--layer-paperclip-border); border-radius: 10px; padding: 1rem 1.5rem; text-align: center; min-width: 120px;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">📋</div>
-        <div style="color: var(--layer-paperclip); font-size: 0.85rem; font-weight: 600;">Paperclip</div>
-        <div style="color: var(--text-muted); font-size: 0.7rem;">The Company</div>
-      </div>
-      <div style="color: var(--border); font-size: 1.2rem;">→</div>
-      <div style="background: var(--layer-openclaw-light); border: 1px solid var(--layer-openclaw-border); border-radius: 10px; padding: 1rem 1.5rem; text-align: center; min-width: 120px;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">🤖</div>
-        <div style="color: var(--layer-openclaw); font-size: 0.85rem; font-weight: 600;">OpenClaw</div>
-        <div style="color: var(--text-muted); font-size: 0.7rem;">The Workers</div>
-      </div>
-      <div style="color: var(--border); font-size: 1.2rem;">→</div>
-      <div style="background: var(--layer-lobster-light); border: 1px solid var(--layer-lobster-border); border-radius: 10px; padding: 1rem 1.5rem; text-align: center; min-width: 120px;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">🔄</div>
-        <div style="color: var(--layer-lobster); font-size: 0.85rem; font-weight: 600;">Lobster</div>
-        <div style="color: var(--text-muted); font-size: 0.7rem;">The Workflows</div>
-      </div>
-      <div style="color: var(--border); font-size: 1.2rem;">→</div>
-      <div style="background: var(--layer-qmd-light); border: 1px solid var(--layer-qmd-border); border-radius: 10px; padding: 1rem 1.5rem; text-align: center; min-width: 120px;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">🧠</div>
-        <div style="color: var(--layer-qmd); font-size: 0.85rem; font-weight: 600;">QMD</div>
-        <div style="color: var(--text-muted); font-size: 0.7rem;">The Memory</div>
-      </div>
-    </div>
-    <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-      <div style="text-align: center;">
-        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text);">Org + Budget</div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">defines the company</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text);">Agents + Channels</div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">does the work</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text);">Pipelines + Gates</div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">automates processes</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text);">Search + Context</div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">remembers everything</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-      <div class="section" id="stack">
-  <div class="section-label">② The Stack</div>
-  <div class="section-title">Four layers. One platform.</div>
-  <div class="section-subtitle">Click any layer to see what it does and how it connects.</div>
-
-  <div style="max-width: 700px; margin: 0 auto;">
-    <!-- Layer 1: Paperclip -->
-    <div class="layer-card" style="border-color: var(--layer-paperclip);">
-      <div class="layer-header">
-        <div class="layer-icon" style="background: var(--layer-paperclip-light);">📋</div>
-        <div class="layer-info">
-          <div>
-            <span class="layer-name" style="color: var(--layer-paperclip);">Paperclip</span>
-            <span class="layer-badge" style="background: var(--layer-paperclip-light); color: var(--layer-paperclip);">LAYER 1</span>
+        <div class="quote-block" style="display:flex;gap:1.25rem;align-items:flex-start;">
+          <div style="flex-shrink:0;width:100px;height:100px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15);background:linear-gradient(135deg,#76b900,#333);display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           </div>
-          <div class="layer-desc">The company brain — org charts, budgets, approvals, audit trails</div>
-        </div>
-        <div class="layer-arrow" style="color: var(--layer-paperclip-border);">▼</div>
-      </div>
-      <div class="layer-body">
-        <div class="layer-body-inner">
-          <div class="sub-component"><div class="sub-component-name">Agent Registry</div><div class="sub-component-desc">Who works here</div></div>
-          <div class="sub-component"><div class="sub-component-name">Budget Gates</div><div class="sub-component-desc">Cost controls</div></div>
-          <div class="sub-component"><div class="sub-component-name">Task Tracking</div><div class="sub-component-desc">Issue → resolution</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="layer-connector">↕</div>
-
-    <!-- Layer 2: OpenClaw -->
-    <div class="layer-card" style="border-color: var(--layer-openclaw);">
-      <div class="layer-header">
-        <div class="layer-icon" style="background: var(--layer-openclaw-light);">🤖</div>
-        <div class="layer-info">
           <div>
-            <span class="layer-name" style="color: var(--layer-openclaw);">OpenClaw</span>
-            <span class="layer-badge" style="background: var(--layer-openclaw-light); color: var(--layer-openclaw);">LAYER 2</span>
+            <div class="quote-text">"Every company in the world today needs an OpenClaw strategy."</div>
+            <div class="quote-attr">— Jensen Huang, NVIDIA CEO · GTC, March 16, 2026</div>
+            <div class="quote-note" data-es="OpenClaw es el framework de IA ag&eacute;ntica de c&oacute;digo abierto &mdash; el proyecto open-source de m&aacute;s r&aacute;pido crecimiento en la historia. El stack AIMEE de CTG usa OpenClaw como su motor de agentes en la Capa 2.">OpenClaw is the open-source agentic AI framework — the fastest-growing open-source project in history. CTG's AIMEE stack uses OpenClaw as its Layer 2 agent engine.</div>
           </div>
-          <div class="layer-desc">The workforce — AI agents that talk on Slack, Teams, Telegram</div>
         </div>
-        <div class="layer-arrow" style="color: var(--layer-openclaw-border);">▼</div>
-      </div>
-      <div class="layer-body">
-        <div class="layer-body-inner">
-          <div class="sub-component"><div class="sub-component-name">Multi-Agent Engine</div><div class="sub-component-desc">Parallel execution</div></div>
-          <div class="sub-component"><div class="sub-component-name">Channel Bindings</div><div class="sub-component-desc">Slack/Teams/Telegram</div></div>
-          <div class="sub-component"><div class="sub-component-name">Model Router</div><div class="sub-component-desc">Pick the right AI</div></div>
+
+        <div class="card">
+          <p class="body-text" data-es="Los agentes de IA ya pueden hacer trabajo real &mdash; manejar mensajes de clientes, gestionar agendas, escribir reportes, clasificar tickets de soporte. No son chatbots. No son copilotos. Son empleados digitales con roles, responsabilidades y cadenas de mando. El CEO de NVIDIA acaba de decirle a cada empresa en el planeta que necesitan un plan para esto.">AI agents can now do real work — handle customer messages, manage schedules, write reports, triage support tickets. Not chatbots. Not copilots. Actual digital employees with roles, responsibilities, and reporting chains. The CEO of NVIDIA just told every company on earth they need a plan for this.</p>
+          <p class="body-text" style="margin-top: 1rem;" data-es="El problema es simple: la mayor&iacute;a de las empresas no pueden construir esto por su cuenta. Las grandes consultoras cobran m&aacute;s de $200K. Las plataformas de autoservicio asumen que tienes ingenieros en tu equipo. Hay un vac&iacute;o enorme entre lo que es posible y lo que es accesible.">The problem is simple: most businesses can't build this themselves. The big consultancies want $200K+. The DIY platforms assume you have engineers on staff. There's a massive gap between what's possible and what's accessible.</p>
+          <p class="body-text" style="margin-top: 1rem;" data-es="He estado en servicios de TI administrados toda mi carrera &mdash; desplegando tecnolog&iacute;a para empresas que no tienen equipos de ingenier&iacute;a. He usado Power Automate por m&aacute;s de 7 a&ntilde;os. Los &uacute;ltimos 5, he extra&iacute;do leads de LinkedIn, RocketReach, Apollo y Glassdoor con bots de automatizaci&oacute;n. Los &uacute;ltimos 2, cada venta que he cerrado vino de un bot. Ahora estoy combinando eso con IA ag&eacute;ntica para construir algo m&aacute;s grande.">I've been in managed IT services my whole career — deploying tech for businesses that don't have engineering teams. I've used Power Automate for over 7 years. For the last 5, I've been pulling leads from LinkedIn, RocketReach, Apollo, and Glassdoor with automation bots. For the last 2, every sale I've closed came from a bot. Now I'm pairing that with agentic AI to build something bigger.</p>
         </div>
-      </div>
-    </div>
 
-    <div class="layer-connector">↕</div>
+      </section>
 
-    <!-- Layer 3: Lobster -->
-    <div class="layer-card" style="border-color: var(--layer-lobster);">
-      <div class="layer-header">
-        <div class="layer-icon" style="background: var(--layer-lobster-light);">🔄</div>
-        <div class="layer-info">
-          <div>
-            <span class="layer-name" style="color: var(--layer-lobster);">Lobster</span>
-            <span class="layer-badge" style="background: var(--layer-lobster-light); color: var(--layer-lobster);">LAYER 3</span>
+      <!-- ── Section 2: The Stack ───────────────────── -->
+      <section class="section" id="stack">
+        <div class="section-label" data-es="<i data-lucide='layers' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>El Stack"><i data-lucide="layers" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Stack</div>
+        <div class="section-title" data-es="Cuatro capas. Una plataforma.">Four layers. One platform.</div>
+        <div class="section-subtitle" data-es="Haz clic en cualquier capa para ver qu&eacute; hace y c&oacute;mo se conecta.">Click any layer to see what it does and how it connects.</div>
+
+        <!-- Layer 1: Paperclip -->
+        <div class="layer-card" style="border-color: var(--layer-paperclip-border);">
+          <div class="layer-header">
+            <div class="layer-icon" style="background: var(--layer-paperclip-light); color: var(--layer-paperclip);">
+              <i data-lucide="clipboard-list"></i>
+            </div>
+            <div class="layer-info">
+              <div class="layer-name">Paperclip <span class="layer-badge" style="background: var(--layer-paperclip-light); color: var(--layer-paperclip);">Layer 1</span></div>
+              <div class="layer-desc" data-es="El cerebro de la empresa &mdash; organigramas, presupuestos, aprobaciones, registros de auditor&iacute;a">The company brain — org charts, budgets, approvals, audit trails</div>
+            </div>
+            <div class="layer-arrow">▼</div>
           </div>
-          <div class="layer-desc">The process engine — composable pipelines with approval gates</div>
-        </div>
-        <div class="layer-arrow" style="color: var(--layer-lobster-border);">▼</div>
-      </div>
-      <div class="layer-body">
-        <div class="layer-body-inner">
-          <div class="sub-component"><div class="sub-component-name">Composable Pipelines</div><div class="sub-component-desc">Chain any steps</div></div>
-          <div class="sub-component"><div class="sub-component-name">Approval Gates</div><div class="sub-component-desc">Human checkpoints</div></div>
-          <div class="sub-component"><div class="sub-component-name">Skill System</div><div class="sub-component-desc">Reusable capabilities</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="layer-connector">↕</div>
-
-    <!-- Layer 4: QMD -->
-    <div class="layer-card" style="border-color: var(--layer-qmd);">
-      <div class="layer-header">
-        <div class="layer-icon" style="background: var(--layer-qmd-light);">🧠</div>
-        <div class="layer-info">
-          <div>
-            <span class="layer-name" style="color: var(--layer-qmd);">QMD</span>
-            <span class="layer-badge" style="background: var(--layer-qmd-light); color: var(--layer-qmd);">LAYER 4</span>
+          <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+          <div class="layer-body">
+            <div class="layer-body-inner">
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Registro de Agentes">Agent Registry</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Control de Presupuesto">Budget Gates</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Seguimiento de Tareas">Task Tracking</div>
+              </div>
+            </div>
           </div>
-          <div class="layer-desc">The knowledge layer — local markdown search with hybrid retrieval</div>
         </div>
-        <div class="layer-arrow" style="color: var(--layer-qmd-border);">▼</div>
-      </div>
-      <div class="layer-body">
-        <div class="layer-body-inner">
-          <div class="sub-component"><div class="sub-component-name">Hybrid Search</div><div class="sub-component-desc">BM25 + semantic</div></div>
-          <div class="sub-component"><div class="sub-component-name">Markdown Indexing</div><div class="sub-component-desc">Auto-updated</div></div>
-          <div class="sub-component"><div class="sub-component-name">Context Retrieval</div><div class="sub-component-desc">Smart snippets</div></div>
+
+        <div class="layer-connector">↕</div>
+
+        <!-- Layer 2: OpenClaw -->
+        <div class="layer-card" style="border-color: var(--layer-openclaw-border);">
+          <div class="layer-header">
+            <div class="layer-icon" style="background: var(--layer-openclaw-light); color: var(--layer-openclaw);">
+              <i data-lucide="bot"></i>
+            </div>
+            <div class="layer-info">
+              <div class="layer-name">OpenClaw <span class="layer-badge" style="background: var(--layer-openclaw-light); color: var(--layer-openclaw);">Layer 2</span></div>
+              <div class="layer-desc" data-es="La fuerza laboral &mdash; agentes de IA que hablan en Slack, Teams, Telegram">The workforce — AI agents that talk on Slack, Teams, Telegram</div>
+            </div>
+            <div class="layer-arrow">▼</div>
+          </div>
+          <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+          <div class="layer-body">
+            <div class="layer-body-inner">
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Motor Multi-Agente">Multi-Agent Engine</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Conexiones de Canal">Channel Bindings</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Enrutador de Modelos">Model Router</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Stats row -->
-    <div class="card" style="margin-top: 1.5rem;">
-      <div class="stats-row">
-        <div class="stat-item"><div class="stat-value" style="color: var(--layer-paperclip);">4</div><div class="stat-label">Layers</div></div>
-        <div class="stat-divider"></div>
-        <div class="stat-item"><div class="stat-value" style="color: var(--layer-openclaw);">100%</div><div class="stat-label">Open Source</div></div>
-        <div class="stat-divider"></div>
-        <div class="stat-item"><div class="stat-value" style="color: var(--layer-lobster);">1 cmd</div><div class="stat-label">To Deploy</div></div>
-        <div class="stat-divider"></div>
-        <div class="stat-item"><div class="stat-value" style="color: var(--layer-qmd);">24/7</div><div class="stat-label">Always On</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-      <div class="section" id="team">
-  <div class="section-label">③ The Team</div>
-  <div class="section-title">Meet the org chart.</div>
-  <div class="section-subtitle">Click any agent card to see their role details.</div>
+        <div class="layer-connector">↕</div>
 
-  <div class="org-chart">
-    <!-- Row 1: CEO -->
-    <div class="org-row">
-      <div class="org-node dept-ceo">
-        <div class="org-name">Charlie</div>
-        <div class="org-role">CEO</div>
-        <div class="org-model">Human</div>
-        <div class="org-detail">Founder &amp; CEO. Sets vision, makes final calls, reviews all client commitments.</div>
-      </div>
-    </div>
-
-    <!-- Connector + branch: CEO → Row 2 -->
-    <div class="org-connector"></div>
-    <div class="org-branch children-3"></div>
-
-    <!-- Row 2: C-Suite -->
-    <div class="org-row">
-      <div class="org-node dept-operations">
-        <div class="org-name">Dude</div>
-        <div class="org-role">CGO / Chief of Staff / PMO Director</div>
-        <div class="org-model">Claude Sonnet 4.6</div>
-        <div class="org-detail">Chief Growth Officer. Handles communications, Slack, Teams, Telegram. Manages the PMO team. Reports directly to Charlie.</div>
-      </div>
-      <div class="org-node dept-engineering">
-        <div class="org-name">Walter</div>
-        <div class="org-role">CTO / Technical Lead</div>
-        <div class="org-model">Claude Opus 4.6</div>
-        <div class="org-detail">Chief Technology Officer. Deep architecture work, code review, system design. The heaviest reasoning model for the hardest problems.</div>
-      </div>
-      <div class="org-node dept-support">
-        <div class="org-name">Bonny</div>
-        <div class="org-role">Junior Assistant</div>
-        <div class="org-model">Qwen 3.5 Plus</div>
-        <div class="org-detail">Junior support agent. Admin tasks, research, Slack support. Cost-effective model for high-volume, lower-complexity work.</div>
-      </div>
-    </div>
-
-    <!-- Connector + branch: Dude → Row 3 -->
-    <div class="org-connector"></div>
-    <div class="org-branch children-4"></div>
-
-    <!-- Row 3: PMO Team -->
-    <div class="org-row">
-      <div class="org-node dept-pmo">
-        <div class="org-name">Scout</div>
-        <div class="org-role">Product PM</div>
-        <div class="org-model">Ollama Nemotron 3 Nano (local, free)</div>
-        <div class="org-detail">Product roadmap ownership. Tracks features, priorities, and release planning.</div>
-      </div>
-      <div class="org-node dept-pmo">
-        <div class="org-name">Maude</div>
-        <div class="org-role">Delivery PM</div>
-        <div class="org-model">Ollama Nemotron 3 Nano (local, free)</div>
-        <div class="org-detail">Sprint execution. Tracks progress, unblocks agents, reports status.</div>
-      </div>
-      <div class="org-node dept-pmo">
-        <div class="org-name">Donny</div>
-        <div class="org-role">Client PM</div>
-        <div class="org-model">Ollama Nemotron 3 Nano (local, free)</div>
-        <div class="org-detail">Client onboarding and relationship management. Tracks client deployments.</div>
-      </div>
-      <div class="org-node dept-pmo">
-        <div class="org-name">Atlas</div>
-        <div class="org-role">VP of AI Resources</div>
-        <div class="org-model">Claude Sonnet 4.6</div>
-        <div class="org-detail">Agent capacity planning, task-agent matching, cost optimization. The HR department for AI workers.</div>
-      </div>
-    </div>
-  </div>
-
-  <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; font-style: italic;">This is Charlie's live organization — the team that builds and manages client deployments.</p>
-
-  <div class="dept-legend">
-    <div><span class="dept-swatch" style="background: var(--dept-operations);"></span>Operations</div>
-    <div><span class="dept-swatch" style="background: var(--dept-engineering);"></span>Engineering</div>
-    <div><span class="dept-swatch" style="background: var(--dept-pmo);"></span>PMO</div>
-    <div><span class="dept-swatch" style="background: var(--dept-support);"></span>Support</div>
-  </div>
-</div>
-      <div class="section" id="architecture">
-  <div class="section-label">④ Architecture</div>
-  <div class="section-title">Under the hood.</div>
-  <div class="section-subtitle">Five Docker services. One command to deploy.</div>
-
-  <div class="card">
-    <div class="arch-diagram">
-      <!-- Row 1: Core services -->
-      <div class="arch-row">
-        <div class="arch-service">
-          <div class="arch-service-name">PostgreSQL</div>
-          <div class="arch-service-port">:5432</div>
-          <div class="arch-service-health">● healthy</div>
+        <!-- Layer 3: Lobster -->
+        <div class="layer-card" style="border-color: var(--layer-lobster-border);">
+          <div class="layer-header">
+            <div class="layer-icon" style="background: var(--layer-lobster-light);">
+              🦞
+            </div>
+            <div class="layer-info">
+              <div class="layer-name">Lobster <span class="layer-badge" style="background: var(--layer-lobster-light); color: var(--layer-lobster);">Layer 3</span></div>
+              <div class="layer-desc" data-es="El motor de procesos &mdash; pipelines componibles con puertas de aprobaci&oacute;n">The process engine — composable pipelines with approval gates</div>
+            </div>
+            <div class="layer-arrow">▼</div>
+          </div>
+          <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+          <div class="layer-body">
+            <div class="layer-body-inner">
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Pipelines Componibles">Composable Pipelines</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Puertas de Aprobaci&oacute;n">Approval Gates</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Sistema de Habilidades">Skill System</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="arch-connector">
-          <div class="arch-connector-line"></div>
-          <div class="arch-connector-label">SQL</div>
-          <div class="arch-connector-line"></div>
+
+        <div class="layer-connector">↕</div>
+
+        <!-- Layer 4: QMD -->
+        <div class="layer-card" style="border-color: var(--layer-qmd-border);">
+          <div class="layer-header">
+            <div class="layer-icon" style="background: var(--layer-qmd-light); color: var(--layer-qmd);">
+              <i data-lucide="brain"></i>
+            </div>
+            <div class="layer-info">
+              <div class="layer-name">QMD <span class="layer-badge" style="background: var(--layer-qmd-light); color: var(--layer-qmd);">Layer 4</span></div>
+              <div class="layer-desc" data-es="La capa de conocimiento &mdash; b&uacute;squeda local de markdown con recuperaci&oacute;n h&iacute;brida">The knowledge layer — local markdown search with hybrid retrieval</div>
+            </div>
+            <div class="layer-arrow">▼</div>
+          </div>
+          <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+          <div class="layer-body">
+            <div class="layer-body-inner">
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="B&uacute;squeda H&iacute;brida">Hybrid Search</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Indexaci&oacute;n de Markdown">Markdown Indexing</div>
+              </div>
+              <div class="sub-component">
+                <div class="sub-component-name" data-es="Recuperaci&oacute;n de Contexto">Context Retrieval</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="arch-service">
-          <div class="arch-service-name">Paperclip</div>
-          <div class="arch-service-port">:13100</div>
-          <div class="arch-service-health">● healthy</div>
+
+        <!-- Stats row -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="stats-row">
+            <div class="stat-item">
+              <div class="stat-value">4</div>
+              <div class="stat-label" data-es="Capas">Layers</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <div class="stat-value">100%</div>
+              <div class="stat-label">Open Source</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <div class="stat-value">1 cmd</div>
+              <div class="stat-label" data-es="Para Desplegar">To Deploy</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <div class="stat-value">24/7</div>
+              <div class="stat-label" data-es="Siempre Activo">Always On</div>
+            </div>
+          </div>
         </div>
-        <div class="arch-connector">
-          <div class="arch-connector-line"></div>
-          <div class="arch-connector-label">REST</div>
-          <div class="arch-connector-line"></div>
+      </section>
+
+      <!-- ── Section 3: The Team ───────────────────── -->
+      <section class="section" id="team">
+        <div class="section-label" data-es="<i data-lucide='users' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>El Equipo"><i data-lucide="users" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Team</div>
+        <div class="section-title" data-es="Conoce el organigrama.">Meet the org chart.</div>
+        <div class="section-subtitle" data-es="Haz clic en cualquier rol para explorar el equipo.">Click any role to explore the team.</div>
+
+        <div class="org-v2">
+          <!-- CEO row -->
+          <div class="org-v2-row">
+            <div class="org-v2-card dept-ceo" data-agent="charlie">
+              <div class="org-v2-emoji">👔</div>
+              <div class="org-v2-name">Charlie</div>
+              <div class="org-v2-role">CEO</div>
+              <div class="org-v2-model" data-es="Humano">Human</div>
+              <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+              <div class="org-v2-detail">
+                <div class="org-v2-detail-inner">
+                  <div class="org-v2-detail-desc" data-es="Visi&oacute;n, decisiones, clientes.">Vision, decisions, clients.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="org-v2-connector">│</div>
+
+          <!-- Direct Reports row -->
+          <div class="org-v2-row">
+            <!-- Dude -->
+            <div class="org-v2-card dept-operations" data-dept="dude">
+              <div class="org-v2-emoji">🎳</div>
+              <div class="org-v2-name">Dude</div>
+              <div class="org-v2-role" data-es="CGO &middot; Operaciones">CGO · Operations</div>
+              <div class="org-v2-model">Claude Sonnet 4.6</div>
+              <div class="org-v2-badge dept-operations-badge" data-es="4 reportes ▾">4 reports ▾</div>
+              <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+              <div class="org-v2-detail org-v2-detail-inline">
+                <div class="org-v2-detail-inner">
+                  <div class="org-v2-detail-desc" data-es="Comms, gobernanza, PMO. Todo pasa por Paperclip.">Comms, governance, PMO. Everything through Paperclip.</div>
+                </div>
+              </div>
+            </div>
+            <!-- Walter -->
+            <div class="org-v2-card dept-engineering" data-dept="walter">
+              <div class="org-v2-emoji">🏗️</div>
+              <div class="org-v2-name">Walter</div>
+              <div class="org-v2-role" data-es="CTO &middot; Ingenier&iacute;a">CTO · Engineering</div>
+              <div class="org-v2-model">Claude Opus 4.6</div>
+              <div class="org-v2-badge dept-engineering-badge" data-es="16 reportes ▾">16 reports ▾</div>
+              <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+              <div class="org-v2-detail org-v2-detail-inline">
+                <div class="org-v2-detail-inner">
+                  <div class="org-v2-detail-desc" data-es="Arquitectura, c&oacute;digo, dise&ntilde;o de sistemas. Modelo pesado, problemas dif&iacute;ciles.">Architecture, code, system design. Heavy model, hard problems.</div>
+                </div>
+              </div>
+            </div>
+            <!-- Bonny (no expand) -->
+            <div class="org-v2-card dept-support" data-agent="bonny">
+              <div class="org-v2-emoji">🌱</div>
+              <div class="org-v2-name">Bonny</div>
+              <div class="org-v2-role" data-es="Admin Jr &middot; Soporte">Jr Admin · Support</div>
+              <div class="org-v2-model">Qwen 3.5 Plus</div>
+              <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+              <div class="org-v2-detail">
+                <div class="org-v2-detail-inner">
+                  <div class="org-v2-detail-desc" data-es="Admin, investigaci&oacute;n, soporte. Modelo econ&oacute;mico, alto volumen.">Admin, research, support. Low-cost, high-volume.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layer 2: Dude's team expansion -->
+          <div class="org-v2-expansion" id="dept-dude">
+            <div class="org-v2-expansion-inner">
+              <div class="org-v2-group-label" data-es="Equipo PMO">PMO Team</div>
+              <div class="org-v2-grid cols-2">
+                <!-- Atlas (VP first) -->
+                <div class="org-v2-mini" data-agent="atlas">
+                  <div class="org-v2-mini-name">🗺️ Atlas</div>
+                  <div class="org-v2-mini-role" data-es="VP de Recursos de IA">VP of AI Resources</div>
+                  <div class="org-v2-mini-model">Claude Sonnet 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag" data-es="Planificaci&oacute;n de Capacidad">Capacity Planning</span>
+                        <span class="org-v2-tag" data-es="Asignaci&oacute;n de Agentes">Agent Matching</span>
+                        <span class="org-v2-tag" data-es="Optimizaci&oacute;n de Costos">Cost Optimization</span>
+                        <span class="org-v2-tag" data-es="RRHH para IA">HR for AI</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Scout -->
+                <div class="org-v2-mini" data-agent="scout">
+                  <div class="org-v2-mini-name">🔍 Scout</div>
+                  <div class="org-v2-mini-role" data-es="PM de Producto">Product PM</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Roadmap</span>
+                        <span class="org-v2-tag" data-es="Funcionalidades">Features</span>
+                        <span class="org-v2-tag" data-es="Prioridades">Priorities</span>
+                        <span class="org-v2-tag" data-es="Lanzamientos">Releases</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Maude -->
+                <div class="org-v2-mini" data-agent="maude">
+                  <div class="org-v2-mini-name">📋 Maude</div>
+                  <div class="org-v2-mini-role" data-es="PM de Entrega">Delivery PM</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Sprints</span>
+                        <span class="org-v2-tag" data-es="Progreso">Progress</span>
+                        <span class="org-v2-tag" data-es="Desbloqueo">Unblocking</span>
+                        <span class="org-v2-tag" data-es="Estado">Status</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Donny -->
+                <div class="org-v2-mini" data-agent="donny">
+                  <div class="org-v2-mini-name">🤝 Donny</div>
+                  <div class="org-v2-mini-role" data-es="PM de Clientes">Client PM</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Onboarding</span>
+                        <span class="org-v2-tag" data-es="Relaciones">Relationships</span>
+                        <span class="org-v2-tag" data-es="Despliegues">Deployments</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layer 2: Walter's team expansion -->
+          <div class="org-v2-expansion" id="dept-walter">
+            <div class="org-v2-expansion-inner">
+              <!-- VPs -->
+              <div class="org-v2-group-label" data-es="Vicepresidentes">Vice Presidents</div>
+              <div class="org-v2-grid cols-3">
+                <!-- Oracle -->
+                <div class="org-v2-mini" data-agent="oracle">
+                  <div class="org-v2-mini-name">🔮 Oracle</div>
+                  <div class="org-v2-mini-role" data-es="VP de IA/ML">VP of AI/ML</div>
+                  <div class="org-v2-mini-model">Sonnet 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag" data-es="Selecci&oacute;n de Modelos">Model Selection</span>
+                        <span class="org-v2-tag" data-es="Optimizaci&oacute;n de Prompts">Prompt Optimization</span>
+                        <span class="org-v2-tag" data-es="Monitoreo de Costos">Cost Monitoring</span>
+                        <span class="org-v2-tag" data-es="Rendimiento">Performance</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Sentinel -->
+                <div class="org-v2-mini" data-agent="sentinel">
+                  <div class="org-v2-mini-name">🛡️ Sentinel</div>
+                  <div class="org-v2-mini-role" data-es="VP de Seguridad">VP of Security</div>
+                  <div class="org-v2-mini-model">Sonnet 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag" data-es="Detecci&oacute;n de Vulnerabilidades">Vulnerability Detection</span>
+                        <span class="org-v2-tag" data-es="Cumplimiento">Compliance</span>
+                        <span class="org-v2-tag" data-es="Auditor&iacute;a">Auditing</span>
+                        <span class="org-v2-tag" data-es="Monitoreo">Monitoring</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Docker VP -->
+                <div class="org-v2-mini" data-agent="docker-vp">
+                  <div class="org-v2-mini-name">🐳 Docker VP</div>
+                  <div class="org-v2-mini-role" data-es="VP de Infraestructura">VP of Infrastructure</div>
+                  <div class="org-v2-mini-model">Sonnet 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag" data-es="Contenedores">Containers</span>
+                        <span class="org-v2-tag">Cloud</span>
+                        <span class="org-v2-tag" data-es="Redes">Networking</span>
+                        <span class="org-v2-tag" data-es="Recuperaci&oacute;n">Recovery</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Herald -->
+                <div class="org-v2-mini" data-agent="herald">
+                  <div class="org-v2-mini-name">📡 Herald</div>
+                  <div class="org-v2-mini-role" data-es="VP de Telecomunicaciones">VP of Telecoms</div>
+                  <div class="org-v2-mini-model">Sonnet 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Telegram</span>
+                        <span class="org-v2-tag">Discord</span>
+                        <span class="org-v2-tag">Email</span>
+                        <span class="org-v2-tag">SMS</span>
+                        <span class="org-v2-tag" data-es="Enrutamiento">Routing</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Axiom -->
+                <div class="org-v2-mini" data-agent="axiom">
+                  <div class="org-v2-mini-name">🧠 Axiom</div>
+                  <div class="org-v2-mini-role" data-es="VP de Ingenier&iacute;a de Plataforma">VP of Platform Eng</div>
+                  <div class="org-v2-mini-model">Opus 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag" data-es="Configuraci&oacute;n OpenClaw">OpenClaw Config</span>
+                        <span class="org-v2-tag">SOPs</span>
+                        <span class="org-v2-tag" data-es="Documentaci&oacute;n">Documentation</span>
+                        <span class="org-v2-tag" data-es="Plataforma">Platform</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Ops -->
+                <div class="org-v2-mini" data-agent="ops">
+                  <div class="org-v2-mini-name">⚙️ Ops</div>
+                  <div class="org-v2-mini-role" data-es="VP de Operaciones de Plataforma">VP of Platform Ops</div>
+                  <div class="org-v2-mini-model">Sonnet 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Paperclip</span>
+                        <span class="org-v2-tag">Dashboards</span>
+                        <span class="org-v2-tag">Gateway</span>
+                        <span class="org-v2-tag" data-es="Monitoreo">Monitoring</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Engineering Teams -->
+              <div class="org-v2-group-label" data-es="Equipos de Ingenier&iacute;a">Engineering Teams</div>
+              <div class="org-v2-grid cols-2">
+                <!-- Azure -->
+                <div class="org-v2-mini" data-team="azure">
+                  <div class="org-v2-mini-name">🪟 Azure Team</div>
+                  <div class="org-v2-mini-role" data-es="Par Arquitecto + Ingeniero">Architect + Engineer pair</div>
+                  <div class="org-v2-mini-expand" data-es="2 agentes ▾">2 agents ▾</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Power Platform</span>
+                        <span class="org-v2-tag">Azure</span>
+                        <span class="org-v2-tag">O365</span>
+                        <span class="org-v2-tag">Power Apps</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- GCP -->
+                <div class="org-v2-mini" data-team="gcp">
+                  <div class="org-v2-mini-name">☁️ GCP Team</div>
+                  <div class="org-v2-mini-role" data-es="Par Arquitecto + Ingeniero">Architect + Engineer pair</div>
+                  <div class="org-v2-mini-expand" data-es="2 agentes ▾">2 agents ▾</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Compute Engine</span>
+                        <span class="org-v2-tag">GKE</span>
+                        <span class="org-v2-tag">Cloud Run</span>
+                        <span class="org-v2-tag">Workspace</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Web -->
+                <div class="org-v2-mini" data-team="web">
+                  <div class="org-v2-mini-name">🌐 Web Team</div>
+                  <div class="org-v2-mini-role" data-es="Par Arquitecto + Ingeniero">Architect + Engineer pair</div>
+                  <div class="org-v2-mini-expand" data-es="2 agentes ▾">2 agents ▾</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Frontend</span>
+                        <span class="org-v2-tag">Backend</span>
+                        <span class="org-v2-tag">APIs</span>
+                        <span class="org-v2-tag" data-es="Bases de Datos">Databases</span>
+                        <span class="org-v2-tag">CDN</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- App -->
+                <div class="org-v2-mini" data-team="app">
+                  <div class="org-v2-mini-name">📱 App Team</div>
+                  <div class="org-v2-mini-role" data-es="Par Arquitecto + Ingeniero">Architect + Engineer pair</div>
+                  <div class="org-v2-mini-expand" data-es="2 agentes ▾">2 agents ▾</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">React Native</span>
+                        <span class="org-v2-tag">Flutter</span>
+                        <span class="org-v2-tag">PWAs</span>
+                        <span class="org-v2-tag">Electron</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Specialists -->
+              <div class="org-v2-group-label" data-es="Especialistas">Specialists</div>
+              <div class="org-v2-grid cols-3">
+                <div class="org-v2-mini" data-agent="windows">
+                  <div class="org-v2-mini-name">🪟 Windows</div>
+                  <div class="org-v2-mini-role" data-es="Operaciones de Host">Host Operations</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">PowerShell</span>
+                        <span class="org-v2-tag">Task Scheduler</span>
+                        <span class="org-v2-tag" data-es="Control de Host">Host Control</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="org-v2-mini" data-agent="docker">
+                  <div class="org-v2-mini-name">🐳 Docker</div>
+                  <div class="org-v2-mini-role" data-es="Especialista en Contenedores">Container Specialist</div>
+                  <div class="org-v2-mini-model">Opus 4.6</div>
+                  <div class="org-v2-detail">
+                    <div class="org-v2-detail-inner">
+                      <div class="org-v2-detail-tags">
+                        <span class="org-v2-tag">Dockerfiles</span>
+                        <span class="org-v2-tag">Compose</span>
+                        <span class="org-v2-tag">Registry</span>
+                        <span class="org-v2-tag" data-es="Monitoreo">Monitoring</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="arch-service">
-          <div class="arch-service-name">OpenClaw Gateway</div>
-          <div class="arch-service-port">:28789</div>
-          <div class="arch-service-health">● healthy</div>
+
+        <!-- Bottom note and legend -->
+        <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; font-style: italic;" data-es="Este es el equipo activo de CTG &mdash; la organizaci&oacute;n que construye y gestiona los despliegues de clientes.">This is CTG's live team — the organization that builds and manages client deployments.</p>
+        <div class="dept-legend">
+          <div data-es="<span class='dept-swatch' style='background: var(--dept-operations);'></span>Operaciones"><span class="dept-swatch" style="background: var(--dept-operations);"></span>Operations</div>
+          <div data-es="<span class='dept-swatch' style='background: var(--dept-engineering);'></span>Ingenier&iacute;a"><span class="dept-swatch" style="background: var(--dept-engineering);"></span>Engineering</div>
+          <div><span class="dept-swatch" style="background: var(--dept-pmo);"></span>PMO</div>
+          <div data-es="<span class='dept-swatch' style='background: var(--dept-support);'></span>Soporte"><span class="dept-swatch" style="background: var(--dept-support);"></span>Support</div>
         </div>
-      </div>
+      </section>
 
-      <!-- Vertical connector -->
-      <div class="arch-vertical-line"></div>
-      <div style="text-align: center;"><span class="arch-connector-label">WebSocket</span></div>
-      <div class="arch-vertical-line"></div>
+      <!-- ── Section 4: Architecture ───────────────── -->
+      <section class="section" id="architecture">
+        <div class="section-label" data-es="<i data-lucide='server' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>Arquitectura"><i data-lucide="server" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>Architecture</div>
+        <div class="section-title" data-es="Bajo la manta.">Under the hood.</div>
+        <div class="section-subtitle" data-es="Haz clic en cualquier servicio para saber qu&eacute; hace.">Click any service to learn what it does.</div>
 
-      <!-- Row 2: Relay + Hub -->
-      <div class="arch-row">
-        <div class="arch-service">
-          <div class="arch-service-name">Parent Relay</div>
-          <div class="arch-service-port">:19090</div>
-          <div class="arch-service-health">● healthy</div>
+        <!-- Row 1: PostgreSQL → Paperclip → OpenClaw Gateway -->
+        <div class="arch-row" style="align-items: flex-start;">
+          <div class="arch-v2-service arch-postgres" data-service="postgres">
+            <div class="arch-service-name"><i data-lucide="database" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"></i>PostgreSQL</div>
+            <div class="arch-service-port">:5432</div>
+            <div class="arch-service-health" data-es="● activo">● healthy</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="service-expand">
+              <div class="service-expand-inner">
+                <p data-es="La base de datos. Almacena cada tarea, cada registro de agente, cada rastro de auditor&iacute;a. Tus datos se quedan en tu infraestructura.">The database. Stores every task, every agent record, every audit trail. Your data stays on your infrastructure.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="service-tech">
+                  <div class="service-tech-inner">
+                    Image: postgres:16-alpine<br>
+                    Health: pg_isready -U ctgcore<br>
+                    Volume: pgdata
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-connector">
+            <div class="arch-connector-line"></div>
+            <div class="arch-connector-label">SQL</div>
+            <div class="arch-connector-line"></div>
+          </div>
+
+          <div class="arch-v2-service arch-paperclip" data-service="paperclip">
+            <div class="arch-service-name"><i data-lucide="clipboard-list" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"></i>Paperclip</div>
+            <div class="arch-service-port">:13100</div>
+            <div class="arch-service-health" data-es="● activo">● healthy</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="service-expand">
+              <div class="service-expand-inner">
+                <p data-es="El cerebro de la empresa. Rastrea qui&eacute;n trabaja aqu&iacute;, en qu&eacute; est&aacute;n trabajando y cu&aacute;nto pueden gastar.">The company brain. Tracks who works here, what they're working on, and what they're allowed to spend.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="service-tech">
+                  <div class="service-tech-inner">
+                    Image: reeoss/paperclipai-paperclip:latest<br>
+                    Health: /api/health<br>
+                    Port: 13100→3100
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-connector">
+            <div class="arch-connector-line"></div>
+            <div class="arch-connector-label">REST</div>
+            <div class="arch-connector-line"></div>
+          </div>
+
+          <div class="arch-v2-service arch-openclaw" data-service="openclaw">
+            <div class="arch-service-name"><i data-lucide="bot" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"></i>OpenClaw Gateway</div>
+            <div class="arch-service-port">:28789</div>
+            <div class="arch-service-health" data-es="● activo">● healthy</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="service-expand">
+              <div class="service-expand-inner">
+                <p data-es="El motor de la fuerza laboral. Ejecuta tus agentes de IA y los conecta a Slack, Teams, Telegram.">The workforce engine. Runs your AI agents and connects them to Slack, Teams, Telegram.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="service-tech">
+                  <div class="service-tech-inner">
+                    Custom build (Dockerfile.openclaw)<br>
+                    Health: /health<br>
+                    Port: 28789→18789
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="arch-connector">
-          <div class="arch-connector-line"></div>
-          <div class="arch-connector-label">Polling</div>
-          <div class="arch-connector-line"></div>
+
+        <!-- Vertical connector -->
+        <div class="arch-vertical-line"></div>
+
+        <!-- Channels branching off OpenClaw -->
+        <div class="arch-channels">
+          <div class="arch-channel"><i data-lucide="message-square" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"></i>Slack</div>
+          <div class="arch-channel"><i data-lucide="users" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"></i>Teams</div>
+          <div class="arch-channel"><i data-lucide="send" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"></i>Telegram</div>
         </div>
-        <div class="arch-service">
-          <div class="arch-service-name">CTG Hub</div>
-          <div class="arch-service-port">:9100</div>
-          <div class="arch-service-health">● healthy</div>
+
+        <!-- Vertical connector -->
+        <div class="arch-vertical-line"></div>
+
+        <!-- Row 2: Parent Relay → CTG Hub -->
+        <div class="arch-row" style="align-items: flex-start;">
+          <div class="arch-v2-service arch-relay" data-service="parent-relay">
+            <div class="arch-service-name"><i data-lucide="radio" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"></i>Parent Relay</div>
+            <div class="arch-service-port">:19090</div>
+            <div class="arch-service-health" data-es="● activo">● healthy</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="service-expand">
+              <div class="service-expand-inner">
+                <p data-es="El puente de gesti&oacute;n. Permite que CTG monitoree la salud y env&iacute;e actualizaciones sin tocar tus datos.">The management bridge. Lets CTG monitor health and push updates without touching your data.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="service-tech">
+                  <div class="service-tech-inner">
+                    Custom build (parent-relay/Dockerfile)<br>
+                    Health: /health<br>
+                    Port: 19090→9090
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-connector">
+            <div class="arch-connector-line"></div>
+            <div class="arch-connector-label">Polling</div>
+            <div class="arch-connector-line"></div>
+          </div>
+
+          <div class="arch-v2-service arch-hub" data-service="ctg-hub">
+            <div class="arch-service-name"><i data-lucide="home" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"></i>CTG Hub</div>
+            <div class="arch-service-port">:9100</div>
+            <div class="arch-service-health" data-es="● activo">● healthy</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="service-expand">
+              <div class="service-expand-inner">
+                <p data-es="Centro de comando remoto. Desde donde CTG gestiona todos los despliegues de clientes.">Remote command center. Where CTG manages all client deployments from one place.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="service-tech">
+                  <div class="service-tech-inner">
+                    Node.js + SQLite<br>
+                    Port: 9100<br>
+                    Admin token auth
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Channel connections -->
-      <div class="arch-label">Channels</div>
-      <div class="arch-channels">
-        <div class="arch-channel">💬 Slack</div>
-        <div class="arch-channel">👥 Teams</div>
-        <div class="arch-channel">✈️ Telegram</div>
-      </div>
-    </div>
-  </div>
+        <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1.5rem; font-style: italic;" data-es="Todos los servicios corren en Docker en un solo servidor. Los datos del cliente nunca salen de su infraestructura &mdash; solo metadatos y estado de salud fluyen a trav&eacute;s del relay.">All services run in Docker on a single server. No client data leaves the client's infrastructure — only metadata and health status flow through the relay.</p>
+      </section>
 
-  <div class="card" style="margin-top: 1rem;">
-    <p style="font-size: 0.85rem; color: var(--text-secondary); text-align: center;">All services run in Docker containers on a single VPS. The Parent Relay phones home to CTG Hub for remote management — config pushes, health monitoring, and SOP updates. No client data leaves the client's infrastructure.</p>
-  </div>
-</div>
-      <div class="section" id="deployment">
-  <div class="section-label">⑤ Deployment</div>
-  <div class="section-title">From zero to live in one command.</div>
-  <div class="section-subtitle">A repeatable, automated deployment — not a consulting engagement.</div>
+      <!-- ── Section 5: Deployment ─────────────────── -->
+      <section class="section" id="deployment">
+        <div class="section-label" data-es="<i data-lucide='rocket' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>Despliegue"><i data-lucide="rocket" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>Deployment</div>
+        <div class="section-title" data-es="De cero a producci&oacute;n en un comando.">From zero to live in one command.</div>
+        <div class="section-subtitle" data-es="Haz clic en cualquier paso para ver qu&eacute; sucede.">Click any step to see what happens.</div>
 
-  <div class="card">
-    <div class="deploy-flow">
-      <div class="deploy-step complete">
-        <div class="deploy-step-num">✓</div>
-        <div class="deploy-step-title">Copy CTG Core</div>
-        <div class="deploy-step-desc">35 files, one package</div>
-      </div>
-      <div class="deploy-arrow">→</div>
-      <div class="deploy-step complete">
-        <div class="deploy-step-num">✓</div>
-        <div class="deploy-step-title">Run setup.sh</div>
-        <div class="deploy-step-desc">Interactive first-run</div>
-      </div>
-      <div class="deploy-arrow">→</div>
-      <div class="deploy-step complete">
-        <div class="deploy-step-num">✓</div>
-        <div class="deploy-step-title">Services Start</div>
-        <div class="deploy-step-desc">Docker Compose up</div>
-      </div>
-      <div class="deploy-arrow">→</div>
-      <div class="deploy-step">
-        <div class="deploy-step-num">4</div>
-        <div class="deploy-step-title">Connect Slack</div>
-        <div class="deploy-step-desc">Self-serve skill</div>
-      </div>
-      <div class="deploy-arrow">→</div>
-      <div class="deploy-step">
-        <div class="deploy-step-num">5</div>
-        <div class="deploy-step-title">Agents Go Live</div>
-        <div class="deploy-step-desc">Ready to chat</div>
-      </div>
-      <div class="deploy-arrow">→</div>
-      <div class="deploy-step">
-        <div class="deploy-step-num">6</div>
-        <div class="deploy-step-title">Relay Phones Home</div>
-        <div class="deploy-step-desc">CTG Hub connected</div>
-      </div>
-    </div>
-  </div>
-</div>
-      <div class="section" id="product">
-  <div class="section-label">⑥ The Product</div>
-  <div class="section-title">AIMEE — AI-Managed Employee Experience</div>
-  <div class="section-subtitle">Everything you need to run AI employees. Managed by us.</div>
+        <div class="deploy-v2-flow">
+          <div class="deploy-v2-step complete">
+            <div class="deploy-step-num">✓</div>
+            <div class="deploy-step-title" data-es="<i data-lucide='copy' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Copiar CTG Core"><i data-lucide="copy" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Copy CTG Core</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="step-expand">
+              <div class="step-expand-inner">
+                <p data-es="Copiamos el paquete AIMEE a tu servidor. 35 archivos, todo incluido &mdash; agentes, flujos de trabajo, SOPs, monitoreo.">We copy the AIMEE package to your server. 35 files, everything included — agents, workflows, SOPs, monitoring.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="step-tech">
+                  <div class="step-tech-inner">scp -r ctg-core/ user@server:~/</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-  <!-- Pricing cards -->
-  <div class="pricing-row">
-    <div class="pricing-card featured">
-      <div class="pricing-amount">$500</div>
-      <div class="pricing-period">/month</div>
-      <div class="pricing-title">Starter</div>
-      <div class="pricing-desc">3 agents, Slack, managed SOPs, monitoring, dashboard</div>
-    </div>
-    <div class="pricing-card">
-      <div class="pricing-amount">$200</div>
-      <div class="pricing-period">/month each</div>
-      <div class="pricing-title">Additional Agents</div>
-      <div class="pricing-desc">Scale your team with more specialized AI workers</div>
-    </div>
-    <div class="pricing-card">
-      <div class="pricing-amount">$150</div>
-      <div class="pricing-period">/hour</div>
-      <div class="pricing-title">Custom Work</div>
-      <div class="pricing-desc">Custom workflows, integrations, and agent training</div>
-    </div>
-  </div>
+          <div class="deploy-v2-connector">│</div>
 
-  <!-- Unit Economics -->
-  <div class="card">
-    <div class="section-label" style="margin-bottom: 1rem;">Unit Economics</div>
-    <div class="economics-row">
-      <div>
-        <div class="econ-item"><span class="econ-label">Revenue</span><span class="econ-value">$500/mo</span></div>
-        <div class="econ-item"><span class="econ-label">API Cost</span><span class="econ-value">$50–150/mo</span></div>
-        <div class="econ-item"><span class="econ-label">Infrastructure</span><span class="econ-value">~$20/mo</span></div>
-      </div>
-      <div>
-        <div class="econ-item"><span class="econ-label">Ops Time</span><span class="econ-value">~$50/mo</span></div>
-        <div class="econ-item"><span class="econ-label">Total Cost</span><span class="econ-value">$120–220/mo</span></div>
-        <div class="econ-item"><span class="econ-label">Gross Margin</span><span class="econ-value green">55–75%</span></div>
-      </div>
-    </div>
-  </div>
+          <div class="deploy-v2-step complete">
+            <div class="deploy-step-num">✓</div>
+            <div class="deploy-step-title" data-es="<i data-lucide='terminal' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Ejecutar setup.sh"><i data-lucide="terminal" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Run setup.sh</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="step-expand">
+              <div class="step-expand-inner">
+                <p data-es="Asistente de configuraci&oacute;n interactivo. Pide tus claves API, nombre de empresa y nombres de agentes preferidos. Toma unos 5 minutos.">Interactive setup wizard. Asks for your API keys, company name, and preferred agent names. Takes about 5 minutes.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="step-tech">
+                  <div class="step-tech-inner">bash setup.sh — generates .env, docker-compose.yml, agent configs</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-  <!-- What's Included -->
-  <div class="card">
-    <div class="section-label" style="margin-bottom: 1rem;">What's Included</div>
-    <ul class="included-list">
-      <li>3 AI agents (Primary, Engineer, Dispatch)</li>
-      <li>Slack integration with multi-account support</li>
-      <li>Mission Control dashboard</li>
-      <li>Managed SOPs (onboarding, daily ops, incident response)</li>
-      <li>Health monitoring and alerting</li>
-      <li>Remote management via Parent Relay</li>
-      <li>Weekly check-ins and optimization</li>
-    </ul>
-  </div>
-</div>
-      <div class="section" id="your-stack">
-  <div class="section-label">⑦ Your Stack</div>
-  <div class="section-title">Here's what yours looks like.</div>
-  <div class="section-subtitle">These are the 3 CTG Core starter agents — your dedicated AI team.</div>
+          <div class="deploy-v2-connector">│</div>
 
-  <!-- Agent cards -->
-  <div class="your-agents">
-    <div class="your-agent-card">
-      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
-      <div class="your-agent-name">Primary</div>
-      <div class="your-agent-model">Claude Sonnet 4.6</div>
-      <div class="your-agent-role">Comms, triage, delegation. Your front-line agent — handles incoming messages, routes to specialists, drafts responses.</div>
-    </div>
-    <div class="your-agent-card">
-      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔧</div>
-      <div class="your-agent-name">Engineer</div>
-      <div class="your-agent-model">Claude Opus 4.6</div>
-      <div class="your-agent-role">Code, architecture, analysis. The heavy thinker — deep work, complex reasoning, technical documentation.</div>
-    </div>
-    <div class="your-agent-card">
-      <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
-      <div class="your-agent-name">Dispatch</div>
-      <div class="your-agent-model">Claude Haiku 4.5</div>
-      <div class="your-agent-role">Health checks, cron, routing. Fast and cheap — handles high-frequency, low-complexity operational tasks.</div>
-    </div>
-  </div>
+          <div class="deploy-v2-step complete">
+            <div class="deploy-step-num">✓</div>
+            <div class="deploy-step-title" data-es="<i data-lucide='play' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Servicios Inician"><i data-lucide="play" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Services Start</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="step-expand">
+              <div class="step-expand-inner">
+                <p data-es="Docker Compose levanta los 5 servicios. Base de datos, gesti&oacute;n de tareas, motor de agentes, dashboard, relay &mdash; todo corriendo en menos de 60 segundos.">Docker Compose brings up all 5 services. Database, task management, agent engine, dashboard, relay — all running in under 60 seconds.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="step-tech">
+                  <div class="step-tech-inner">docker compose up -d — PostgreSQL, Paperclip, OpenClaw, Mission Control, Parent Relay</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-  <!-- Channels -->
-  <div class="card" style="margin-top: 1.5rem;">
-    <div class="section-label" style="margin-bottom: 0.75rem;">Your Channels</div>
-    <div style="display: flex; align-items: center; gap: 1rem;">
-      <div style="background: var(--layer-openclaw-light); border: 1px solid var(--layer-openclaw-border); border-radius: 8px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
-        <span style="font-size: 1.2rem;">💬</span>
-        <span style="font-weight: 600; font-size: 0.85rem;">Slack</span>
-        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-left: 0.5rem;"></span>
-        <span style="font-size: 0.75rem; color: var(--green);">Connected</span>
-      </div>
-    </div>
-  </div>
+          <div class="deploy-v2-connector">│</div>
 
-  <!-- Hub Connection -->
-  <div class="card">
-    <div class="section-label" style="margin-bottom: 0.75rem;">Remote Management</div>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-      <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.25rem; text-align: center;">
-        <div style="font-weight: 600; font-size: 0.85rem;">Parent Relay</div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">Your deployment</div>
-      </div>
-      <div class="arch-connector">
-        <div class="arch-connector-line"></div>
-        <div class="arch-connector-label">Polling</div>
-        <div class="arch-connector-line"></div>
-      </div>
-      <div style="background: var(--accent-light); border: 1px solid var(--accent); border-radius: 8px; padding: 0.75rem 1.25rem; text-align: center;">
-        <div style="font-weight: 600; font-size: 0.85rem; color: var(--accent);">CTG Hub</div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">Managed by CTG</div>
-      </div>
-    </div>
-    <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">Health monitoring, config pushes, SOP updates. No data leaves your infrastructure — only metadata and status.</p>
-  </div>
+          <div class="deploy-v2-step">
+            <div class="deploy-step-num">4</div>
+            <div class="deploy-step-title" data-es="<i data-lucide='message-square' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Conectar Slack"><i data-lucide="message-square" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Connect Slack</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="step-expand">
+              <div class="step-expand-inner">
+                <p data-es="Una habilidad de autoservicio te gu&iacute;a para crear una app de Slack y conectarla. Tus agentes aparecen en tu workspace.">Self-serve skill walks you through creating a Slack app and connecting it. Your agents appear in your workspace.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="step-tech">
+                  <div class="step-tech-inner">Slack app manifest + OAuth flow + event subscriptions</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-  <!-- Dashboard Preview -->
-  <div class="dashboard-preview">
-    <div class="dashboard-preview-label">Your Dashboard</div>
-    <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
-      <div class="mock-header">
-        <span class="mock-header-logo">AIMEE</span>
-        <span style="color: var(--text-muted); font-size: 0.75rem;">Mission Control</span>
-        <span class="mock-header-badge">LIVE</span>
-      </div>
-      <div class="mock-cards-row">
-        <div class="mock-card">
-          <div class="mock-card-label">Services</div>
-          <div class="mock-card-value">3/3</div>
-          <div class="mock-card-sub">All healthy</div>
+          <div class="deploy-v2-connector">│</div>
+
+          <div class="deploy-v2-step">
+            <div class="deploy-step-num">5</div>
+            <div class="deploy-step-title" data-es="<i data-lucide='bot' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Agentes en Vivo"><i data-lucide="bot" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Agents Go Live</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="step-expand">
+              <div class="step-expand-inner">
+                <p data-es="Tus 3 agentes iniciales est&aacute;n en l&iacute;nea. Env&iacute;ales un mensaje en Slack y responden. As&iacute; de simple.">Your 3 starter agents are online. Send them a message in Slack and they respond. That's it.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="step-tech">
+                  <div class="step-tech-inner">Primary (Sonnet), Engineer (Opus), Dispatch (Haiku) — all listening on Slack channels</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="deploy-v2-connector">│</div>
+
+          <div class="deploy-v2-step">
+            <div class="deploy-step-num">6</div>
+            <div class="deploy-step-title" data-es="<i data-lucide='radio' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Relay se Conecta"><i data-lucide="radio" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Relay Phones Home</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="step-expand">
+              <div class="step-expand-inner">
+                <p data-es="Parent Relay se conecta a CTG Hub. Ahora podemos monitorear tu despliegue, enviar actualizaciones de configuraci&oacute;n y darte soporte remoto.">Parent Relay connects to CTG Hub. We can now monitor your deployment, push config updates, and support you remotely.</p>
+                <button class="tech-toggle" data-es="Detalles T&eacute;cnicos ▾">Technical Details ▾</button>
+                <div class="step-tech">
+                  <div class="step-tech-inner">Parent Relay polls CTG Hub every 30s — health, config sync, command queue</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="mock-card">
-          <div class="mock-card-label">Agents</div>
-          <div class="mock-card-value">3</div>
-          <div class="mock-card-sub">Registered</div>
-        </div>
-        <div class="mock-card">
-          <div class="mock-card-label">Uptime</div>
-          <div class="mock-card-value">99.9%</div>
-          <div class="mock-card-sub">Running 14d</div>
-        </div>
-        <div class="mock-card">
-          <div class="mock-card-label">Relay</div>
-          <div class="mock-card-value" style="font-size: 0.85rem;">OK</div>
-          <div class="mock-card-sub">Hub connected</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-      <div class="section" id="lets-go">
-  <div class="section-label">⑧ Let's Go</div>
-  <div class="section-title">Want in?</div>
+      </section>
 
-  <!-- Timeline -->
-  <div class="card">
-    <div class="timeline">
-      <div class="timeline-step">
-        <div class="timeline-week">Week 1</div>
-        <div class="timeline-action">Deploy Your Stack</div>
-        <div class="timeline-bar" style="background: var(--accent);"></div>
-      </div>
-      <div class="timeline-step">
-        <div class="timeline-week">Week 2</div>
-        <div class="timeline-action">Customize Agents</div>
-        <div class="timeline-bar" style="background: var(--accent); opacity: 0.7;"></div>
-      </div>
-      <div class="timeline-step">
-        <div class="timeline-week">Week 3</div>
-        <div class="timeline-action">Go Live</div>
-        <div class="timeline-bar" style="background: var(--green);"></div>
-      </div>
-    </div>
-  </div>
+      <!-- ── Section 6: The Product ────────────────── -->
+      <section class="section" id="product">
+        <div class="section-label" data-es="<i data-lucide='package' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>El Producto"><i data-lucide="package" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Product</div>
+        <div class="section-title">AI-Managed Employee Experience (AIMEE)</div>
 
-  <!-- What you get -->
-  <div class="card">
-    <div class="section-label" style="margin-bottom: 0.75rem;">What You Get</div>
-    <ul class="included-list">
-      <li>3 AI agents in your Slack, ready to work</li>
-      <li>Mission Control dashboard — see everything at a glance</li>
-      <li>Managed SOPs and monitoring — we handle the ops</li>
-      <li>Remote support via CTG Hub — we're always connected</li>
-      <li>Weekly check-ins — ongoing optimization and tuning</li>
-    </ul>
-  </div>
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <p class="body-text" style="font-style: italic; color: var(--text-secondary);" data-es="AIMEE lleva el nombre de mi esposa. Es enfermera de UCIP que acaba de terminar su NP de Enfermer&iacute;a. Ella maneja m&aacute;s caos un martes por la ma&ntilde;ana del que yo manejo en una semana &mdash; y a&uacute;n as&iacute; logra llevar un hogar de cinco, avanzar su carrera y empujar nuestras vidas hacia adelante. Odia que use su nombre as&iacute;. Pero qu&eacute; mejor acr&oacute;nimo para una IA que lo gestiona todo &mdash; y qu&eacute; mejor persona para servir como su musa?">AIMEE is named after my wife. She's a PICU nurse who just finished her Nursing NP. She handles more chaos on a Tuesday morning than I do in a week — and still manages to run a household of five, advance her career, and push our lives forward. She hates that I'm using her name like this. But what better acronym for an AI that manages everything — and what better person to serve as its muse?</p>
+        </div>
 
-  <!-- CTA -->
-  <div class="cta-box">
-    <div class="cta-price">$500/month</div>
-    <div class="cta-text">Let's build your team.</div>
-  </div>
-</div>
+        <div class="pricing-v2-row">
+          <!-- Starter -->
+          <div class="pricing-v2-card featured">
+            <i data-lucide="zap" style="width:32px;height:32px;color:var(--accent);margin-bottom:0.5rem"></i>
+            <div class="pricing-amount">$500</div>
+            <div class="pricing-period">/month</div>
+            <div class="pricing-title" data-es="Inicial">Starter</div>
+            <div class="pricing-desc" data-es="3 agentes. Slack. Administrado.">3 agents. Slack. Managed.</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="pricing-v2-expand">
+              <div class="pricing-v2-expand-inner">
+                <ul class="included-list">
+                  <li data-es="3 agentes de IA (Primary/Sonnet, Engineer/Opus, Dispatch/Haiku)">3 AI agents (Primary/Sonnet, Engineer/Opus, Dispatch/Haiku)</li>
+                  <li data-es="Integraci&oacute;n con Slack">Slack integration</li>
+                  <li data-es="Dashboard de Mission Control">Mission Control dashboard</li>
+                  <li data-es="SOPs administrados">Managed SOPs</li>
+                  <li data-es="Monitoreo de salud">Health monitoring</li>
+                  <li data-es="Gesti&oacute;n remota">Remote management</li>
+                  <li data-es="Check-ins semanales">Weekly check-ins</li>
+                </ul>
+                <table class="token-table">
+                  <thead>
+                    <tr><th data-es="Agente">Agent</th><th data-es="Modelo">Model</th><th data-es="Incluido/mes">Included/month</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Dispatch</td><td>Haiku 4.5</td><td>25M tokens</td></tr>
+                    <tr><td>Primary</td><td>Sonnet 4.6</td><td>8M tokens</td></tr>
+                    <tr><td>Engineer</td><td>Opus 4.6</td><td>750K tokens</td></tr>
+                  </tbody>
+                </table>
+                <div class="generous-callout" data-es="Incluimos m&aacute;s de lo que la mayor&iacute;a de las empresas necesitar&aacute;n. Si superas tus l&iacute;mites, hay flexibilidad &mdash; trabajaremos contigo.">We include more than most businesses will ever need. If you outgrow your limits, there's flexibility — we'll work with you.</div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;" data-es="Uso adicional facturado a tarifas por modelo.">Additional usage billed at per-model rates.</p>
+                <p style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-top: 0.75rem;" data-es="Los primeros 3 meses al costo para early adopters &mdash; invertimos en tu &eacute;xito antes de obtener ganancias.">First 3 months at cost for early adopters — we invest in your success before we profit from it.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Agents -->
+          <div class="pricing-v2-card">
+            <i data-lucide="user-plus" style="width:32px;height:32px;color:var(--accent);margin-bottom:0.5rem"></i>
+            <div class="pricing-amount">from $50</div>
+            <div class="pricing-period">/month</div>
+            <div class="pricing-title" data-es="Agentes Adicionales">Additional Agents</div>
+            <div class="pricing-desc" data-es="Escala tu equipo.">Scale your team.</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="pricing-v2-expand">
+              <div class="pricing-v2-expand-inner">
+                <table class="token-table">
+                  <thead>
+                    <tr><th data-es="Rol">Role</th><th data-es="Precio">Price</th><th data-es="Incluido">Included</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Jr Admin (Haiku/Qwen/Ollama)</td><td>$50/mo</td><td>20M tokens</td></tr>
+                    <tr><td data-es="Especialista (Sonnet 4.6)">Specialist (Sonnet 4.6)</td><td>$150/mo</td><td>5M tokens</td></tr>
+                    <tr><td data-es="Desarrollador Senior (Opus 4.6)">Senior Developer (Opus 4.6)</td><td>$250/mo</td><td>600K tokens</td></tr>
+                  </tbody>
+                </table>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;" data-es="Los agentes basados en Ollama corren localmente en tu hardware sin costo de API.">Ollama-based agents run locally on your hardware at zero API cost.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom / Enterprise -->
+          <div class="pricing-v2-card">
+            <i data-lucide="wrench" style="width:32px;height:32px;color:var(--accent);margin-bottom:0.5rem"></i>
+            <div class="pricing-amount">$150</div>
+            <div class="pricing-period">/hour</div>
+            <div class="pricing-title" data-es="Personalizado">Custom</div>
+            <div class="pricing-desc" data-es="Hecho para ti.">Built for you.</div>
+            <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
+            <div class="pricing-v2-expand">
+              <div class="pricing-v2-expand-inner">
+                <ul class="included-list">
+                  <li data-es="Dise&ntilde;o de flujos de trabajo personalizados">Custom workflow design</li>
+                  <li data-es="Integraciones con terceros">Third-party integrations</li>
+                  <li data-es="Entrenamiento y ajuste de agentes">Agent training &amp; tuning</li>
+                  <li data-es="Configuraciones avanzadas">Advanced configurations</li>
+                  <li data-es="Soporte prioritario">Priority support</li>
+                </ul>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem;" data-es="Para despliegues m&aacute;s grandes, ofrecemos presupuestos de API basados en d&oacute;lares en vez de l&iacute;mites de tokens. M&aacute;s simple de gestionar a escala, con visibilidad completa en Mission Control.">For larger deployments, we offer dollar-based API budgets instead of token limits. Simpler to manage at scale, with full visibility in Mission Control.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Section 7: The Opportunity ────────────── -->
+      <section class="section" id="opportunity">
+        <div class="section-label" data-es="<i data-lucide='trending-up' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>La Oportunidad"><i data-lucide="trending-up" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Opportunity</div>
+        <div class="section-title" data-es="Por qu&eacute; esto es un negocio real.">Why this is a real business.</div>
+        <div class="section-subtitle" data-es="Los n&uacute;meros, el mercado y el momento.">The numbers, the market, and the timing.</div>
+
+        <!-- Unit Economics (expanded by default) -->
+        <div class="opp-card expanded">
+          <div class="opp-card-header">
+            <div class="opp-card-title" data-es="<i data-lucide='calculator' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Econom&iacute;a Unitaria"><i data-lucide="calculator" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Unit Economics</div>
+            <div class="opp-card-arrow">▾</div>
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-body-inner">
+              <table class="opp-table">
+                <thead><tr><th data-es="Concepto">Item</th><th data-es="Monto">Amount</th></tr></thead>
+                <tbody>
+                  <tr><td data-es="Ingreso">Revenue</td><td>$500</td></tr>
+                  <tr><td data-es="Costo de API">API Cost</td><td>$50–150</td></tr>
+                  <tr><td data-es="Infraestructura">Infrastructure</td><td>~$20</td></tr>
+                  <tr><td data-es="Tiempo Operativo">Ops Time</td><td>~$50</td></tr>
+                  <tr><td data-es="<strong>Costo Total</strong>">Total Cost</td><td>$120–220</td></tr>
+                  <tr><td data-es="<strong>Margen Bruto</strong>"><strong>Gross Margin</strong></td><td><strong>55–75%</strong></td></tr>
+                </tbody>
+              </table>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem; font-style: italic;" data-es="Los primeros clientes requieren m&aacute;s tiempo pr&aacute;ctico (~5 hrs/mes). Los m&aacute;rgenes mejoran a medida que las plantillas y SOPs se reutilizan entre clientes.">Early clients require more hands-on time (~5 hrs/month). Margins improve as templates and SOPs get reused across clients.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Projections -->
+        <div class="opp-card expanded">
+          <div class="opp-card-header">
+            <div class="opp-card-title" data-es="<i data-lucide='trending-up' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Proyecciones de Ingreso"><i data-lucide="trending-up" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Revenue Projections</div>
+            <div class="opp-card-arrow">▾</div>
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-body-inner">
+              <table class="opp-table">
+                <thead><tr><th data-es="Hito">Milestone</th><th>MRR</th></tr></thead>
+                <tbody>
+                  <tr><td data-es="Mes 1">Month 1</td><td>$1,500</td></tr>
+                  <tr><td data-es="Mes 2">Month 2</td><td>$5,000</td></tr>
+                  <tr><td data-es="Mes 6">Month 6</td><td>$8,000–12,000</td></tr>
+                  <tr><td data-es="Mes 12">Month 12</td><td>$15,000–25,000</td></tr>
+                </tbody>
+              </table>
+              <div class="generous-callout" style="margin-top: 0.75rem;" data-es="$60K+ ARR para el mes 2. Alcance asistido por bots usando la misma plataforma de IA que vendemos &mdash; AIMEE vende AIMEE.">$60K+ ARR by month 2. Bot-assisted outreach using the same AI platform we sell — AIMEE sells AIMEE.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Why Now -->
+        <div class="opp-card expanded">
+          <div class="opp-card-header">
+            <div class="opp-card-title" data-es="<i data-lucide='clock' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Por qu&eacute; Ahora"><i data-lucide="clock" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Why Now</div>
+            <div class="opp-card-arrow">▾</div>
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-body-inner">
+              <ul style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <li style="margin-bottom: 0.4rem;" data-es="Jensen Huang acaba de decirle a cada empresa que necesita una estrategia de OpenClaw (16 de marzo, 2026)">Jensen Huang just told every company they need an OpenClaw strategy (March 16, 2026)</li>
+                <li style="margin-bottom: 0.4rem;" data-es="Los agentes de IA cruzaron el umbral de confiabilidad para tareas empresariales reales">AI agents crossed the reliability threshold for real business tasks</li>
+                <li style="margin-bottom: 0.4rem;" data-es="3&ndash;6 meses de ventaja antes de que el mercado se sature">3–6 month headstart before the market gets crowded</li>
+                <li style="margin-bottom: 0.4rem;" data-es="Los profesionales de servicios administrados est&aacute;n mejor posicionados para empaquetar y entregar esto">Managed services professionals are best positioned to package and deliver this</li>
+                <li style="margin-bottom: 0.4rem;" data-es="Nadie est&aacute; ofreciendo servicios administrados de agentes de IA para PyMEs a este precio a&uacute;n">Nobody is doing managed AI agent services for SMBs at this price point yet</li>
+                <li style="margin-bottom: 0.4rem;" data-es="La demanda viene &mdash; la pregunta es qui&eacute;n est&aacute; listo para satisfacerla">The demand is coming — the question is who's ready to supply it</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Market Potential -->
+        <div class="opp-card expanded">
+          <div class="opp-card-header">
+            <div class="opp-card-title" data-es="<i data-lucide='bar-chart-3' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Potencial de Mercado"><i data-lucide="bar-chart-3" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Market Potential</div>
+            <div class="opp-card-arrow">▾</div>
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-body-inner">
+              <ul style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <li style="margin-bottom: 0.4rem;" data-es="Mercado de agentes de IA: ~$5B (2025) &rarr; $50B+ proyectado para 2030">AI agent market: ~$5B (2025) → $50B+ projected by 2030</li>
+                <li style="margin-bottom: 0.4rem;" data-es="Gartner: 33% del software empresarial incluir&aacute; IA ag&eacute;ntica para 2028">Gartner: 33% of enterprise software will include agentic AI by 2028</li>
+                <li style="margin-bottom: 0.4rem;" data-es="Segmento PyME desatendido &mdash; grandes consultoras fuera de precio, herramientas DIY muy complejas">SMB segment underserved — big consultancies priced out, DIY tools too complex</li>
+                <li style="margin-bottom: 0.4rem;" data-es="Modelo de servicios administrados probado en TI (mercado de $300B+) &mdash; mismo playbook, nueva tecnolog&iacute;a">Managed services model proven across IT ($300B+ market) — same playbook, new technology</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SWOT Analysis -->
+        <div class="opp-card expanded">
+          <div class="opp-card-header">
+            <div class="opp-card-title" data-es="<i data-lucide='target' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>An&aacute;lisis FODA"><i data-lucide="target" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>SWOT Analysis</div>
+            <div class="opp-card-arrow">▾</div>
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-body-inner">
+              <div class="swot-grid">
+                <div class="swot-cell">
+                  <div class="swot-cell-title" data-es="Fortalezas">Strengths</div>
+                  <ul>
+                    <li data-es="Producto funcional">Working product</li>
+                    <li data-es="Experiencia en servicios administrados + automatizaci&oacute;n">Managed services + automation background</li>
+                    <li data-es="2 a&ntilde;os de ventas asistidas por bots">2 years bot-assisted sales</li>
+                    <li data-es="Stack completo construido y desplegado">Full stack built and deployed</li>
+                  </ul>
+                </div>
+                <div class="swot-cell">
+                  <div class="swot-cell-title" data-es="Debilidades">Weaknesses</div>
+                  <ul>
+                    <li data-es="Fundador solo">Solo founder</li>
+                    <li data-es="Primeros clientes necesitan m&aacute;s tiempo">Early clients need more time</li>
+                    <li data-es="Sin reconocimiento de marca a&uacute;n">No brand recognition yet</li>
+                  </ul>
+                </div>
+                <div class="swot-cell">
+                  <div class="swot-cell-title" data-es="Oportunidades">Opportunities</div>
+                  <ul>
+                    <li data-es="Primero en moverse en IA administrada para PyMEs">First mover in managed AI for SMBs</li>
+                    <li data-es="Red de inversionistas como distribuci&oacute;n">Investor network as distribution</li>
+                    <li data-es="Plantillas verticales multiplican ingresos">Vertical templates multiply revenue</li>
+                    <li data-es="Alcance asistido por bots escala">Bot-assisted outreach scales</li>
+                  </ul>
+                </div>
+                <div class="swot-cell">
+                  <div class="swot-cell-title" data-es="Amenazas">Threats</div>
+                  <ul>
+                    <li data-es="Dependencia de proveedor de modelos (mitigada por multi-proveedor)">Model provider dependency (mitigated by multi-provider)</li>
+                    <li data-es="Jugadores m&aacute;s grandes podr&iacute;an entrar">Larger players could enter</li>
+                    <li data-es="Adquisici&oacute;n de clientes depende de referidos">Client acquisition depends on referrals</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- News & Market Signals -->
+        <div class="opp-card expanded">
+          <div class="opp-card-header">
+            <div class="opp-card-title" data-es="<i data-lucide='newspaper' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Noticias y Se&ntilde;ales de Mercado"><i data-lucide="newspaper" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>News &amp; Market Signals</div>
+            <div class="opp-card-arrow">▾</div>
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-body-inner">
+              <div class="roadmap-card" data-es="En la hoja de ruta: feed automatizado de inteligencia de mercado impulsado por agentes AIMEE.">On the roadmap: automated market intelligence feed powered by AIMEE agents.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
+  <script src="https://unpkg.com/lucide@0.460.0"></script>
   <script src="app.js"></script>
 </body>
 </html>
