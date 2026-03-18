@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIMEE Mission Control</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+</head>
+<body>
+
+  <!-- Error Banner -->
+  <div id="error-banner" class="error-banner"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-logo">
+        AIMEE <span>Mission Control</span>
+      </div>
+      <span class="view-badge live" id="view-badge">LIVE</span>
+      <div class="header-links">
+        <a id="link-paperclip" href="#" target="_blank">Paperclip</a>
+        <a id="link-gateway" href="#" target="_blank">Gateway</a>
+        <a id="link-hub" href="#" target="_blank">Hub</a>
+        <a id="link-about" href="#" target="_blank">About</a>
+      </div>
+      <div class="tab-bar">
+        <button class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+        <button class="tab" data-tab="memory" onclick="switchTab('memory')">Memory</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <select id="view-select">
+        <option value="live">Live — CTG</option>
+        <option value="demo">Demo — Client</option>
+      </select>
+      <button class="btn-signout" id="btn-signout">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Health Section -->
+    <div class="section" id="health-section">
+      <div class="section-title">System Health</div>
+      <div class="card-row">
+        <!-- Services Card -->
+        <div class="card" id="card-services">
+          <div class="card-label">Services</div>
+          <div id="services-content">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+          </div>
+        </div>
+        <!-- Agents Card -->
+        <div class="card" id="card-agents">
+          <div class="card-label">Agents</div>
+          <div id="agents-content">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+          </div>
+        </div>
+        <!-- Uptime Card -->
+        <div class="card" id="card-uptime">
+          <div class="card-label">Uptime</div>
+          <div id="uptime-content">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+          </div>
+        </div>
+        <!-- Relay Card -->
+        <div class="card" id="card-relay">
+          <div class="card-label">Parent Relay</div>
+          <div id="relay-content">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Activity Section -->
+    <div class="section" id="activity-section">
+      <div class="section-title">Team Activity</div>
+      <div id="activity-content">
+        <div style="color:#94a3b8;font-size:13px;padding:8px 0">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Cost Section -->
+    <div class="section" id="cost-section">
+      <div class="section-title">Cost Overview <span id="cost-period" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px;color:#64748b;margin-left:8px"></span></div>
+      <div class="cost-card">
+        <div class="summary-row">
+          <div class="summary-item" id="summary-revenue">
+            <div class="label">Monthly Revenue</div>
+            <div class="value" id="cost-revenue">—</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">API Cost (MTD)</div>
+            <div class="value" id="cost-total">—</div>
+            <div class="label" id="cost-sessions" style="margin-top:2px"></div>
+          </div>
+          <div class="summary-item" id="summary-projected">
+            <div class="label">Projected Monthly</div>
+            <div class="value" id="cost-projected" style="color:#f97316">—</div>
+          </div>
+          <div class="summary-item" id="summary-margin">
+            <div class="label">Gross Margin</div>
+            <div class="value green" id="cost-margin">—</div>
+          </div>
+        </div>
+        <div id="cost-breakdown" style="text-align:center;font-size:12px;color:#64748b;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #e2e8f0">
+        </div>
+
+        <!-- Per Agent -->
+        <div class="expandable expanded" id="expand-agents">
+          <div class="expandable-header" onclick="toggleExpand('expand-agents')">
+            <h3>Per Agent</h3>
+            <span class="arrow">&#9660;</span>
+          </div>
+          <div class="expandable-body" id="agent-costs"></div>
+        </div>
+
+        <!-- Per Provider -->
+        <div class="expandable expanded" id="expand-providers">
+          <div class="expandable-header" onclick="toggleExpand('expand-providers')">
+            <h3>Per Provider</h3>
+            <span class="arrow">&#9660;</span>
+          </div>
+          <div class="expandable-body" id="provider-costs"></div>
+        </div>
+
+        <!-- Sparkline -->
+        <div class="sparkline-container">
+          <svg id="sparkline" viewBox="0 0 200 50" preserveAspectRatio="none"></svg>
+          <div class="sparkline-labels" id="sparkline-labels"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kanban Section -->
+    <div class="section" id="kanban-section">
+      <div class="section-title">Product Board</div>
+      <div class="kanban">
+        <div class="kanban-column" data-column="planned">
+          <div class="kanban-column-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="kanban-column-title">Planned</span>
+              <span class="kanban-count" data-count="planned">0</span>
+            </div>
+            <button class="kanban-add" onclick="showAddForm('planned')">+</button>
+          </div>
+          <div class="add-form" id="form-planned"></div>
+          <div class="kanban-list" id="list-planned"></div>
+        </div>
+        <div class="kanban-column" data-column="building">
+          <div class="kanban-column-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="kanban-column-title">Building</span>
+              <span class="kanban-count" data-count="building">0</span>
+            </div>
+            <button class="kanban-add" onclick="showAddForm('building')">+</button>
+          </div>
+          <div class="add-form" id="form-building"></div>
+          <div class="kanban-list" id="list-building"></div>
+        </div>
+        <div class="kanban-column" data-column="testing">
+          <div class="kanban-column-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="kanban-column-title">Testing</span>
+              <span class="kanban-count" data-count="testing">0</span>
+            </div>
+            <button class="kanban-add" onclick="showAddForm('testing')">+</button>
+          </div>
+          <div class="add-form" id="form-testing"></div>
+          <div class="kanban-list" id="list-testing"></div>
+        </div>
+        <div class="kanban-column" data-column="deployed">
+          <div class="kanban-column-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="kanban-column-title">Deployed</span>
+              <span class="kanban-count" data-count="deployed">0</span>
+            </div>
+            <button class="kanban-add" onclick="showAddForm('deployed')">+</button>
+          </div>
+          <div class="add-form" id="form-deployed"></div>
+          <div class="kanban-list" id="list-deployed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory Section -->
+    <div class="section" id="memory-section" style="display:none">
+      <div class="section-title">Agent Memory</div>
+      <div class="memory-controls">
+        <select id="memory-agent-filter">
+          <option value="all">All Agents</option>
+        </select>
+        <div class="memory-stats" id="memory-stats"></div>
+      </div>
+      <div id="memory-content">
+        <div style="color:#94a3b8;font-size:13px;padding:16px">Loading memory data...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="kanban.js"></script>
+  <script src="memory.js"></script>
+  <script src="activity.js"></script>
+</body>
+</html>
