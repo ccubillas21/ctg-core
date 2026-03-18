@@ -26,10 +26,10 @@
       <a class="nav-item" data-section="opportunity" data-es="<i data-lucide='trending-up' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>La Oportunidad"><i data-lucide="trending-up" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Opportunity</a>
 
       <div class="sidebar-links">
-        <a href="https://mc.cubillastechnologygroup.com" target="_blank" class="sidebar-link" data-es="Centro de Control">Mission Control</a>
-        <a href="https://paperclip.cubillastechnologygroup.com" target="_blank" class="sidebar-link">Paperclip</a>
-        <a href="https://gateway.cubillastechnologygroup.com" target="_blank" class="sidebar-link">Gateway</a>
-        <a href="https://hub.cubillastechnologygroup.com" target="_blank" class="sidebar-link">Hub</a>
+        <a href="http://localhost:4001" target="_blank" class="sidebar-link" data-es="AIMEE MC"><i data-lucide="layout-dashboard" style="width:12px;height:12px;vertical-align:-2px;margin-right:4px"></i>AIMEE MC</a>
+        <a href="http://localhost:3100" target="_blank" class="sidebar-link"><i data-lucide="clipboard-list" style="width:12px;height:12px;vertical-align:-2px;margin-right:4px"></i>Paperclip</a>
+        <a href="http://localhost:18789" target="_blank" class="sidebar-link"><i data-lucide="bot" style="width:12px;height:12px;vertical-align:-2px;margin-right:4px"></i>Gateway</a>
+        <span class="sidebar-link" style="cursor:default;opacity:0.5;" title="Not running yet — needs HUB_PORT=9100"><i data-lucide="radio" style="width:12px;height:12px;vertical-align:-2px;margin-right:4px"></i>Hub</span>
       </div>
 
       <div class="sidebar-progress">
@@ -57,7 +57,7 @@
         </div>
 
         <div class="card">
-          <p class="body-text" data-es="Los agentes de IA ya pueden hacer trabajo real &mdash; manejar mensajes de clientes, gestionar agendas, escribir reportes, clasificar tickets de soporte. No son chatbots. No son copilotos. Son empleados digitales con roles, responsabilidades y cadenas de mando. El CEO de NVIDIA acaba de decirle a cada empresa en el planeta que necesitan un plan para esto.">AI agents can now do real work — handle customer messages, manage schedules, write reports, triage support tickets. Not chatbots. Not copilots. Actual digital employees with roles, responsibilities, and reporting chains. The CEO of NVIDIA just told every company on earth they need a plan for this.</p>
+          <p class="body-text" data-es="Los agentes de IA ya pueden hacer trabajo real &mdash; escuchar conversaciones en vivo, investigar costos en tiempo real, aplicar l&oacute;gica de negocio para calcular m&aacute;rgenes y ofrecer cotizaciones al instante. Pueden monitorear mercados burs&aacute;tiles, resumir se&ntilde;ales, y ejecutar flujos de investigaci&oacute;n mientras un trader se enfoca en la acci&oacute;n. No son chatbots. No son copilotos. Son empleados digitales con roles, responsabilidades y cadenas de mando. El CEO de NVIDIA acaba de decirle a cada empresa en el planeta que necesitan un plan para esto.">AI agents can now do real work — listen to live conversations, research costs in real time, apply business logic to calculate margin, and deliver quotes on the spot. They can monitor stock markets, summarize signals, and run research workflows while a day trader stays focused on the action. Not chatbots. Not copilots. Actual digital employees with roles, responsibilities, and reporting chains. The CEO of NVIDIA just told every company on earth they need a plan for this.</p>
           <p class="body-text" style="margin-top: 1rem;" data-es="El problema es simple: la mayor&iacute;a de las empresas no pueden construir esto por su cuenta. Las grandes consultoras cobran m&aacute;s de $200K. Las plataformas de autoservicio asumen que tienes ingenieros en tu equipo. Hay un vac&iacute;o enorme entre lo que es posible y lo que es accesible.">The problem is simple: most businesses can't build this themselves. The big consultancies want $200K+. The DIY platforms assume you have engineers on staff. There's a massive gap between what's possible and what's accessible.</p>
           <p class="body-text" style="margin-top: 1rem;" data-es="He estado en servicios de TI administrados toda mi carrera &mdash; desplegando tecnolog&iacute;a para empresas que no tienen equipos de ingenier&iacute;a. He usado Power Automate por m&aacute;s de 7 a&ntilde;os. Los &uacute;ltimos 5, he extra&iacute;do leads de LinkedIn, RocketReach, Apollo y Glassdoor con bots de automatizaci&oacute;n. Los &uacute;ltimos 2, cada venta que he cerrado vino de un bot. Ahora estoy combinando eso con IA ag&eacute;ntica para construir algo m&aacute;s grande.">I've been in managed IT services my whole career — deploying tech for businesses that don't have engineering teams. I've used Power Automate for over 7 years. For the last 5, I've been pulling leads from LinkedIn, RocketReach, Apollo, and Glassdoor with automation bots. For the last 2, every sale I've closed came from a bot. Now I'm pairing that with agentic AI to build something bigger.</p>
         </div>
@@ -658,10 +658,21 @@
         <div class="arch-vertical-line"></div>
 
         <!-- Channels branching off OpenClaw -->
+        <div class="arch-label" data-es="Canales e Integraciones">Channels &amp; Integrations</div>
         <div class="arch-channels">
-          <div class="arch-channel"><i data-lucide="message-square" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"></i>Slack</div>
-          <div class="arch-channel"><i data-lucide="users" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"></i>Teams</div>
-          <div class="arch-channel"><i data-lucide="send" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"></i>Telegram</div>
+          <div class="arch-channel ch-slack"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.124 2.521a2.528 2.528 0 0 1 2.52-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.52V8.834zm-1.271 0a2.528 2.528 0 0 1-2.521 2.521 2.528 2.528 0 0 1-2.521-2.521V2.522A2.528 2.528 0 0 1 15.166 0a2.528 2.528 0 0 1 2.521 2.522v6.312zm-2.521 10.124a2.528 2.528 0 0 1 2.521 2.52A2.528 2.528 0 0 1 15.166 24a2.528 2.528 0 0 1-2.521-2.522v-2.52h2.521zm0-1.271a2.528 2.528 0 0 1-2.521-2.521 2.528 2.528 0 0 1 2.521-2.521h6.312A2.528 2.528 0 0 1 24 15.166a2.528 2.528 0 0 1-2.522 2.521h-6.312z"/></svg></div>Slack</div>
+          <div class="arch-channel ch-teams"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.625 8.5h-3.125V6.25a1.25 1.25 0 0 0-1.25-1.25h-5A1.25 1.25 0 0 0 10 6.25V12.5a1.25 1.25 0 0 0 1.25 1.25h5.625v4.375a1.875 1.875 0 0 1-1.875 1.875h-3.125a1.875 1.875 0 0 1-1.875-1.875V14.75H7.5v3.375A4.375 4.375 0 0 0 11.875 22.5H15a4.375 4.375 0 0 0 4.375-4.375V10.5h1.25a1.25 1.25 0 0 0 0-2.5v.5zM19 4.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM14.5 3a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0z"/></svg></div>Teams</div>
+          <div class="arch-channel ch-telegram"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>Telegram</div>
+          <div class="arch-channel ch-discord"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></div>Discord</div>
+          <div class="arch-channel ch-whatsapp"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 0 0 .611.611l4.458-1.495A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg></div>WhatsApp</div>
+          <div class="arch-channel ch-email"><div class="arch-channel-icon"><i data-lucide="mail" style="width:12px;height:12px"></i></div>Email</div>
+          <div class="arch-channel ch-voice"><div class="arch-channel-icon"><i data-lucide="phone" style="width:12px;height:12px"></i></div>Voice</div>
+          <div class="arch-channel ch-jira"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23 0H11.443a5.217 5.217 0 0 0 5.214 5.217h2.129v2.054A5.22 5.22 0 0 0 24 12.49V1.005A1.005 1.005 0 0 0 23 0z"/></svg></div>Jira</div>
+          <div class="arch-channel ch-notion"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.98-.7-2.055-.607L2.58 2.514c-.467.047-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.84-.046.933-.56.933-1.167V6.354c0-.606-.233-.933-.746-.886l-15.177.887c-.56.046-.747.326-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952l1.448.327s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.14c-.093-.514.28-.886.747-.933zM1.936 1.035l13.872-1.026c1.681-.14 2.1.093 2.8.607l3.876 2.727c.467.327.607.747.607 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.84.373-1.54 1.867-1.632z"/></svg></div>Notion</div>
+          <div class="arch-channel ch-sheets"><div class="arch-channel-icon"><i data-lucide="table" style="width:12px;height:12px"></i></div>Sheets</div>
+          <div class="arch-channel ch-canvas"><div class="arch-channel-icon"><i data-lucide="presentation" style="width:12px;height:12px"></i></div>Canvas</div>
+          <div class="arch-channel ch-linkedin"><div class="arch-channel-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div>LinkedIn</div>
+          <div class="arch-channel ch-x"><div class="arch-channel-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>X</div>
         </div>
 
         <!-- Vertical connector -->
@@ -726,7 +737,7 @@
         <div class="section-subtitle" data-es="Haz clic en cualquier paso para ver qu&eacute; sucede.">Click any step to see what happens.</div>
 
         <div class="deploy-v2-flow">
-          <div class="deploy-v2-step complete">
+          <div class="deploy-v2-step complete step-color-1">
             <div class="deploy-step-num">✓</div>
             <div class="deploy-step-title" data-es="<i data-lucide='copy' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Copiar CTG Core"><i data-lucide="copy" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Copy CTG Core</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
@@ -743,7 +754,7 @@
 
           <div class="deploy-v2-connector">│</div>
 
-          <div class="deploy-v2-step complete">
+          <div class="deploy-v2-step complete step-color-2">
             <div class="deploy-step-num">✓</div>
             <div class="deploy-step-title" data-es="<i data-lucide='terminal' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Ejecutar setup.sh"><i data-lucide="terminal" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Run setup.sh</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
@@ -760,7 +771,7 @@
 
           <div class="deploy-v2-connector">│</div>
 
-          <div class="deploy-v2-step complete">
+          <div class="deploy-v2-step complete step-color-3">
             <div class="deploy-step-num">✓</div>
             <div class="deploy-step-title" data-es="<i data-lucide='play' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Servicios Inician"><i data-lucide="play" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Services Start</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
@@ -777,7 +788,7 @@
 
           <div class="deploy-v2-connector">│</div>
 
-          <div class="deploy-v2-step">
+          <div class="deploy-v2-step step-color-4">
             <div class="deploy-step-num">4</div>
             <div class="deploy-step-title" data-es="<i data-lucide='message-square' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Conectar Slack"><i data-lucide="message-square" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Connect Slack</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
@@ -794,7 +805,7 @@
 
           <div class="deploy-v2-connector">│</div>
 
-          <div class="deploy-v2-step">
+          <div class="deploy-v2-step step-color-5">
             <div class="deploy-step-num">5</div>
             <div class="deploy-step-title" data-es="<i data-lucide='bot' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Agentes en Vivo"><i data-lucide="bot" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Agents Go Live</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
@@ -811,7 +822,7 @@
 
           <div class="deploy-v2-connector">│</div>
 
-          <div class="deploy-v2-step">
+          <div class="deploy-v2-step step-color-6">
             <div class="deploy-step-num">6</div>
             <div class="deploy-step-title" data-es="<i data-lucide='radio' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Relay se Conecta"><i data-lucide="radio" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Relay Phones Home</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
@@ -833,30 +844,35 @@
         <div class="section-label" data-es="<i data-lucide='package' style='width:14px;height:14px;vertical-align:-2px;margin-right:6px'></i>El Producto"><i data-lucide="package" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"></i>The Product</div>
         <div class="section-title">AI-Managed Employee Experience (AIMEE)</div>
 
-        <div class="card" style="margin-bottom: 1.5rem;">
-          <p class="body-text" style="font-style: italic; color: var(--text-secondary);" data-es="AIMEE lleva el nombre de mi esposa. Es enfermera de UCIP que acaba de terminar su NP de Enfermer&iacute;a. Ella maneja m&aacute;s caos un martes por la ma&ntilde;ana del que yo manejo en una semana &mdash; y a&uacute;n as&iacute; logra llevar un hogar de cinco, avanzar su carrera y empujar nuestras vidas hacia adelante. Odia que use su nombre as&iacute;. Pero qu&eacute; mejor acr&oacute;nimo para una IA que lo gestiona todo &mdash; y qu&eacute; mejor persona para servir como su musa?">AIMEE is named after my wife. She's a PICU nurse who just finished her Nursing NP. She handles more chaos on a Tuesday morning than I do in a week — and still manages to run a household of five, advance her career, and push our lives forward. She hates that I'm using her name like this. But what better acronym for an AI that manages everything — and what better person to serve as its muse?</p>
+        <div class="aimee-callout">
+          <div class="aimee-icon">&#10084;</div>
+          <div class="aimee-text" data-es="S&iacute;, nombr&eacute; mi plataforma de IA como mi esposa. Es enfermera de UCIP que acaba de terminar su NP &mdash; lleva un hogar de cinco, avanza su carrera, y de alguna manera sigue empujando toda nuestra vida hacia adelante. Maneja m&aacute;s caos un martes por la ma&ntilde;ana del que la mayor&iacute;a maneja en una semana. Probablemente va a poner los ojos en blanco cuando vea esto. Pero una IA que lo gestiona todo merec&iacute;a el nombre de alguien que realmente lo hace.">Yeah, I named my AI platform after my wife. She's a PICU nurse who just finished her NP — runs a household of five, advances her career, and somehow still pushes our entire life forward. She handles more chaos by Tuesday morning than most people do in a week. She'll probably roll her eyes when she sees this. But an AI that manages everything deserved the name of someone who actually does.</div>
         </div>
 
-        <div class="pricing-v2-row">
-          <!-- Starter -->
-          <div class="pricing-v2-card featured">
-            <i data-lucide="zap" style="width:32px;height:32px;color:var(--accent);margin-bottom:0.5rem"></i>
-            <div class="pricing-amount">$500</div>
-            <div class="pricing-period">/month</div>
-            <div class="pricing-title" data-es="Inicial">Starter</div>
-            <div class="pricing-desc" data-es="3 agentes. Slack. Administrado.">3 agents. Slack. Managed.</div>
+        <!-- Hero: Starter -->
+        <div class="pricing-hero" onclick="this.classList.toggle('expanded')">
+          <div class="pricing-hero-icon">
+            <i data-lucide="zap" style="width:28px;height:28px"></i>
+          </div>
+          <div style="flex:1">
+            <div class="pricing-hero-price">$500 <span class="pricing-hero-period">/month</span></div>
+            <div class="pricing-hero-name" data-es="Inicial">Starter</div>
+            <div class="pricing-hero-desc" data-es="3 agentes. Slack. Completamente administrado.">3 agents. Slack. Fully managed.</div>
+            <div class="pricing-hero-tags">
+              <span class="pricing-tag">Primary / Sonnet</span>
+              <span class="pricing-tag">Engineer / Opus</span>
+              <span class="pricing-tag">Dispatch / Haiku</span>
+              <span class="pricing-tag" data-es="Cotizaci&oacute;n en Tiempo Real">Real-Time Quoting</span>
+              <span class="pricing-tag" data-es="Investigaci&oacute;n de Costos">Cost Research</span>
+              <span class="pricing-tag" data-es="L&oacute;gica de Margen">Margin Logic</span>
+              <span class="pricing-tag" data-es="Procesamiento de Transcripciones">Transcript Processing</span>
+              <span class="pricing-tag">Slack</span>
+              <span class="pricing-tag">Mission Control</span>
+              <span class="pricing-tag" data-es="Monitoreo">Health Monitoring</span>
+            </div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
-            <div class="pricing-v2-expand">
-              <div class="pricing-v2-expand-inner">
-                <ul class="included-list">
-                  <li data-es="3 agentes de IA (Primary/Sonnet, Engineer/Opus, Dispatch/Haiku)">3 AI agents (Primary/Sonnet, Engineer/Opus, Dispatch/Haiku)</li>
-                  <li data-es="Integraci&oacute;n con Slack">Slack integration</li>
-                  <li data-es="Dashboard de Mission Control">Mission Control dashboard</li>
-                  <li data-es="SOPs administrados">Managed SOPs</li>
-                  <li data-es="Monitoreo de salud">Health monitoring</li>
-                  <li data-es="Gesti&oacute;n remota">Remote management</li>
-                  <li data-es="Check-ins semanales">Weekly check-ins</li>
-                </ul>
+            <div class="pricing-hero-expand">
+              <div class="pricing-hero-expand-inner">
                 <table class="token-table">
                   <thead>
                     <tr><th data-es="Agente">Agent</th><th data-es="Modelo">Model</th><th data-es="Incluido/mes">Included/month</th></tr>
@@ -867,23 +883,29 @@
                     <tr><td>Engineer</td><td>Opus 4.6</td><td>750K tokens</td></tr>
                   </tbody>
                 </table>
-                <div class="generous-callout" data-es="Incluimos m&aacute;s de lo que la mayor&iacute;a de las empresas necesitar&aacute;n. Si superas tus l&iacute;mites, hay flexibilidad &mdash; trabajaremos contigo.">We include more than most businesses will ever need. If you outgrow your limits, there's flexibility — we'll work with you.</div>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;" data-es="Uso adicional facturado a tarifas por modelo.">Additional usage billed at per-model rates.</p>
-                <p style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-top: 0.75rem;" data-es="Los primeros 3 meses al costo para early adopters &mdash; invertimos en tu &eacute;xito antes de obtener ganancias.">First 3 months at cost for early adopters — we invest in your success before we profit from it.</p>
+                <div class="dark-panel">
+                  <div class="dark-panel-text">
+                    <strong>Token Limits:</strong> We include more than most businesses will ever need. If you outgrow your limits, there's flexibility — we'll work with you.<br>
+                    <strong>Overage:</strong> Additional usage billed at per-model rates.<br>
+                    <strong>Early Adopter:</strong> First 3 months at cost — we invest in your success before we profit from it.
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Additional Agents -->
-          <div class="pricing-v2-card">
-            <i data-lucide="user-plus" style="width:32px;height:32px;color:var(--accent);margin-bottom:0.5rem"></i>
-            <div class="pricing-amount">from $50</div>
-            <div class="pricing-period">/month</div>
-            <div class="pricing-title" data-es="Agentes Adicionales">Additional Agents</div>
-            <div class="pricing-desc" data-es="Escala tu equipo.">Scale your team.</div>
+        <!-- Secondary: Additional Agents + Custom -->
+        <div class="pricing-secondary-row">
+          <div class="pricing-secondary tier-green" onclick="this.classList.toggle('expanded')">
+            <div class="pricing-sec-icon"><i data-lucide="user-plus" style="width:20px;height:20px"></i></div>
+            <div class="pricing-sec-price">from $50</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);">/month per agent</div>
+            <div class="pricing-sec-name" data-es="Agentes Adicionales">Additional Agents</div>
+            <div class="pricing-sec-desc" data-es="Escala tu equipo.">Scale your team</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
-            <div class="pricing-v2-expand">
-              <div class="pricing-v2-expand-inner">
+            <div class="pricing-secondary-expand">
+              <div class="pricing-secondary-expand-inner">
                 <table class="token-table">
                   <thead>
                     <tr><th data-es="Rol">Role</th><th data-es="Precio">Price</th><th data-es="Incluido">Included</th></tr>
@@ -894,29 +916,32 @@
                     <tr><td data-es="Desarrollador Senior (Opus 4.6)">Senior Developer (Opus 4.6)</td><td>$250/mo</td><td>600K tokens</td></tr>
                   </tbody>
                 </table>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;" data-es="Los agentes basados en Ollama corren localmente en tu hardware sin costo de API.">Ollama-based agents run locally on your hardware at zero API cost.</p>
+                <div class="dark-panel">
+                  <div class="dark-panel-text" data-es="Los agentes basados en Ollama corren localmente en tu hardware sin costo de API.">Ollama-based agents run locally on your hardware at zero API cost.</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Custom / Enterprise -->
-          <div class="pricing-v2-card">
-            <i data-lucide="wrench" style="width:32px;height:32px;color:var(--accent);margin-bottom:0.5rem"></i>
-            <div class="pricing-amount">$150</div>
-            <div class="pricing-period">/hour</div>
-            <div class="pricing-title" data-es="Personalizado">Custom</div>
-            <div class="pricing-desc" data-es="Hecho para ti.">Built for you.</div>
+          <div class="pricing-secondary tier-amber" onclick="this.classList.toggle('expanded')">
+            <div class="pricing-sec-icon"><i data-lucide="wrench" style="width:20px;height:20px"></i></div>
+            <div class="pricing-sec-price">$150</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);">/hour</div>
+            <div class="pricing-sec-name" data-es="Personalizado">Custom</div>
+            <div class="pricing-sec-desc" data-es="Hecho para ti.">Built for you</div>
             <div class="expand-hint" data-es="toca para expandir">tap to expand</div>
-            <div class="pricing-v2-expand">
-              <div class="pricing-v2-expand-inner">
-                <ul class="included-list">
-                  <li data-es="Dise&ntilde;o de flujos de trabajo personalizados">Custom workflow design</li>
-                  <li data-es="Integraciones con terceros">Third-party integrations</li>
-                  <li data-es="Entrenamiento y ajuste de agentes">Agent training &amp; tuning</li>
-                  <li data-es="Configuraciones avanzadas">Advanced configurations</li>
-                  <li data-es="Soporte prioritario">Priority support</li>
-                </ul>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem;" data-es="Para despliegues m&aacute;s grandes, ofrecemos presupuestos de API basados en d&oacute;lares en vez de l&iacute;mites de tokens. M&aacute;s simple de gestionar a escala, con visibilidad completa en Mission Control.">For larger deployments, we offer dollar-based API budgets instead of token limits. Simpler to manage at scale, with full visibility in Mission Control.</p>
+            <div class="pricing-secondary-expand">
+              <div class="pricing-secondary-expand-inner">
+                <div class="pricing-hero-tags" style="justify-content:center;margin-bottom:0.75rem;">
+                  <span class="pricing-tag" data-es="Flujos Personalizados">Custom Workflows</span>
+                  <span class="pricing-tag" data-es="Integraciones">Integrations</span>
+                  <span class="pricing-tag" data-es="Entrenamiento de Agentes">Agent Training</span>
+                  <span class="pricing-tag" data-es="Config Avanzada">Advanced Config</span>
+                  <span class="pricing-tag" data-es="Soporte Prioritario">Priority Support</span>
+                </div>
+                <div class="dark-panel">
+                  <div class="dark-panel-text" data-es="Para despliegues m&aacute;s grandes, ofrecemos presupuestos de API basados en d&oacute;lares en vez de l&iacute;mites de tokens. M&aacute;s simple de gestionar a escala, con visibilidad completa en Mission Control.">For larger deployments, we offer dollar-based API budgets instead of token limits. Simpler to manage at scale, with full visibility in Mission Control.</div>
+                </div>
               </div>
             </div>
           </div>
@@ -932,7 +957,8 @@
         <!-- Unit Economics (expanded by default) -->
         <div class="opp-card expanded">
           <div class="opp-card-header">
-            <div class="opp-card-title" data-es="<i data-lucide='calculator' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Econom&iacute;a Unitaria"><i data-lucide="calculator" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Unit Economics</div>
+            <div class="opp-card-icon"><i data-lucide="calculator" style="width:18px;height:18px"></i></div>
+            <div class="opp-card-title" data-es="Econom&iacute;a Unitaria">Unit Economics</div>
             <div class="opp-card-arrow">▾</div>
           </div>
           <div class="opp-card-body">
@@ -956,21 +982,24 @@
         <!-- Revenue Projections -->
         <div class="opp-card expanded">
           <div class="opp-card-header">
-            <div class="opp-card-title" data-es="<i data-lucide='trending-up' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Proyecciones de Ingreso"><i data-lucide="trending-up" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Revenue Projections</div>
+            <div class="opp-card-icon"><i data-lucide="trending-up" style="width:18px;height:18px"></i></div>
+            <div class="opp-card-title" data-es="Proyecciones de Ingreso">Revenue Projections</div>
             <div class="opp-card-arrow">▾</div>
           </div>
           <div class="opp-card-body">
             <div class="opp-card-body-inner">
               <table class="opp-table">
-                <thead><tr><th data-es="Hito">Milestone</th><th>MRR</th></tr></thead>
+                <thead><tr><th data-es="Hito">Milestone</th><th data-es="Clientes">Clients</th><th data-es="MRR Administrado">Managed MRR</th><th data-es="Consultor&iacute;a/mes">Consulting/mo</th><th data-es="<strong>Total/mes</strong>"><strong>Total/mo</strong></th></tr></thead>
                 <tbody>
-                  <tr><td data-es="Mes 1">Month 1</td><td>$1,500</td></tr>
-                  <tr><td data-es="Mes 2">Month 2</td><td>$5,000</td></tr>
-                  <tr><td data-es="Mes 6">Month 6</td><td>$8,000–12,000</td></tr>
-                  <tr><td data-es="Mes 12">Month 12</td><td>$15,000–25,000</td></tr>
+                  <tr><td data-es="Mes 1">Month 1</td><td>3</td><td>$1,500</td><td>—</td><td><strong>$1,500</strong></td></tr>
+                  <tr><td data-es="Mes 2">Month 2</td><td>8</td><td>$5,000</td><td>—</td><td><strong>$5,000</strong></td></tr>
+                  <tr><td data-es="Mes 6">Month 6</td><td>25–35</td><td>$18,000–25,000</td><td>$12,000–51,000</td><td><strong>$30,000–76,000</strong></td></tr>
+                  <tr><td data-es="Mes 12">Month 12</td><td>60–90</td><td>$50,000–75,000</td><td>$27,000–115,000</td><td><strong>$77,000–190,000</strong></td></tr>
+                  <tr><td data-es="Mes 18">Month 18</td><td>120–180</td><td>$100,000–150,000</td><td>$54,000–230,000</td><td><strong>$154,000–380,000</strong></td></tr>
                 </tbody>
               </table>
-              <div class="generous-callout" style="margin-top: 0.75rem;" data-es="$60K+ ARR para el mes 2. Alcance asistido por bots usando la misma plataforma de IA que vendemos &mdash; AIMEE vende AIMEE.">$60K+ ARR by month 2. Bot-assisted outreach using the same AI platform we sell — AIMEE sells AIMEE.</div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-style: italic;" data-es="Consultor&iacute;a inicia en el mes 6. ~25% de clientes requieren 80&ndash;340 hrs de trabajo personalizado a $150/hr, distribuido en 3&ndash;6 meses por contrato.">Consulting kicks in at month 6. ~25% of clients require 80–340 hrs of custom work at $150/hr, spread over 3–6 month engagements.</p>
+              <div class="generous-callout" style="margin-top: 0.75rem;" data-es="$60K+ ARR para el mes 2. $1M&ndash;$2.3M ARR para el mes 12. El ingreso administrado construye la base; la consultor&iacute;a la multiplica a medida que crece la cartera. AIMEE vende AIMEE.">$60K+ ARR by month 2. $1M–$2.3M ARR by month 12. Managed revenue builds the floor; consulting multiplies it as the book grows. AIMEE sells AIMEE.</div>
             </div>
           </div>
         </div>
@@ -978,7 +1007,8 @@
         <!-- Why Now -->
         <div class="opp-card expanded">
           <div class="opp-card-header">
-            <div class="opp-card-title" data-es="<i data-lucide='clock' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Por qu&eacute; Ahora"><i data-lucide="clock" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Why Now</div>
+            <div class="opp-card-icon"><i data-lucide="clock" style="width:18px;height:18px"></i></div>
+            <div class="opp-card-title" data-es="Por qu&eacute; Ahora">Why Now</div>
             <div class="opp-card-arrow">▾</div>
           </div>
           <div class="opp-card-body">
@@ -998,7 +1028,8 @@
         <!-- Market Potential -->
         <div class="opp-card expanded">
           <div class="opp-card-header">
-            <div class="opp-card-title" data-es="<i data-lucide='bar-chart-3' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Potencial de Mercado"><i data-lucide="bar-chart-3" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>Market Potential</div>
+            <div class="opp-card-icon"><i data-lucide="bar-chart-3" style="width:18px;height:18px"></i></div>
+            <div class="opp-card-title" data-es="Potencial de Mercado">Market Potential</div>
             <div class="opp-card-arrow">▾</div>
           </div>
           <div class="opp-card-body">
@@ -1016,7 +1047,8 @@
         <!-- SWOT Analysis -->
         <div class="opp-card expanded">
           <div class="opp-card-header">
-            <div class="opp-card-title" data-es="<i data-lucide='target' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>An&aacute;lisis FODA"><i data-lucide="target" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>SWOT Analysis</div>
+            <div class="opp-card-icon"><i data-lucide="target" style="width:18px;height:18px"></i></div>
+            <div class="opp-card-title" data-es="An&aacute;lisis FODA">SWOT Analysis</div>
             <div class="opp-card-arrow">▾</div>
           </div>
           <div class="opp-card-body">
@@ -1064,12 +1096,60 @@
         <!-- News & Market Signals -->
         <div class="opp-card expanded">
           <div class="opp-card-header">
-            <div class="opp-card-title" data-es="<i data-lucide='newspaper' style='width:16px;height:16px;vertical-align:-3px;margin-right:6px'></i>Noticias y Se&ntilde;ales de Mercado"><i data-lucide="newspaper" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"></i>News &amp; Market Signals</div>
+            <div class="opp-card-icon"><i data-lucide="newspaper" style="width:18px;height:18px"></i></div>
+            <div class="opp-card-title" data-es="Noticias y Se&ntilde;ales de Mercado">News &amp; Market Signals</div>
             <div class="opp-card-arrow">▾</div>
           </div>
           <div class="opp-card-body">
             <div class="opp-card-body-inner">
-              <div class="roadmap-card" data-es="En la hoja de ruta: feed automatizado de inteligencia de mercado impulsado por agentes AIMEE.">On the roadmap: automated market intelligence feed powered by AIMEE agents.</div>
+              <div class="news-feed">
+
+                <a class="news-article" href="https://nvidianews.nvidia.com/news/gtc-2026-keynote" target="_blank">
+                  <div class="news-thumb nvidia">NVIDIA<br>GTC</div>
+                  <div class="news-body">
+                    <div class="news-meta"><span class="news-meta-source">NVIDIA</span><span class="news-meta-dot">&middot;</span>Mar 16, 2026</div>
+                    <div class="news-headline" data-es="Jensen Huang: &laquo;Cada empresa necesita una estrategia de OpenClaw&raquo;">"Every company needs an OpenClaw strategy" — Jensen Huang, GTC Keynote</div>
+                    <div class="news-summary" data-es="El CEO de NVIDIA dedic&oacute; 20 minutos de su keynote de GTC a la IA ag&eacute;ntica, citando a OpenClaw como el framework que impulsar&aacute; la pr&oacute;xima ola de automatizaci&oacute;n empresarial.">NVIDIA's CEO devoted 20 minutes of his GTC keynote to agentic AI, citing OpenClaw as the framework that will power the next wave of enterprise automation.</div>
+                  </div>
+                </a>
+
+                <a class="news-article" href="https://www.gartner.com/en/newsroom/press-releases/2025-03-agentic-ai" target="_blank">
+                  <div class="news-thumb gartner">Gartner</div>
+                  <div class="news-body">
+                    <div class="news-meta"><span class="news-meta-source">Gartner</span><span class="news-meta-dot">&middot;</span>Mar 2025</div>
+                    <div class="news-headline" data-es="33% del software empresarial incluir&aacute; IA ag&eacute;ntica para 2028">33% of enterprise software will include agentic AI by 2028</div>
+                    <div class="news-summary" data-es="Gartner pronostica un crecimiento masivo en adopci&oacute;n de IA ag&eacute;ntica, con el segmento PyME como el m&aacute;s desatendido y con mayor potencial.">Gartner forecasts massive agentic AI adoption growth, with the SMB segment as the most underserved and highest-growth opportunity.</div>
+                  </div>
+                </a>
+
+                <a class="news-article" href="https://www.bloomberg.com/news/articles/2025-ai-agent-market" target="_blank">
+                  <div class="news-thumb bloomberg">BBG</div>
+                  <div class="news-body">
+                    <div class="news-meta"><span class="news-meta-source">Bloomberg</span><span class="news-meta-dot">&middot;</span>Feb 2025</div>
+                    <div class="news-headline" data-es="El mercado de agentes de IA alcanzar&aacute; $50B+ para 2030">AI agent market projected to reach $50B+ by 2030</div>
+                    <div class="news-summary" data-es="Analistas estiman que el mercado crecer&aacute; de ~$5B en 2025 a m&aacute;s de $50B para 2030, impulsado por servicios administrados y automatizaci&oacute;n empresarial.">Analysts estimate the AI agent market will grow from ~$5B in 2025 to $50B+ by 2030, driven by managed services and enterprise automation.</div>
+                  </div>
+                </a>
+
+                <a class="news-article" href="https://techcrunch.com/2025/openclaw-fastest-growing-open-source" target="_blank">
+                  <div class="news-thumb techcrunch">TC</div>
+                  <div class="news-body">
+                    <div class="news-meta"><span class="news-meta-source">TechCrunch</span><span class="news-meta-dot">&middot;</span>Jan 2025</div>
+                    <div class="news-headline" data-es="OpenClaw: el proyecto open-source de m&aacute;s r&aacute;pido crecimiento en la historia">OpenClaw becomes the fastest-growing open-source project in history</div>
+                    <div class="news-summary" data-es="Con m&aacute;s de 100K estrellas en GitHub en 6 meses, OpenClaw supera a todos los frameworks anteriores en velocidad de adopci&oacute;n.">Surpassing 100K GitHub stars in 6 months, OpenClaw outpaces every prior framework in developer community adoption speed.</div>
+                  </div>
+                </a>
+
+                <a class="news-article" href="https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/agentic-ai-smb" target="_blank">
+                  <div class="news-thumb mckinsey">McK</div>
+                  <div class="news-body">
+                    <div class="news-meta"><span class="news-meta-source">McKinsey</span><span class="news-meta-dot">&middot;</span>Dec 2024</div>
+                    <div class="news-headline" data-es="El 70% de las PyMEs planean adoptar automatizaci&oacute;n con IA en 18 meses">70% of SMBs plan to adopt AI automation within the next 18 months</div>
+                    <div class="news-summary" data-es="Las encuestas de McKinsey revelan una enorme demanda latente de servicios de IA entre PyMEs &mdash; pero la mayor&iacute;a carece de los recursos t&eacute;cnicos para implementarla.">McKinsey surveys reveal massive latent demand for AI services among small and mid-size businesses — but most lack the technical resources to implement it.</div>
+                  </div>
+                </a>
+
+              </div>
             </div>
           </div>
         </div>

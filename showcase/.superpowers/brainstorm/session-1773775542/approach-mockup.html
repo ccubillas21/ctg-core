@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Brainstorm: Proposed Approach</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; padding: 2rem; max-width: 940px; margin: 0 auto; line-height: 1.5; }
+  h2 { font-size: 1.4rem; margin-bottom: 0.3rem; }
+  h3 { font-size: 1.05rem; margin-bottom: 0.75rem; color: #334155; }
+  .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 2rem; }
+  .section { margin-bottom: 3rem; }
+  .section-divider { border: none; border-top: 2px dashed #e2e8f0; margin: 2.5rem 0; }
+  .tag { font-size: 11px; background: #334155; color: #94a3b8; padding: 2px 8px; border-radius: 4px; display: inline-block; margin: 2px; }
+  .dark-panel { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-top: 10px; }
+  .dark-panel-text { font-size: 12px; color: #cbd5e1; line-height: 1.6; }
+  .dark-panel-text strong { color: #f1f5f9; }
+  .expand-hint { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 6px; }
+
+  /* AIMEE Tribute */
+  .aimee-callout {
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+    border: 1px solid #fbcfe8;
+    border-left: 4px solid #ec4899;
+    border-radius: 0 12px 12px 0;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .aimee-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #fce7f3; border: 2px solid #fbcfe8;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .aimee-text { font-size: 0.9rem; color: #831843; font-style: italic; line-height: 1.7; }
+
+  /* Hero Pricing Card */
+  .hero-card {
+    background: #fff;
+    border: 2px solid #C7D2FE;
+    border-top: 4px solid #4F46E5;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+  .hero-icon-box {
+    width: 56px; height: 56px; border-radius: 12px;
+    background: #EEF2FF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0; color: #4F46E5;
+  }
+  .hero-price { font-size: 2rem; font-weight: 800; color: #4F46E5; }
+  .hero-period { font-size: 0.8rem; color: #64748b; }
+  .hero-name { font-size: 1.1rem; font-weight: 700; margin-top: 0.25rem; }
+  .hero-desc { font-size: 0.85rem; color: #64748b; margin-top: 0.15rem; }
+  .hero-tags { margin-top: 0.75rem; }
+
+  /* Secondary Cards */
+  .secondary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+  .secondary-card {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .sec-green { border-color: #A7F3D0; border-top: 4px solid #059669; }
+  .sec-amber { border-color: #FDE68A; border-top: 4px solid #D97706; }
+  .sec-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 0.5rem;
+  }
+  .sec-green .sec-icon { background: #ECFDF5; color: #059669; }
+  .sec-amber .sec-icon { background: #FFFBEB; color: #D97706; }
+  .sec-price { font-size: 1.3rem; font-weight: 700; }
+  .sec-green .sec-price { color: #059669; }
+  .sec-amber .sec-price { color: #D97706; }
+  .sec-name { font-weight: 700; font-size: 0.9rem; margin-top: 0.2rem; }
+  .sec-desc { font-size: 0.8rem; color: #64748b; margin-top: 0.15rem; }
+
+  /* Deployment Steps */
+  .deploy-step {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .deploy-step:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.06); }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+  }
+  .step-1 { border-left: 4px solid #4F46E5; }
+  .step-1 .step-num { background: #EEF2FF; color: #4F46E5; }
+  .step-2 { border-left: 4px solid #059669; }
+  .step-2 .step-num { background: #ECFDF5; color: #059669; }
+  .step-3 { border-left: 4px solid #D97706; }
+  .step-3 .step-num { background: #FFFBEB; color: #D97706; }
+  .step-4 { border-left: 4px solid #DB2777; }
+  .step-4 .step-num { background: #FDF2F8; color: #DB2777; }
+  .step-5 { border-left: 4px solid #3b82f6; }
+  .step-5 .step-num { background: #EFF6FF; color: #3b82f6; }
+  .step-title { font-weight: 600; font-size: 0.85rem; }
+  .step-desc-small { font-size: 0.75rem; color: #64748b; }
+  .deploy-connector { text-align: center; color: #e2e8f0; font-size: 0.8rem; padding: 0.1rem 0; }
+
+  /* Opportunity Cards */
+  .opp-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .opp-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .opp-1 { border-left: 4px solid #4F46E5; }
+  .opp-1 .opp-icon { background: #EEF2FF; color: #4F46E5; }
+  .opp-2 { border-left: 4px solid #22c55e; }
+  .opp-2 .opp-icon { background: #DCFCE7; color: #16a34a; }
+  .opp-3 { border-left: 4px solid #D97706; }
+  .opp-3 .opp-icon { background: #FFFBEB; color: #D97706; }
+  .opp-4 { border-left: 4px solid #059669; }
+  .opp-4 .opp-icon { background: #ECFDF5; color: #059669; }
+  .opp-5 { border-left: 4px solid #DB2777; }
+  .opp-5 .opp-icon { background: #FDF2F8; color: #DB2777; }
+  .opp-6 { border-left: 4px solid #6366f1; }
+  .opp-6 .opp-icon { background: #EEF2FF; color: #6366f1; }
+  .opp-title { font-weight: 700; font-size: 0.9rem; }
+  .opp-arrow { color: #94a3b8; margin-left: auto; }
+
+  .approach-label {
+    display: inline-block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #4F46E5;
+    background: #EEF2FF;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+</style>
+</head><body>
+
+<h2>Proposed Approach: Full Visual Alignment</h2>
+<p class="subtitle">Bringing the org chart / architecture design language to every section. Here's how each area would look.</p>
+
+<!-- ═══ AREA 1: AIMEE TRIBUTE ═══ -->
+<div class="section">
+  <span class="approach-label">Area 1</span>
+  <h3>AIMEE Tribute — Personal Callout</h3>
+  <p style="font-size:0.8rem;color:#64748b;margin-bottom:1rem;">Distinct from product copy. Pink accent, heart icon, italic diary tone. Sits between section title and pricing.</p>
+
+  <div class="aimee-callout">
+    <div class="aimee-icon">&#10084;</div>
+    <div class="aimee-text">
+      Yeah, I named my AI platform after my wife. She's a PICU nurse who just finished her NP — runs a household of five, advances her career, and somehow still pushes our entire life forward. She handles more chaos by Tuesday morning than most people do in a week. She'll probably roll her eyes when she sees this. But an AI that manages everything deserved the name of someone who actually does.
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══ AREA 2: PRICING CARDS ═══ -->
+<div class="section">
+  <span class="approach-label">Area 2</span>
+  <h3>Pricing Cards — Hero + Secondary Pattern</h3>
+  <p style="font-size:0.8rem;color:#64748b;margin-bottom:1rem;">Starter gets the spotlight with architecture-style color coding. Additional Agents and Custom sit below as supporting options.</p>
+
+  <!-- Hero: Starter -->
+  <div class="hero-card">
+    <div class="hero-icon-box">&#9889;</div>
+    <div>
+      <div class="hero-price">$500 <span class="hero-period">/month</span></div>
+      <div class="hero-name">Starter</div>
+      <div class="hero-desc">3 agents. Slack. Fully managed.</div>
+      <div class="hero-tags">
+        <span class="tag">Primary / Sonnet</span>
+        <span class="tag">Engineer / Opus</span>
+        <span class="tag">Dispatch / Haiku</span>
+        <span class="tag">Slack</span>
+        <span class="tag">Mission Control</span>
+        <span class="tag">SOPs</span>
+        <span class="tag">Health Monitoring</span>
+        <span class="tag">Weekly Check-ins</span>
+      </div>
+      <div class="expand-hint">tap to expand → token table + dark tech panel</div>
+    </div>
+  </div>
+
+  <!-- Secondary row -->
+  <div class="secondary-row">
+    <div class="secondary-card sec-green">
+      <div class="sec-icon">&#128101;</div>
+      <div class="sec-price">from $50</div>
+      <div style="font-size:0.75rem;color:#64748b;">/month per agent</div>
+      <div class="sec-name">Additional Agents</div>
+      <div class="sec-desc">Scale your team</div>
+      <div class="expand-hint">tap to expand → role pricing table</div>
+    </div>
+    <div class="secondary-card sec-amber">
+      <div class="sec-icon">&#128295;</div>
+      <div class="sec-price">$150</div>
+      <div style="font-size:0.75rem;color:#64748b;">/hour</div>
+      <div class="sec-name">Custom</div>
+      <div class="sec-desc">Built for you</div>
+      <div class="expand-hint">tap to expand → services list</div>
+    </div>
+  </div>
+
+  <p style="font-size:0.8rem;color:#64748b;margin-top:1rem;">Each card expands with the same dual-layer pattern: business details first, then a dark "Technical Details" panel with token tables, model info, etc.</p>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══ AREA 3: DEPLOYMENT ═══ -->
+<div class="section">
+  <span class="approach-label">Area 3a</span>
+  <h3>Deployment Steps — Color-Coded + Dark Tech Panels</h3>
+  <p style="font-size:0.8rem;color:#64748b;margin-bottom:1rem;">Each step gets its own color. Clicking expands business detail, then a dark tech panel with commands/configs.</p>
+
+  <div class="deploy-step step-1">
+    <div class="step-num">1</div>
+    <div><div class="step-title">Provision Infrastructure</div><div class="step-desc-small">Docker host, DNS, Cloudflare tunnel</div></div>
+  </div>
+  <div class="deploy-connector">│</div>
+  <div class="deploy-step step-2">
+    <div class="step-num">2</div>
+    <div><div class="step-title">Deploy AIMEE Package</div><div class="step-desc-small">35 files — agents, workflows, SOPs, monitoring</div></div>
+  </div>
+  <div class="deploy-connector">│</div>
+  <div class="deploy-step step-3">
+    <div class="step-num">3</div>
+    <div><div class="step-title">Configure & Connect</div><div class="step-desc-small">Slack, API keys, agent personalities</div></div>
+  </div>
+  <div class="deploy-connector">│</div>
+  <div class="deploy-step step-4">
+    <div class="step-num">4</div>
+    <div><div class="step-title">Validate & Monitor</div><div class="step-desc-small">Health checks, Mission Control, first tasks</div></div>
+  </div>
+  <div class="deploy-connector">│</div>
+  <div class="deploy-step step-5">
+    <div class="step-num">5</div>
+    <div><div class="step-title">Go Live</div><div class="step-desc-small">Client handoff, weekly check-in schedule</div></div>
+  </div>
+
+  <!-- Example expanded state -->
+  <div style="margin-top:1rem;padding:12px;background:#fff;border:1px solid #A7F3D0;border-left:4px solid #059669;border-radius:10px;">
+    <div style="font-weight:600;font-size:0.85rem;margin-bottom:6px;">&#9660; Step 2 expanded example:</div>
+    <div style="font-size:0.8rem;color:#475569;">We copy the AIMEE package to your server. 35 files, everything included — agents, workflows, SOPs, monitoring.</div>
+    <div class="dark-panel">
+      <div class="dark-panel-text">
+        <strong>docker-compose.yml</strong> &rarr; Paperclip, OpenClaw, Lobster, QMD<br>
+        <strong>agents/</strong> &rarr; IDENTITY.md + SOUL.md per agent<br>
+        <strong>monitoring/</strong> &rarr; health checks, uptime, token tracking
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ═══ AREA 3B: OPPORTUNITY ═══ -->
+<div class="section">
+  <span class="approach-label">Area 3b</span>
+  <h3>Opportunity Cards — Icon Containers in Headers</h3>
+  <p style="font-size:0.8rem;color:#64748b;margin-bottom:1rem;">Keep existing left borders and expand behavior. Add icon containers to match the rest of the site.</p>
+
+  <div class="opp-card opp-1">
+    <div class="opp-icon">&#128200;</div>
+    <div class="opp-title">Unit Economics</div>
+    <div class="opp-arrow">&#9662;</div>
+  </div>
+  <div class="opp-card opp-2">
+    <div class="opp-icon">&#127919;</div>
+    <div class="opp-title">Go-to-Market</div>
+    <div class="opp-arrow">&#9662;</div>
+  </div>
+  <div class="opp-card opp-3">
+    <div class="opp-icon">&#128640;</div>
+    <div class="opp-title">Traction</div>
+    <div class="opp-arrow">&#9662;</div>
+  </div>
+  <div class="opp-card opp-4">
+    <div class="opp-icon">&#127757;</div>
+    <div class="opp-title">Market Size</div>
+    <div class="opp-arrow">&#9662;</div>
+  </div>
+  <div class="opp-card opp-5">
+    <div class="opp-icon">&#9878;</div>
+    <div class="opp-title">SWOT</div>
+    <div class="opp-arrow">&#9662;</div>
+  </div>
+  <div class="opp-card opp-6">
+    <div class="opp-icon">&#128225;</div>
+    <div class="opp-title">News & Market Signals</div>
+    <div class="opp-arrow">&#9662;</div>
+  </div>
+
+  <p style="font-size:0.8rem;color:#64748b;margin-top:0.75rem;">Expanded content stays the same (tables, SWOT grid, etc.) — just upgrading the headers to match the visual language.</p>
+</div>
+
+</body></html>

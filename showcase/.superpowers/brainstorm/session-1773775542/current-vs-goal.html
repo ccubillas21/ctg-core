@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Brainstorm: Showcase Styling</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; padding: 2rem; max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  h2 { font-size: 1.4rem; margin-bottom: 0.3rem; }
+  h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #334155; }
+  .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 2rem; }
+  .section { margin-bottom: 2.5rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .mini-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; text-align: center; }
+  .callout { margin-top: 12px; padding: 12px 16px; border-left: 3px solid #ef4444; border-radius: 8px; font-size: 13px; color: #991b1b; background: #FEF2F2; }
+  .area-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 12px; cursor: pointer; transition: all 0.15s; }
+  .area-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #4F46E5; }
+  .area-card.selected { border-color: #4F46E5; background: #EEF2FF; }
+  .area-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #EEF2FF; color: #4F46E5; font-weight: 700; font-size: 0.85rem; margin-right: 10px; }
+  .area-title { font-weight: 700; font-size: 0.95rem; display: inline; }
+  .area-desc { font-size: 0.85rem; color: #64748b; margin-top: 6px; padding-left: 38px; }
+  .tag { font-size: 10px; background: #334155; color: #94a3b8; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  .dark-panel { background: #1e293b; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+  .dark-panel span { font-size: 11px; color: #cbd5e1; }
+</style>
+</head><body>
+
+<h2>Product Section: Current State vs. Established Patterns</h2>
+<p class="subtitle">The org chart and architecture set a strong visual language. The product section doesn't follow it yet.</p>
+
+<div class="section">
+  <h3>What Works (Org Chart & Architecture Pattern)</h3>
+  <div class="grid-4">
+    <div class="mini-card" style="border-color:#C7D2FE;border-top:4px solid #4F46E5;">
+      <div style="font-weight:700;font-size:13px;">Color-coded borders</div>
+      <div style="font-size:11px;color:#64748b;margin-top:4px;">Bold top border per service/dept</div>
+    </div>
+    <div class="mini-card">
+      <div class="dark-panel"><span>Dark detail panels</span></div>
+      <div style="font-weight:700;font-size:13px;">Dual-layer expand</div>
+      <div style="font-size:11px;color:#64748b;margin-top:4px;">Business → Tech details</div>
+    </div>
+    <div class="mini-card">
+      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;">
+        <span class="tag">tag</span><span class="tag">tag</span><span class="tag">tag</span>
+      </div>
+      <div style="font-weight:700;font-size:13px;">Skill tags</div>
+      <div style="font-size:11px;color:#64748b;margin-top:4px;">Scannable, not paragraphs</div>
+    </div>
+    <div class="mini-card">
+      <div style="width:36px;height:36px;border-radius:8px;background:#EEF2FF;display:inline-flex;align-items:center;justify-content:center;margin-bottom:6px;">
+        <span style="color:#4F46E5;font-size:18px;">&#9889;</span>
+      </div>
+      <div style="font-weight:700;font-size:13px;">Icon containers</div>
+      <div style="font-size:11px;color:#64748b;margin-top:4px;">Colored bg, branded feel</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>What's Bland (Product Section Today)</h3>
+  <div class="grid-3">
+    <div class="mini-card" style="padding:20px;">
+      <div style="font-size:24px;font-weight:700;">$500</div>
+      <div style="font-size:11px;color:#64748b;">/month</div>
+      <div style="font-weight:600;margin-top:4px;">Starter</div>
+      <div style="font-size:11px;color:#64748b;">3 agents. Slack. Managed.</div>
+      <div style="font-size:10px;color:#94a3b8;margin-top:8px;">tap to expand</div>
+    </div>
+    <div class="mini-card" style="padding:20px;">
+      <div style="font-size:24px;font-weight:700;">from $50</div>
+      <div style="font-size:11px;color:#64748b;">/month</div>
+      <div style="font-weight:600;margin-top:4px;">Additional Agents</div>
+      <div style="font-size:11px;color:#64748b;">Scale your team.</div>
+      <div style="font-size:10px;color:#94a3b8;margin-top:8px;">tap to expand</div>
+    </div>
+    <div class="mini-card" style="padding:20px;">
+      <div style="font-size:24px;font-weight:700;">$150</div>
+      <div style="font-size:11px;color:#64748b;">/hour</div>
+      <div style="font-weight:600;margin-top:4px;">Custom</div>
+      <div style="font-size:11px;color:#64748b;">Built for you.</div>
+      <div style="font-size:10px;color:#94a3b8;margin-top:8px;">tap to expand</div>
+    </div>
+  </div>
+  <div class="callout">
+    <strong>Issues:</strong> No color coding. No icons in colored containers. Plain bullet lists instead of structured content. Generic expand with no dark tech panels. The AIMEE paragraph is a plain italic card — no visual weight, no structure.
+  </div>
+</div>
+
+<div class="section">
+  <h3>Three Areas to Fix — Click the ones you care about most</h3>
+
+  <div class="area-card" onclick="this.classList.toggle('selected')">
+    <span class="area-num">1</span>
+    <div class="area-title">Pricing Cards — Match Architecture Pattern</div>
+    <div class="area-desc">Color-coded top borders per tier, icon containers, dual-layer expand (features → dark tech panel with token details), skill-tag style for included items instead of bullet lists</div>
+  </div>
+
+  <div class="area-card" onclick="this.classList.toggle('selected')">
+    <span class="area-num">2</span>
+    <div class="area-title">AIMEE Tribute Card — Rewrite + Restyle</div>
+    <div class="area-desc">Current text reads rushed — "She hates that I'm using her name" needs more warmth. Restyle the card with a distinct visual treatment (accent border, heart icon, better typography)</div>
+  </div>
+
+  <div class="area-card" onclick="this.classList.toggle('selected')">
+    <span class="area-num">3</span>
+    <div class="area-title">Deployment & Opportunity — Polish Pass</div>
+    <div class="area-desc">Deployment steps could get color-coded borders per step type. Opportunity cards already have left borders but could get icon containers in headers to match the rest of the site.</div>
+  </div>
+</div>
+
+</body></html>

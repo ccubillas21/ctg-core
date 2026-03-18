@@ -390,18 +390,53 @@ body {
 .arch-channels {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.6rem;
   margin-top: 1rem;
+  flex-wrap: wrap;
 }
 
 .arch-channel {
-  background: var(--bg);
+  background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s;
+  box-shadow: var(--shadow);
 }
+.arch-channel:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+}
+.arch-channel-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+/* Brand colors for channel icons */
+.ch-slack .arch-channel-icon { background: #4A154B; color: #fff; }
+.ch-teams .arch-channel-icon { background: #5B5FC7; color: #fff; }
+.ch-telegram .arch-channel-icon { background: #26A5E4; color: #fff; }
+.ch-jira .arch-channel-icon { background: #0052CC; color: #fff; }
+.ch-discord .arch-channel-icon { background: #5865F2; color: #fff; }
+.ch-whatsapp .arch-channel-icon { background: #25D366; color: #fff; }
+.ch-voice .arch-channel-icon { background: #ef4444; color: #fff; }
+.ch-email .arch-channel-icon { background: #EA4335; color: #fff; }
+.ch-canvas .arch-channel-icon { background: #E13F29; color: #fff; }
+.ch-x .arch-channel-icon { background: #000; color: #fff; }
+.ch-linkedin .arch-channel-icon { background: #0A66C2; color: #fff; }
+.ch-notion .arch-channel-icon { background: #000; color: #fff; }
+.ch-sheets .arch-channel-icon { background: #0F9D58; color: #fff; }
 
 .arch-label {
   font-size: 0.65rem;
@@ -718,7 +753,7 @@ body {
   transition: all 0.15s;
 }
 .deploy-v2-step:hover { box-shadow: var(--shadow-md); }
-.deploy-v2-step.complete { border-left-color: var(--green); }
+.deploy-v2-step.complete:not([class*="step-color"]) { border-left-color: var(--green); }
 .deploy-step-num {
   width: 28px;
   height: 28px;
@@ -732,7 +767,7 @@ body {
   justify-content: center;
   margin-bottom: 0.5rem;
 }
-.deploy-v2-step.complete .deploy-step-num {
+.deploy-v2-step.complete:not([class*="step-color"]) .deploy-step-num {
   background: #DCFCE7;
   color: #16a34a;
 }
@@ -901,6 +936,76 @@ body {
 }
 .swot-cell li { margin-bottom: 0.3rem; }
 
+/* ── News Feed ──────────────────────────────── */
+.news-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.news-article {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+  border-radius: 6px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+.news-article:first-child { padding-top: 0.25rem; }
+.news-article:last-child { border-bottom: none; }
+.news-article:hover { background: rgba(99,102,241,0.04); }
+
+.news-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.6rem;
+  letter-spacing: 0.03em;
+  color: #fff;
+  text-transform: uppercase;
+  line-height: 1.1;
+  text-align: center;
+}
+.news-thumb.nvidia    { background: linear-gradient(135deg, #76b900, #5a8f00); }
+.news-thumb.gartner   { background: linear-gradient(135deg, #002856, #004080); }
+.news-thumb.bloomberg { background: linear-gradient(135deg, #1e1e1e, #333); }
+.news-thumb.techcrunch { background: linear-gradient(135deg, #0a9e01, #067a00); }
+.news-thumb.mckinsey  { background: linear-gradient(135deg, #003d6b, #00568f); }
+
+.news-body { flex: 1; min-width: 0; }
+.news-headline {
+  font-weight: 700;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+}
+.news-article:hover .news-headline { color: var(--accent); }
+.news-summary {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+.news-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.news-meta-source { font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.news-meta-dot { opacity: 0.4; }
+
 .roadmap-card {
   background: var(--accent-light);
   border: 1px dashed var(--accent);
@@ -910,6 +1015,225 @@ body {
   color: var(--accent);
   text-align: center;
 }
+
+/* ── AIMEE Tribute Callout ────────────────────── */
+.aimee-callout {
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+  border: 1px solid #fbcfe8;
+  border-left: 4px solid #ec4899;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.aimee-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #fce7f3;
+  border: 2px solid #fbcfe8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.aimee-text {
+  font-size: 0.9rem;
+  color: #831843;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* ── Pricing Hero + Secondary ────────────────── */
+.pricing-hero {
+  background: var(--card-bg);
+  border: 2px solid var(--layer-paperclip-border);
+  border-top: 4px solid var(--layer-paperclip);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow);
+}
+.pricing-hero:hover { box-shadow: var(--shadow-md); }
+
+.pricing-hero-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: var(--accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.pricing-hero-price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.pricing-hero-period {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.pricing-hero-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+.pricing-hero-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+.pricing-hero-tags {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.pricing-tag {
+  font-size: 0.65rem;
+  background: #334155;
+  color: #e2e8f0;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.pricing-hero-expand {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  text-align: left;
+}
+.pricing-hero.expanded .pricing-hero-expand { max-height: 1000px; }
+
+.pricing-hero-expand-inner {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.pricing-secondary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pricing-secondary {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow);
+}
+.pricing-secondary:hover { box-shadow: var(--shadow-md); }
+
+.pricing-secondary.tier-green {
+  border-color: var(--layer-openclaw-border);
+  border-top: 4px solid var(--layer-openclaw);
+}
+.pricing-secondary.tier-amber {
+  border-color: var(--layer-lobster-border);
+  border-top: 4px solid var(--layer-lobster);
+}
+
+.pricing-sec-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 0.5rem;
+}
+.tier-green .pricing-sec-icon { background: var(--layer-openclaw-light); color: var(--layer-openclaw); }
+.tier-amber .pricing-sec-icon { background: var(--layer-lobster-light); color: var(--layer-lobster); }
+
+.pricing-sec-price { font-size: 1.3rem; font-weight: 700; }
+.tier-green .pricing-sec-price { color: var(--layer-openclaw); }
+.tier-amber .pricing-sec-price { color: var(--layer-lobster); }
+
+.pricing-sec-name { font-weight: 700; font-size: 0.9rem; margin-top: 0.2rem; }
+.pricing-sec-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem; }
+
+.pricing-secondary-expand {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  text-align: left;
+}
+.pricing-secondary.expanded .pricing-secondary-expand { max-height: 1000px; }
+
+.pricing-secondary-expand-inner {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Dark tech panel (reusable) */
+.dark-panel {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+}
+.dark-panel-text {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+.dark-panel-text strong { color: #f1f5f9; }
+
+/* ── Deployment Color-Coded Steps ────────────── */
+.deploy-v2-step.step-color-1 { border-left-color: var(--layer-paperclip); }
+.deploy-v2-step.step-color-1 .deploy-step-num { background: var(--layer-paperclip-light); color: var(--layer-paperclip); }
+.deploy-v2-step.step-color-2 { border-left-color: var(--layer-openclaw); }
+.deploy-v2-step.step-color-2 .deploy-step-num { background: var(--layer-openclaw-light); color: var(--layer-openclaw); }
+.deploy-v2-step.step-color-3 { border-left-color: var(--layer-lobster); }
+.deploy-v2-step.step-color-3 .deploy-step-num { background: var(--layer-lobster-light); color: var(--layer-lobster); }
+.deploy-v2-step.step-color-4 { border-left-color: var(--layer-qmd); }
+.deploy-v2-step.step-color-4 .deploy-step-num { background: var(--layer-qmd-light); color: var(--layer-qmd); }
+.deploy-v2-step.step-color-5 { border-left-color: #3b82f6; }
+.deploy-v2-step.step-color-5 .deploy-step-num { background: #EFF6FF; color: #3b82f6; }
+.deploy-v2-step.step-color-6 { border-left-color: #6366f1; }
+.deploy-v2-step.step-color-6 .deploy-step-num { background: var(--accent-light); color: #6366f1; }
+
+/* ── Opportunity Icon Headers ────────────────── */
+.opp-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.opp-card:nth-child(1) .opp-card-icon { background: var(--layer-paperclip-light); color: var(--layer-paperclip); }
+.opp-card:nth-child(2) .opp-card-icon { background: #DCFCE7; color: #16a34a; }
+.opp-card:nth-child(3) .opp-card-icon { background: var(--layer-lobster-light); color: var(--layer-lobster); }
+.opp-card:nth-child(4) .opp-card-icon { background: var(--layer-openclaw-light); color: var(--layer-openclaw); }
+.opp-card:nth-child(5) .opp-card-icon { background: var(--layer-qmd-light); color: var(--layer-qmd); }
+.opp-card:nth-child(6) .opp-card-icon { background: var(--accent-light); color: #6366f1; }
+
+.opp-card-header { gap: 0.75rem; }
 
 /* ── Responsive ────────────────────────────────── */
 
@@ -931,7 +1255,27 @@ body {
   }
 
   .sidebar-logo { margin-right: 1rem; }
-  .sidebar-subtitle, .sidebar-label, .sidebar-progress, .sidebar-links { display: none; }
+  .sidebar-subtitle, .sidebar-label, .sidebar-progress { display: none; }
+  .sidebar-links {
+    display: flex;
+    flex-direction: row;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-link {
+    font-size: 0;       /* hide text, show icon only */
+    padding: 0.35rem;
+    margin: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sidebar-link i { margin: 0 !important; }
 
   .nav-item {
     white-space: nowrap;
@@ -954,6 +1298,9 @@ body {
 
   .org-v2-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
   .pricing-v2-row { grid-template-columns: 1fr; }
+  .pricing-secondary-row { grid-template-columns: 1fr; }
+  .pricing-hero { flex-direction: column; }
+  .aimee-callout { flex-direction: column; align-items: center; text-align: center; }
   .deploy-v2-flow { flex-direction: column; }
   .swot-grid { grid-template-columns: 1fr; }
 
@@ -1066,3 +1413,14 @@ body {
   border-color: var(--accent);
 }
 .lang-btn:hover { border-color: var(--accent); }
+
+@media (max-width: 900px) {
+  .lang-bar {
+    top: auto;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    border-radius: 8px;
+    border-bottom-left-radius: 8px;
+    padding: 0.35rem;
+  }
+}

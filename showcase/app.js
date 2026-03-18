@@ -1,4 +1,15 @@
 (function () {
+  // ── Dynamic service links (localhost vs Tailscale) ──
+  var isLocal = ['localhost', '127.0.0.1'].indexOf(location.hostname) !== -1;
+  var base = isLocal ? 'http://localhost' : location.protocol + '//' + location.hostname;
+  var portMap = { '4001': 4000, '3100': 3100, '18789': 18789 };
+  document.querySelectorAll('.sidebar-link[href*="localhost"]').forEach(function (link) {
+    var match = link.getAttribute('href').match(/:(\d+)/);
+    if (match && portMap[match[1]]) {
+      link.setAttribute('href', base + ':' + portMap[match[1]]);
+    }
+  });
+
   // ── Lucide icon initialization ──────────────────
   if (window.lucide) { lucide.createIcons(); }
 
@@ -157,20 +168,8 @@
     }
   });
 
-  // ── Pricing toggle (expand/collapse ALL cards together) ─
-  var pricingCards = document.querySelectorAll('.pricing-v2-card');
-  pricingCards.forEach(function (card) {
-    card.addEventListener('click', function () {
-      var shouldExpand = !card.classList.contains('expanded');
-      pricingCards.forEach(function (c) {
-        if (shouldExpand) {
-          c.classList.add('expanded');
-        } else {
-          c.classList.remove('expanded');
-        }
-      });
-    });
-  });
+  // ── Pricing toggle (individual expand/collapse) ─
+  // Hero and secondary cards use inline onclick handlers
 
   // ── Opportunity accordion ───────────────────────
   var oppCards = document.querySelectorAll('.opp-card');
