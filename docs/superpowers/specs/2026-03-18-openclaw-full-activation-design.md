@@ -44,24 +44,53 @@ Qwen and MiniMax demoted to last-resort or removed entirely. Two primary provide
 
 **GPT-4o-mini token budget:** ~$1/mo per specialist agent corresponds to ~1.5M output tokens/month. Specialists only wake on triggers, so this is generous. If any agent enters a verbose loop, the trigger daemon's deduplication + focus binding prevents runaway costs.
 
-## 4. Agent Roster (12 Agents)
+## 4. Agent Roster (10 Active Agents)
 
-### 4.1 Agents CUT (7 removed)
+### 4.1 Agent Directory Reconciliation
+
+Current `~/.openclaw/agents/` has 17 directories. Disposition:
+
+| Directory | Action | Notes |
+|-----------|--------|-------|
+| `worker` | **KEEP** as Dude | Primary agent, channel bindings stay |
+| `cto` | **KEEP** as Walter | Unchanged |
+| `jr` | **KEEP** as Jr/Bonny | Telegram=bonny, Slack=bonny |
+| `mailroom` | **KEEP** | Quarantined, unchanged |
+| `axiom` | **RENAME → maude** | Rename dir, update openclaw.json + Paperclip + channel bindings |
+| `docker-2` | **RENAME → brandt** | Same rename process |
+| `ops` | **RENAME → smokey** | Same rename process |
+| `sentinel` | **RENAME → da-fino** | Same rename process |
+| `donny` | **REPURPOSE** | Keep dir, rewrite soul.md for dashboard/viz role |
+| `maude` | **CUT** | Old Delivery PM — deregister from config, archive dir |
+| `scout` | **CUT** | Product PM — deregister, archive |
+| `atlas` | **CUT** | VP AI Resources — deregister, archive |
+| `herald` | **CUT** | VP Telecoms — deregister, archive |
+| `oracle` | **CUT** | Predictive/Analytics — deregister, archive |
+| `windows` | **CUT** | Windows/Edge — deregister, archive |
+| `main` | **CUT** | Legacy default agent, superseded by worker/Dude |
+| `claude-code` | **CUT** | Not an OpenClaw agent — Claude Code operates externally via CLI |
+
+**17 directories → 10 active agents, 7 archived.** Cut agent directories are moved to `~/.openclaw/agents/.archive/` (not deleted) for easy recovery.
+
+**Rename process:** No `openclaw agent rename` command exists. Each rename requires: (1) rename directory, (2) update `agents.{id}` key in openclaw.json, (3) update Paperclip agent registration, (4) update Telegram/Slack channel bindings, (5) update any cross-references in other agents' configs.
+
+### 4.2 Agents CUT (7 removed + 2 legacy)
 
 | Agent | Previous Role | Reason for Cut |
 |-------|--------------|----------------|
 | Scout | Product PM | Dude handles with Paperclip + focus.md |
-| Maude (old) | Delivery PM | Trigger daemon + focus.md auto-tracks delivery |
-| Donny (old) | Client/Sales PM | Dude owns client coordination |
+| Maude (old dir) | Delivery PM | Trigger daemon + focus.md auto-tracks delivery |
 | Atlas | VP AI Resources | Curiosity journal + AutoResearchClaw replaces this |
 | Herald | VP Telecoms | Trigger daemon handles notifications natively |
 | Oracle | Predictive/Analytics | AIMEE dashboard + poll triggers cover this |
 | Windows | Windows/Edge | Too niche for a dedicated agent |
+| main | Legacy default | Superseded by worker (Dude) |
+| claude-code | External tool ref | Not an agent — Claude Code is external architect |
 
-### 4.2 Active Roster
+### 4.3 Active Roster (10 agents)
 
 ```
-Charlie (CEO)
+Charlie (CEO) — human, not an agent
   └─ Jr (Bonny) — Personal admin, journal keeper, your interface
       └─ Dude (Worker) — Chief of Staff, quarterback, coordinator
           ├─ Walter (CTO) — Technical executor, infrastructure
@@ -73,7 +102,7 @@ Charlie (CEO)
           └─ Mailroom — Email triage, quarantined (unchanged)
 ```
 
-### 4.3 Agent Role Definitions
+### 4.4 Agent Role Definitions
 
 **Jr (Bonny) — Personal Admin / Aide-de-Camp**
 - YOUR interface to the system. You talk to Jr, Jr talks to Dude.
@@ -247,7 +276,34 @@ Single Python service (systemd) replacing all 16 legacy cron jobs.
 
 **Smokey's alerting:** Smokey operates at L1 for health checks (log only) and L2 for alerts (auto-send to Telegram + log). Health alerts to Telegram are classified as "monitoring notifications" not "external comms" — Smokey can autonomously notify Charlie when a service goes down without L3 approval.
 
-**Plaza posting enforcement:** The trigger daemon enforces max 1 post + 2 comments per agent per heartbeat cycle. The daemon tracks post counts in its state and drops excess posts with a warning in the audit log.
+**Plaza posting enforcement:** The trigger daemon enforces max 1 post + 2 comments per agent per trigger invocation cycle (each time the daemon groups and fires triggers for an agent). The daemon tracks post counts in its state and drops excess posts with a warning in the audit log.
+
+**Inter-agent message format (inbox/):**
+```markdown
+---
+from: jr
+to: dude
+timestamp: 2026-03-18T09:15:00Z
+subject: New goal from Charlie
+priority: normal
+focus_ref: null
+---
+
+Charlie wants to add a PowerApps integration for the first client.
+He said it's not urgent but should be researched before the next call.
+```
+Messages are markdown files with YAML frontmatter. Filename format: `{timestamp}-{from}-{subject-slug}.md`. After processing, files move to `inbox/archive/`.
+
+**L3 approval flow:**
+When an agent attempts an L3 action, the trigger daemon:
+1. Blocks execution and queues the action to `~/.openclaw/approvals/pending/{agent}-{action-id}.json`
+2. Sends a Telegram notification to Charlie (user ID 8170003835) with action summary and approve/deny options
+3. Charlie replies in Telegram to approve or deny
+4. Jr monitors the approval queue and relays decisions
+5. If no response within 4 hours, the action expires and is logged as "timed out"
+6. Approved actions execute immediately; denied actions are logged with reason
+
+**Daemon watchdog:** In addition to Smokey polling the health endpoint, a standalone cron job (independent of the daemon) checks `localhost:18800/health` every 5 minutes. If unhealthy, it restarts the daemon via systemd and sends a Telegram alert. This prevents the circular dependency where Smokey depends on the daemon that triggers Smokey.
 
 ### 5.2 Agent File Structure (Standardized)
 
