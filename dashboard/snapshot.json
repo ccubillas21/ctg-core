@@ -1,0 +1,143 @@
+{
+  "timestamp": "2026-03-18T21:11:01Z",
+  "services": {
+    "gateway": "healthy",
+    "paperclip": "unreachable",
+    "relay": "unreachable"
+  },
+  "relay": {},
+  "agents": [],
+  "costs": {
+  "period": "2026-03",
+  "daysElapsed": 18,
+  "daysInMonth": 31,
+  "agents": [
+    {
+      "name": "Walter (CTO)",
+      "model": "qwen3.5-plus",
+      "provider": "Qwen",
+      "cost": 261.81,
+      "sessions": 607,
+      "setupCost": 0.24,
+      "steadyCost": 261.57
+    },
+    {
+      "name": "Bonny (Jr)",
+      "model": "qwen3.5-plus",
+      "provider": "Qwen",
+      "cost": 46.2,
+      "sessions": 309,
+      "setupCost": 14.19,
+      "steadyCost": 32.01
+    },
+    {
+      "name": "Dude (Worker)",
+      "model": "qwen3.5-plus",
+      "provider": "Qwen",
+      "cost": 10.75,
+      "sessions": 275,
+      "setupCost": 4.4,
+      "steadyCost": 6.35
+    },
+    {
+      "name": "Donny",
+      "model": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "cost": 0.4,
+      "sessions": 100,
+      "setupCost": 0,
+      "steadyCost": 0.4
+    },
+    {
+      "name": "brandt",
+      "model": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "cost": 0,
+      "sessions": 32,
+      "setupCost": 0,
+      "steadyCost": 0
+    },
+    {
+      "name": "da-fino",
+      "model": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "cost": 0,
+      "sessions": 36,
+      "setupCost": 0,
+      "steadyCost": 0
+    },
+    {
+      "name": "Maude",
+      "model": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "cost": 0,
+      "sessions": 32,
+      "setupCost": 0,
+      "steadyCost": 0
+    },
+    {
+      "name": "smokey",
+      "model": "gpt-4o-mini",
+      "provider": "OpenAI",
+      "cost": 0,
+      "sessions": 141,
+      "setupCost": 0,
+      "steadyCost": 0
+    }
+  ],
+  "providers": [
+    {
+      "name": "Anthropic",
+      "cost": 285.94
+    },
+    {
+      "name": "Qwen",
+      "cost": 33.22
+    },
+    {
+      "name": "MiniMax",
+      "cost": 0
+    },
+    {
+      "name": "OpenAI",
+      "cost": 0
+    },
+    {
+      "name": "Ollama",
+      "cost": 0
+    },
+    {
+      "name": "openai-codex",
+      "cost": 0
+    },
+    {
+      "name": "Claude Code (subscription)",
+      "cost": 100
+    }
+  ],
+  "dailyTrend": [
+    0,
+    18.82,
+    16.61,
+    126.05,
+    103.72,
+    11.96,
+    41.99
+  ],
+  "revenue": 500,
+  "apiTotal": 319.16,
+  "setupCost": 18.82,
+  "steadyStateCost": 300.33,
+  "steadyDailyAvg": 18.77,
+  "projectedMonthly": 581.89,
+  "claudeCodeSubscription": 100,
+  "totalSessions": 1532,
+  "calibration": {
+    "anthropicFactor": 5.91,
+    "qwenCostPerChar": 0.00005207577538262167,
+    "lastCalibrated": "2026-03-17T05:03:13.121Z"
+  },
+  "calculatedAt": "2026-03-18T21:11:01.433Z"
+},
+  "_anyOk": true
+}

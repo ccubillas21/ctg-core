@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIMEE — Sign In</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-card">
+      <h1>AIMEE</h1>
+      <p>Mission Control</p>
+      <div id="login-error" class="login-error">Incorrect password</div>
+      <form id="login-form">
+        <input type="password" id="password" placeholder="Enter password" autofocus>
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
+  </div>
+  <script src="config.js"></script>
+  <script>
+    if (localStorage.getItem('aimeeAuth') === 'true') {
+      window.location.href = 'index.html';
+    }
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var pw = document.getElementById('password').value;
+      if (pw === CONFIG.demoPassword) {
+        localStorage.setItem('aimeeAuth', 'true');
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('login-error').classList.add('visible');
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+      }
+    });
+  </script>
+</body>
+</html>
