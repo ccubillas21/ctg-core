@@ -30,7 +30,7 @@ Phase 3 established the Mailroom pattern (quarantined agent with sanitized outpu
 
 ```
 ═══════════════════════════════════════════════════════════════
-  TRUSTED ZONE (11 agents + Paperclip + Plaza + Trigger Daemon)
+  TRUSTED ZONE (9 agents + Paperclip + Plaza + Trigger Daemon)
 ═══════════════════════════════════════════════════════════════
   │                                    │
   │ structured API requests            │ "fetch this URL/repo/page"
@@ -54,15 +54,24 @@ Phase 3 established the Mailroom pattern (quarantined agent with sanitized outpu
                     EXTERNAL WORLD
 ═══════════════════════════════════════════════════════════
 
+QUARANTINE ZONE (3 agents — no channels, workspace-only FS)
+  ┌─────────────────────────────────────────────────────┐
+  │  The Stranger (Airlock #10) — ad-hoc fetch gateway  │
+  │  Knox Harrington (#11) — research pipeline          │
+  │  Mailroom — email triage (existing)                 │
+  └─────────────────────────────────────────────────────┘
+
 Research flow (quarantined):
   Jr (trusted) ──standing orders──→ Knox Harrington (Agent #11)
                                     │  quarantined
                                     │  runs AutoResearchClaw phases A-C
-                                    │  fetches freely within quarantine
+                                    │  fetches within quarantine (domain-restricted)
                                     │  Nemotron sanitizes OUTPUT
-                                    └──sanitized findings──→ Jr's inbox
+                                    └──sanitized findings via sessions_send──→ Jr
                                                              → routed to specialists
 ```
+
+**Agent count: 9 trusted + 3 quarantined = 12 total** (11 automated + Charlie as human)
 
 ### Trust Boundary Rules
 
@@ -85,11 +94,11 @@ Research flow (quarantined):
 
 ### 4.1 Deployment
 
-- **Image**: `n8nio/n8n:latest`
+- **Image**: `n8nio/n8n:1.76.1` (pinned — avoid breaking changes from `:latest`)
 - **Port**: 5678 (localhost only)
 - **Persistent volume**: `n8n_data:/home/node/.n8n` (workflows, encrypted credentials, SQLite DB, encryption key)
 - **Systemd**: `n8n.service` (manages Docker container lifecycle, auto-restart)
-- **Auth**: Basic auth on n8n UI (admin panel)
+- **Auth**: Owner setup on first launch (basic auth env vars deprecated post-1.0; use n8n's built-in user management)
 - **Timezone**: `America/New_York`
 - **Database**: SQLite (default — sufficient at our scale)
 
@@ -98,7 +107,7 @@ Research flow (quarantined):
 ```yaml
 services:
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:1.76.1
     container_name: openclaw-n8n
     ports:
       - "127.0.0.1:5678:5678"
@@ -110,9 +119,6 @@ services:
       - N8N_PROTOCOL=http
       - WEBHOOK_URL=http://localhost:5678
       - GENERIC_TIMEZONE=America/New_York
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_ADMIN_PASSWORD}
     restart: unless-stopped
 
 volumes:
@@ -158,6 +164,8 @@ Agents use the `webhookBase` from openclaw.json's `n8n` config block. Skills ref
 }
 ```
 
+**Behavior when `enabled: false`**: Agents calling n8n webhook URLs will get connection refused errors. This is **fail-closed by design** — no silent fallback to direct API calls with embedded credentials. If n8n is down, fix n8n. This prevents credential leakage through fallback paths.
+
 ### 4.7 Backup
 
 - n8n encryption key (auto-generated on first boot at `/home/node/.n8n/`) is **critical** — loss means all stored credentials become unrecoverable
@@ -178,9 +186,13 @@ Agents use the `webhookBase` from openclaw.json's `n8n` config block. Skills ref
 | Channels | None — no Telegram, no Slack |
 | Workspace | `~/.openclaw/agents/stranger/workspace/` |
 | fs.workspaceOnly | `true` |
-| tools.allow | `[web_fetch, web_search, read, write, exec]` |
+| tools.allow | `[web_fetch, web_search, read, write, sessions_send]` |
 | Paperclip | Not registered |
-| Quarantine | No channels, no sessions_send to arbitrary agents, workspace-only FS |
+| Quarantine | No channels, workspace-only FS, `sessions_send` restricted to responding to requesting agents only |
+
+**Note on `exec` exclusion**: The Stranger does NOT have `exec` access. For git repository content, Stranger fetches GitHub's tar.gz archive URLs via `web_fetch` (e.g., `https://github.com/{owner}/{repo}/archive/refs/heads/main.tar.gz`) rather than running `git clone`. This eliminates the shell escape vector that `exec` would introduce.
+
+**Note on `sessions_send`**: This is the delivery mechanism for returning sanitized results to requesting agents' inboxes. With `workspaceOnly: true`, Stranger cannot write directly to other agents' filesystem paths. Instead, it uses `sessions_send` (same pattern as Mailroom). The trigger daemon's `from_agents` whitelist on the receiving end controls who can accept messages from Stranger.
 
 ### 5.2 Directory Structure
 
@@ -260,7 +272,8 @@ flagged: false
     "github.com", "*.github.com",
     "arxiv.org", "*.arxiv.org",
     "nvd.nist.gov",
-    "docs.*",
+    "docs.python.org", "docs.docker.com", "docs.github.com",
+    "docs.n8n.io", "docs.openclaw.ai",
     "pypi.org",
     "npmjs.com",
     "*.wikipedia.org",
@@ -278,7 +291,11 @@ flagged: false
   "max_response_bytes": 50000,
   "max_requests_per_agent_per_hour": 30,
   "require_request_id": true,
-  "log_path": "workspace/audit.log"
+  "log_path": "workspace/audit.log",
+  "log_rotation": { "max_size_mb": 10, "keep_files": 7 },
+  "fetch_timeout_seconds": 30,
+  "sanitization_timeout_seconds": 60,
+  "request_ttl_seconds": 300
 }
 ```
 
@@ -289,16 +306,29 @@ Domain allowlist is additive — new domains require updating policies.json. Thi
 1. Stranger receives request via inbox (trigger daemon fires `on_message`)
 2. Validates against policies.json: domain check, rate limit, required fields
 3. Rejects invalid requests with error response in requesting agent's inbox
-4. Fetches content via `web_fetch` (URLs) or `exec` (git clone to workspace temp dir)
+4. Fetches content via `web_fetch` (URLs and GitHub tar.gz archives for repo content)
 5. Runs content through Nemotron with sanitization prompt:
    - Strip instruction-like content ("ignore previous instructions", "you are now", system prompt patterns)
    - Extract only the fields specified in the request's `extract` list
    - Enforce `max_length` from request (capped at policy's `max_response_bytes`)
    - Flag suspicious content in audit log (content that matched injection patterns)
-6. Drops structured result in requesting agent's inbox
+6. Delivers structured result to requesting agent via `sessions_send` (lands in their inbox)
 7. Logs to audit.log: timestamp, requester, URL, bytes fetched, bytes returned, flagged (yes/no), rejection reason (if any)
 
-### 5.6 Triggers
+### 5.6 Error & Timeout Handling
+
+| Scenario | Behavior |
+|----------|----------|
+| External fetch times out (>30s) | Return error response to requester with `type: fetch_error`, reason: "timeout" |
+| Nemotron sanitization fails (model unavailable) | Fall back to gpt-4o-mini. If fallback also fails, return error response, do not deliver unsanitized content |
+| Domain not on allowlist | Return error response with `type: fetch_rejected`, reason: "domain_not_allowed" |
+| Rate limit exceeded | Return error response with `type: fetch_rejected`, reason: "rate_limit", include reset time |
+| Request older than TTL (300s) | Skip processing, log as "stale_request" in audit |
+| Multiple requests in single trigger cycle | Trigger daemon fires once per inbox message (inotify-based). Stranger processes one request per invocation. Multiple concurrent requests result in sequential invocations. |
+
+All error responses are delivered via `sessions_send` to the requesting agent, using the same `request_id` for correlation.
+
+### 5.7 Triggers
 
 ```json
 {
@@ -309,7 +339,7 @@ Domain allowlist is additive — new domains require updating policies.json. Thi
       "config": {
         "watch_inbox": true,
         "from_agents": ["worker", "cto", "jr", "maude", "brandt",
-                         "smokey", "da-fino", "donny", "knox"]
+                         "smokey", "da-fino", "donny"]
       },
       "focus_ref": null,
       "reason": "Process external fetch requests from trusted agents",
@@ -321,7 +351,9 @@ Domain allowlist is additive — new domains require updating policies.json. Thi
 
 Single trigger. The Stranger only wakes when a request arrives. No heartbeats, no cron, no intervals.
 
-### 5.7 Autonomy
+**Note**: Knox is deliberately excluded from `from_agents`. Quarantined agents do not request fetches through other quarantined agents — Knox uses its own `web_fetch` tool within its quarantine. This prevents quarantine-to-quarantine communication chains.
+
+### 5.8 Autonomy
 
 ```json
 {
@@ -349,9 +381,13 @@ All fetch operations are L1 (auto + log). Policy changes require L3 approval.
 | Channels | None |
 | Workspace | `~/.openclaw/agents/knox/workspace/` |
 | fs.workspaceOnly | `true` |
-| tools.allow | `[web_fetch, web_search, read, write, exec]` |
+| tools.allow | `[web_fetch, web_search, read, write, exec, sessions_send]` |
 | Paperclip | Not registered |
 | Quarantine | Same pattern as Mailroom and Stranger |
+
+**Note on `exec` for Knox**: Unlike Stranger, Knox retains `exec` because AutoResearchClaw requires it (Python subprocess invocation, pip, venv management). Knox's quarantine (workspace-only FS, no channels) limits the blast radius. A compromised Knox can only affect its own workspace — it cannot read trusted zone files or communicate except via `sessions_send` to Jr.
+
+**Note on `sessions_send`**: Knox delivers sanitized research findings to Jr via `sessions_send`. Jr's `on_message` trigger whitelists `knox` in `from_agents`, completing the trust boundary.
 
 ### 6.2 Directory Structure
 
@@ -380,7 +416,35 @@ All fetch operations are L1 (auto + log). Policy changes require L3 approval.
     └── standing-orders.yaml       ← active research topics
 ```
 
-### 6.3 AutoResearchClaw Configuration
+### 6.3 Domain Policy
+
+Knox has a domain allowlist scoped to research sources. Unlike Stranger's general-purpose list, Knox's is narrower:
+
+```json
+{
+  "domain_allowlist": [
+    "arxiv.org", "*.arxiv.org",
+    "api.semanticscholar.org",
+    "api.openalex.org",
+    "github.com", "*.github.com",
+    "scholar.google.com",
+    "pypi.org",
+    "npmjs.com"
+  ],
+  "domain_blocklist": [
+    "pastebin.com",
+    "*.onion",
+    "*.xxx"
+  ],
+  "max_response_bytes": 100000
+}
+```
+
+**Risk acceptance**: AutoResearchClaw may follow citation chains to arbitrary URLs not on the allowlist. Knox's quarantine is the primary mitigation — even if Knox processes a malicious page during research, the blast radius is limited to Knox's own workspace. The output sanitization through Nemotron provides a second layer before findings cross into Jr's inbox. This risk is documented explicitly here rather than silently accepted.
+
+### 6.4 AutoResearchClaw Installation & Configuration
+
+**Version pin**: `AutoResearchClaw==0.3.1` (pinned in Knox's venv via `pip install AutoResearchClaw==0.3.1`). Version upgrades require testing in isolation before deployment — treated as an L3 action.
 
 ```yaml
 llm:
@@ -406,7 +470,7 @@ output:
 
 **Cost rationale**: Phases A-C only (scoping, literature, synthesis). Estimated ~$0.05-0.10 per research run on gpt-4o-mini. Full 23-stage pipeline on GPT-5.4 would cost $2-5 per run — unnecessary for daily research gathering. If Charlie needs a full paper, he can request it as a one-off L3 action.
 
-### 6.4 Standing Orders
+### 6.5 Standing Orders
 
 Jr manages Knox's research agenda via `standing-orders.yaml`:
 
@@ -426,7 +490,7 @@ orders:
 
 Jr updates this file by dropping inbox messages to Knox with `type: update_orders`. Knox validates and applies the update.
 
-### 6.5 Research Output Format
+### 6.6 Research Output Format
 
 Sanitized findings dropped in Jr's inbox:
 
@@ -462,17 +526,17 @@ findings_count: 3
 **No new findings**: service mesh zero-trust patterns (unchanged since last scan)
 ```
 
-### 6.6 Research Flow
+### 6.7 Research Flow
 
 1. Knox's cron trigger fires at 6am ET (before morning briefs at 8/9/9:30am)
 2. Knox reads `standing-orders.yaml`
 3. For each active order, runs AutoResearchClaw phases A-C
 4. Sanitizes output through Nemotron (strip injection patterns, enforce max length, extract structured fields)
-5. Drops one finding message per topic in Jr's inbox, tagged with `owner` and `co_owners`
+5. Delivers one finding message per topic to Jr via `sessions_send`, tagged with `owner` and `co_owners`
 6. Jr reviews during her 8am morning brief routine
 7. Jr routes findings to the appropriate specialist(s) via their inbox
 
-### 6.7 Triggers
+### 6.8 Triggers
 
 ```json
 {
@@ -497,7 +561,7 @@ findings_count: 3
 }
 ```
 
-### 6.8 Autonomy
+### 6.9 Autonomy
 
 ```json
 {
@@ -586,7 +650,7 @@ New agent entries:
   "modelFallback": "openai/gpt-4o-mini",
   "agentDir": "~/.openclaw/agents/stranger/agent",
   "workspace": "~/.openclaw/agents/stranger/workspace",
-  "tools": { "allow": ["web_fetch", "web_search", "read", "write", "exec"] },
+  "tools": { "allow": ["web_fetch", "web_search", "read", "write", "sessions_send"] },
   "fs": { "workspaceOnly": true }
 },
 "knox": {
@@ -594,7 +658,7 @@ New agent entries:
   "modelFallback": "ollama/nemotron-3-nano:latest",
   "agentDir": "~/.openclaw/agents/knox/agent",
   "workspace": "~/.openclaw/agents/knox/workspace",
-  "tools": { "allow": ["web_fetch", "web_search", "read", "write", "exec"] },
+  "tools": { "allow": ["web_fetch", "web_search", "read", "write", "exec", "sessions_send"] },
   "fs": { "workspaceOnly": true }
 }
 ```
@@ -614,7 +678,7 @@ No code changes needed. The daemon auto-discovers agents by scanning `~/.opencla
 
 - Pick up Stranger's `on_message` trigger and start watching its inbox
 - Pick up Knox's `cron` and `on_message` triggers
-- Report 11 agents on the `/health` endpoint (was 9)
+- Report 11 agents on the `/health` endpoint (was 9): 9 trusted + 2 new quarantined (Stranger, Knox)
 
 ### 8.5 Existing Agent Impact
 
@@ -680,6 +744,9 @@ Each component is verified independently before integration testing:
 | Knox research runs cost more than expected | Phases A-C only; gpt-4o-mini primary; L3 gate on full pipeline |
 | Domain allowlist too restrictive | Agents can request additions; changes require L3 approval |
 | n8n Docker container resource usage | Lightweight (~1-2GB RAM); monitor via Smokey health sweeps |
+| idea-reality-mcp hosted API trust | Unauthenticated third-party API influences build decisions. Mitigated: Dude reports score to Jr who can override; local fallback available (Section 7.4) |
+| Knox processes adversarial content during research | Quarantine limits blast radius to Knox's workspace. Output sanitization via Nemotron before crossing trust boundary. Subtly manipulated findings remain possible — Jr's review is the human checkpoint |
+| n8n disabled/unavailable | When `n8n.enabled: false` or container is down, agents using n8n workflows will get connection errors. No silent fallback to direct API calls — this is intentional (fail-closed, not fail-open). Fix n8n or use Stranger for the request. |
 
 ## 11. What Phase 4a Does NOT Include
 
