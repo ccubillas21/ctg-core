@@ -1270,7 +1270,7 @@ git commit -m "chore: Phase 4a complete — trust infrastructure verified (Phase
 | Task | Component | Est. Time | Dependencies |
 |------|-----------|-----------|-------------|
 | 1 | n8n Docker setup | 5 min | None |
-| 2 | n8n workflows (idea-check, brave-search) | 10 min | Task 1 |
+| 2 | n8n workflows (idea-check, brave-search, github-api) | 10 min | Task 1 |
 | 3 | The Stranger — agent directory | 5 min | None |
 | 4 | Knox Harrington — agent directory | 5 min | None |
 | 5 | AutoResearchClaw install | 5 min | Task 4 |
