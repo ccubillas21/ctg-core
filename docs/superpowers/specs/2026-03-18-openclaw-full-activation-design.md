@@ -207,7 +207,7 @@ Single Python service (systemd) replacing all 16 legacy cron jobs.
 - 30-second deduplication window prevents duplicate invocations
 - Focus-trigger binding: every trigger references a focus.md goal (system triggers like heartbeat exempt)
 - When focus item is completed (`[x]`), associated triggers auto-cancel
-- Failed triggers: log + retry next cycle (no "consecutive errors → disabled")
+- Failed triggers: log + retry next cycle. After 5 consecutive failures, trigger auto-disables with L2 alert to Slack (see Phase 3a spec Section 4.4)
 - Health endpoint: `GET localhost:18800/health` returns JSON status for Smokey to poll
 - Metrics endpoint: `GET localhost:18800/metrics` returns fire counts, latency, failure rates
 - Audit log: `~/.openclaw/triggers/audit.log`
@@ -297,13 +297,15 @@ Messages are markdown files with YAML frontmatter. Filename format: `{timestamp}
 **L3 approval flow:**
 When an agent attempts an L3 action, the trigger daemon:
 1. Blocks execution and queues the action to `~/.openclaw/approvals/pending/{agent}-{action-id}.json`
-2. Sends a Telegram notification to Charlie (user ID 8170003835) with action summary and approve/deny options
-3. Charlie replies in Telegram to approve or deny
-4. Jr monitors the approval queue and relays decisions
+2. Sends a Slack DM to Charlie via Block Kit interactive message (Approve/Deny buttons) using Dude bot Socket Mode
+3. Charlie taps Approve or Deny in Slack
+4. Callback received via Socket Mode, approval.py processes the decision
 5. If no response within 4 hours, the action expires and is logged as "timed out"
 6. Approved actions execute immediately; denied actions are logged with reason
 
-**Daemon watchdog:** In addition to Smokey polling the health endpoint, a standalone cron job (independent of the daemon) checks `localhost:18800/health` every 5 minutes. If unhealthy, it restarts the daemon via systemd and sends a Telegram alert. This prevents the circular dependency where Smokey depends on the daemon that triggers Smokey.
+**Note:** Updated from Telegram to Slack as of Phase 3a design (2026-03-18). See Phase 3a spec for full implementation details.
+
+**Daemon watchdog:** In addition to Smokey polling the health endpoint, a standalone cron job (independent of the daemon) checks `localhost:18800/health` every 5 minutes. If unhealthy, it restarts the daemon via systemd and posts to Slack `#openclaw-activity` via `watchdog-alert.sh`. This prevents the circular dependency where Smokey depends on the daemon that triggers Smokey.
 
 ### 5.2 Agent File Structure (Standardized)
 
