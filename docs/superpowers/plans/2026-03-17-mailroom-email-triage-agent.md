@@ -2358,6 +2358,9 @@ class BackpressureError(Exception):
     """Raised when Bonny's queue is full after max backoff cycles."""
     pass
 
+
+# Back in MailroomPipeline class:
+
     def _maybe_report(self, processed: int, total: int):
         """Send progress report to Bonny every REPORT_INTERVAL emails."""
         if processed > 0 and processed % REPORT_INTERVAL == 0:
