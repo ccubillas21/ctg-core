@@ -6,7 +6,7 @@
 
 **Architecture:** Two-agent Rule of Two split. Mailroom (untrusted zone) processes raw email with LLM Guard scanning, writes to QMD + SQLite index, sends structured JSON to Bonny (trusted zone). Bonny handles Slack alerts, user queries, and email actions with read-write OAuth tokens. Tiered classification: Nemotron (bulk) → Qwen (ambiguous).
 
-**Tech Stack:** Python 3, `google-api-python-client` + `google-auth-oauthlib` (Gmail), `msal` + `msgraph-sdk` (Graph), `llm-guard` (prompt injection scanning), `bleach` + `html2text` (sanitization), `sqlite3` (stdlib), OpenClaw agent/skill framework, QMD (BM25 markdown search).
+**Tech Stack:** Python 3, `google-api-python-client` + `google-auth-oauthlib` (Gmail), `msal` + `httpx` (Graph), `llm-guard` (prompt injection scanning), `bleach` + `html2text` (sanitization), `sqlite3` (stdlib), OpenClaw agent/skill framework, QMD (BM25 markdown search).
 
 **Spec:** `docs/superpowers/specs/2026-03-17-mailroom-email-triage-agent-design.md`
 
@@ -51,7 +51,10 @@
 | `~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_index.py` | SQLite + QMD: insert, dedup, sharding, ingestion state |
 | `~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_schema.py` | Trust boundary validation: valid/invalid messages, field limits |
 | `~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_classify.py` | Classification: category mapping, confidence thresholds, escalation |
+| `~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_fetch.py` | Fetch clients: Gmail/Graph message parsing, auth failure handling |
 | `~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_pipeline.py` | Integration: full pipeline end-to-end with mocked APIs |
+| `~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/conftest.py` | Shared test fixtures (tmp_index) |
+| `~/.openclaw/agents/mailroom/pyproject.toml` | pytest config (pythonpath, testpaths) |
 
 ### Config Changes
 
@@ -88,7 +91,7 @@ google-api-python-client>=2.100.0
 google-auth-oauthlib>=1.2.0
 google-auth-httplib2>=0.2.0
 msal>=1.28.0
-msgraph-sdk>=1.5.0
+httpx>=0.27.0
 llm-guard>=0.3.14
 bleach>=6.1.0
 html2text>=2024.2.26
@@ -96,11 +99,36 @@ jsonschema>=4.21.0
 pytest>=8.0.0
 ```
 
-- [ ] **Step 3: Create __init__.py files**
+- [ ] **Step 3: Create __init__.py files and pytest config**
 
 ```bash
 touch ~/.openclaw/agents/mailroom/agent/skills/email-pipeline/__init__.py
 touch ~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/__init__.py
+```
+
+Create `pyproject.toml` so PYTHONPATH is handled automatically:
+
+```toml
+# ~/.openclaw/agents/mailroom/pyproject.toml
+[tool.pytest.ini_options]
+pythonpath = ["agent/skills/email-pipeline"]
+testpaths = ["agent/skills/email-pipeline/tests"]
+```
+
+Create shared test fixtures:
+
+```python
+# ~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/conftest.py
+import pytest
+from email_pipeline.index import EmailIndex
+
+
+@pytest.fixture
+def tmp_index(tmp_path):
+    """Shared fixture: EmailIndex with temp SQLite + QMD paths."""
+    db_path = tmp_path / "emails.sqlite"
+    qmd_path = tmp_path / "qmd" / "emails"
+    return EmailIndex(str(db_path), str(qmd_path))
 ```
 
 - [ ] **Step 4: Create Python virtual environment and install dependencies**
@@ -300,7 +328,7 @@ class TestIngestionState:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_index.py -v
+python3 -m pytesttest_index.py -v
 ```
 
 Expected: FAIL — `ModuleNotFoundError: No module named 'email_pipeline'`
@@ -487,7 +515,7 @@ thread_id: "{email.get('thread_id', '')}"
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_index.py -v
+python3 -m pytesttest_index.py -v
 ```
 
 Expected: all tests PASS
@@ -626,7 +654,7 @@ class TestContentHash:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_sanitize.py -v
+python3 -m pytesttest_sanitize.py -v
 ```
 
 Expected: FAIL — `ModuleNotFoundError: No module named 'email_pipeline'`
@@ -790,7 +818,7 @@ def sanitize_email(raw: dict) -> dict:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_sanitize.py -v
+python3 -m pytesttest_sanitize.py -v
 ```
 
 Expected: all tests PASS
@@ -864,10 +892,25 @@ class TestScanResult:
         assert result.is_clean is False
 
 
+class TestInvisibleText:
+    def test_homoglyph_detected(self, scanner):
+        # Cyrillic 'а' (U+0430) looks like Latin 'a' — homoglyph attack
+        text = "P\u0430yment received for your \u0430ccount"
+        result = scanner.scan(subject="Normal", body=text)
+        assert result.is_clean is False
+        assert any("invisible_text" in f for f in result.flags)
+
+    def test_clean_text_passes_invisible(self, scanner):
+        result = scanner.scan(subject="Hello", body="Normal ASCII text here")
+        # Should not trigger invisible text scanner
+        assert not any("invisible_text" in f for f in result.flags)
+
+
 class TestScannerInit:
     def test_scanner_loads(self, scanner):
         assert scanner is not None
         assert scanner._injection_scanner is not None
+        assert scanner._invisible_scanner is not None
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -875,7 +918,7 @@ class TestScannerInit:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_scan.py -v
+python3 -m pytesttest_scan.py -v
 ```
 
 Expected: FAIL — `ModuleNotFoundError: No module named 'email_pipeline'`
@@ -888,7 +931,7 @@ Expected: FAIL — `ModuleNotFoundError: No module named 'email_pipeline'`
 
 from dataclasses import dataclass, field
 
-from llm_guard.input_scanners import BanSubstrings, PromptInjection
+from llm_guard.input_scanners import BanSubstrings, InvisibleText, PromptInjection
 from llm_guard.input_scanners.prompt_injection import MatchType as PIMatchType
 
 
@@ -921,6 +964,7 @@ class EmailScanner:
             threshold=INJECTION_THRESHOLD,
             match_type=PIMatchType.FULL,
         )
+        self._invisible_scanner = InvisibleText()
         self._ban_scanner = BanSubstrings(
             substrings=BAN_PATTERNS,
             match_type=1,  # case-insensitive
@@ -936,6 +980,12 @@ class EmailScanner:
         sanitized, is_valid, risk_score = self._injection_scanner.scan("", text)
         if not is_valid:
             flags.append(f"prompt_injection (score={risk_score:.2f})")
+            max_score = max(max_score, risk_score)
+
+        # Invisible text / homoglyph scanner
+        sanitized, is_valid, risk_score = self._invisible_scanner.scan("", text)
+        if not is_valid:
+            flags.append(f"invisible_text (score={risk_score:.2f})")
             max_score = max(max_score, risk_score)
 
         # Ban substrings scanner
@@ -985,7 +1035,7 @@ class EmailScanner:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_scan.py -v
+python3 -m pytesttest_scan.py -v
 ```
 
 Expected: all tests PASS (LLM Guard downloads model on first run — may take a minute)
@@ -1174,6 +1224,26 @@ class TestInvalidMessages:
         }
         with pytest.raises(BoundaryValidationError):
             validate_boundary_message(msg)
+
+
+class TestStatusMessages:
+    def test_valid_status_message(self):
+        msg = {
+            "type": "email_status",
+            "emails": [],
+            "progress": {"processed": 2500, "total": 22000},
+        }
+        validate_boundary_message(msg)  # should not raise
+
+    def test_status_with_stats_accepted(self):
+        """email_status messages may include a stats dict for progress reporting."""
+        msg = {
+            "type": "email_status",
+            "emails": [],
+            "progress": {"processed": 500, "total": 22000},
+        }
+        # Stats are informational — schema validation should not reject them
+        validate_boundary_message(msg)
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -1181,7 +1251,7 @@ class TestInvalidMessages:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_schema.py -v
+python3 -m pytesttest_schema.py -v
 ```
 
 Expected: FAIL
@@ -1326,7 +1396,7 @@ def _validate_email_entry(email: dict, idx: int):
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_schema.py -v
+python3 -m pytesttest_schema.py -v
 ```
 
 Expected: all tests PASS
@@ -1438,7 +1508,7 @@ class TestAutoAction:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_classify.py -v
+python3 -m pytesttest_classify.py -v
 ```
 
 Expected: FAIL
@@ -1592,7 +1662,7 @@ class EmailClassifier:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_classify.py -v
+python3 -m pytesttest_classify.py -v
 ```
 
 Expected: all tests PASS
@@ -1835,12 +1905,175 @@ class GraphFetcher:
         }
 ```
 
-- [ ] **Step 2: Commit**
+- [ ] **Step 2: Write test_fetch.py (parser logic + auth failure handling)**
+
+```python
+# ~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_fetch.py
+import base64
+import json
+import pytest
+from unittest.mock import MagicMock, patch
+from email_pipeline.fetch import GmailFetcher, GraphFetcher, AuthFailedError
+
+
+class TestGmailParser:
+    def test_parse_gmail_message(self):
+        fetcher = GmailFetcher.__new__(GmailFetcher)  # skip __init__
+        msg = {
+            "id": "msg_001",
+            "threadId": "thread_001",
+            "payload": {
+                "headers": [
+                    {"name": "From", "value": "Alice Smith <alice@example.com>"},
+                    {"name": "To", "value": "bob@example.com"},
+                    {"name": "Subject", "value": "Test Subject"},
+                    {"name": "Date", "value": "2025-11-15T09:30:00Z"},
+                    {"name": "Reply-To", "value": "alice-reply@example.com"},
+                ],
+                "mimeType": "text/plain",
+                "body": {"data": base64.urlsafe_b64encode(b"Hello world").decode()},
+                "parts": [],
+            },
+        }
+        result = fetcher._parse_gmail_message(msg)
+        assert result["message_id"] == "msg_001"
+        assert result["from"] == "Alice Smith <alice@example.com>"
+        assert result["subject"] == "Test Subject"
+        assert result["body_text"] == "Hello world"
+
+    def test_extracts_attachments(self):
+        fetcher = GmailFetcher.__new__(GmailFetcher)
+        payload = {
+            "parts": [
+                {"filename": "doc.pdf", "mimeType": "application/pdf", "body": {"size": 42000}},
+                {"filename": "", "mimeType": "text/plain", "body": {"data": base64.urlsafe_b64encode(b"Hi").decode()}, "parts": []},
+            ],
+        }
+        attachments = fetcher._extract_attachments(payload)
+        assert len(attachments) == 1
+        assert attachments[0]["filename"] == "doc.pdf"
+
+
+class TestGraphParser:
+    def test_parse_graph_message(self):
+        fetcher = GraphFetcher.__new__(GraphFetcher)
+        msg = {
+            "id": "outlook_001",
+            "conversationId": "conv_001",
+            "from": {"emailAddress": {"name": "Alice Smith", "address": "alice@example.com"}},
+            "toRecipients": [{"emailAddress": {"address": "bob@example.com"}}],
+            "replyTo": [{"emailAddress": {"address": "alice-reply@example.com"}}],
+            "receivedDateTime": "2025-11-15T09:30:00Z",
+            "subject": "Test Subject",
+            "body": {"contentType": "text", "content": "Hello world"},
+            "hasAttachments": False,
+        }
+        result = fetcher._parse_graph_message(msg)
+        assert result["message_id"] == "outlook_001"
+        assert result["account"] == "outlook"
+        assert result["sender"] == "alice@example.com"
+        assert result["reply_to"] == "alice-reply@example.com"
+        assert result["body_text"] == "Hello world"
+
+
+class TestAuthFailure:
+    def test_gmail_auth_failure_raises(self):
+        with patch("email_pipeline.fetch.Credentials") as MockCreds:
+            MockCreds.from_authorized_user_file.side_effect = Exception("Token revoked")
+            fetcher = GmailFetcher("/fake/path.json")
+            with pytest.raises(AuthFailedError, match="Gmail"):
+                fetcher._get_service()
+
+    def test_graph_auth_failure_raises(self):
+        with patch("email_pipeline.fetch.msal.PublicClientApplication") as MockApp:
+            mock_app = MagicMock()
+            mock_app.get_accounts.return_value = []
+            mock_app.acquire_token_interactive.return_value = {"error_description": "consent revoked"}
+            MockApp.return_value = mock_app
+            fetcher = GraphFetcher("/fake/path.json")
+            fetcher.credentials_path = "/fake/path.json"
+            with patch("builtins.open", MagicMock(return_value=MagicMock(
+                __enter__=MagicMock(return_value=MagicMock(
+                    read=MagicMock(return_value='{"client_id":"x","tenant_id":"y"}')
+                )),
+                __exit__=MagicMock(return_value=False),
+            ))):
+                with pytest.raises(AuthFailedError, match="Graph"):
+                    fetcher._get_token()
+```
+
+- [ ] **Step 3: Add AuthFailedError and try/except to fetch.py**
+
+Add to the top of fetch.py:
+
+```python
+class AuthFailedError(Exception):
+    """Raised when OAuth token refresh fails (revoked consent, expired token)."""
+    pass
+```
+
+Wrap `GmailFetcher._get_service` token refresh in try/except:
+
+```python
+    def _get_service(self):
+        if self._service:
+            return self._service
+        try:
+            creds = None
+            token_path = os.path.join(os.path.dirname(self.credentials_path), "gmail-token.json")
+            if os.path.exists(token_path):
+                creds = Credentials.from_authorized_user_file(token_path, GMAIL_SCOPES)
+            if not creds or not creds.valid:
+                if creds and creds.expired and creds.refresh_token:
+                    creds.refresh(Request())
+                else:
+                    flow = InstalledAppFlow.from_client_secrets_file(self.credentials_path, GMAIL_SCOPES)
+                    creds = flow.run_local_server(port=0)
+                with open(token_path, "w") as f:
+                    f.write(creds.to_json())
+            self._service = build("gmail", "v1", credentials=creds)
+            return self._service
+        except Exception as e:
+            raise AuthFailedError(f"Gmail auth failed: {e}") from e
+```
+
+Similarly wrap `GraphFetcher._get_token`:
+
+```python
+    def _get_token(self) -> str:
+        if self._token:
+            return self._token
+        try:
+            with open(self.credentials_path) as f:
+                config = json.load(f)
+            # ... existing code ...
+            if "access_token" not in result:
+                raise AuthFailedError(f"Graph auth failed: {result.get('error_description', 'unknown')}")
+            self._token = result["access_token"]
+            return self._token
+        except AuthFailedError:
+            raise
+        except Exception as e:
+            raise AuthFailedError(f"Graph auth failed: {e}") from e
+```
+
+- [ ] **Step 4: Run fetch tests**
+
+```bash
+cd ~/.openclaw/agents/mailroom
+source .venv/bin/activate
+python3 -m pytesttest_fetch.py -v
+```
+
+Expected: all tests PASS
+
+- [ ] **Step 5: Commit**
 
 ```bash
 cd ~/.openclaw/ctg-core
 git add ~/.openclaw/agents/mailroom/agent/skills/email-pipeline/fetch.py
-git commit -m "feat(mailroom): Gmail API + Microsoft Graph email fetch clients with OAuth token refresh"
+git add ~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_fetch.py
+git commit -m "feat(mailroom): Gmail + Graph fetch clients with auth failure handling and parser tests"
 ```
 
 ---
@@ -1857,24 +2090,36 @@ git commit -m "feat(mailroom): Gmail API + Microsoft Graph email fetch clients w
 # ~/.openclaw/agents/mailroom/agent/skills/email-pipeline/tests/test_pipeline.py
 import json
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 from email_pipeline.pipeline import MailroomPipeline
+from email_pipeline.scan import ScanResult
 
 
 @pytest.fixture
 def mock_pipeline(tmp_path):
     db_path = str(tmp_path / "emails.sqlite")
     qmd_path = str(tmp_path / "qmd" / "emails")
-    pipeline = MailroomPipeline(
-        db_path=db_path,
-        qmd_path=qmd_path,
-        gmail_creds_path="/fake/gmail.json",
-        graph_creds_path="/fake/graph.json",
-    )
+
+    # Patch EmailScanner to avoid downloading BERT model in tests
+    with patch("email_pipeline.pipeline.EmailScanner") as MockScanner:
+        mock_scanner_instance = MagicMock()
+        # Default: emails are clean
+        mock_scanner_instance.scan.return_value = ScanResult(is_clean=True, injection_score=0.0)
+        mock_scanner_instance.scan_snippet.return_value = ScanResult(is_clean=True, injection_score=0.0)
+        MockScanner.return_value = mock_scanner_instance
+
+        pipeline = MailroomPipeline(
+            db_path=db_path,
+            qmd_path=qmd_path,
+            gmail_creds_path="/fake/gmail.json",
+            graph_creds_path="/fake/graph.json",
+        )
+
     # Mock the fetchers and LLM calls
     pipeline._gmail = MagicMock()
     pipeline._graph = MagicMock()
-    pipeline._send_to_bonny = MagicMock()
+    pipeline._do_send = MagicMock()
+    pipeline._check_queue_depth = MagicMock(return_value=0)
     pipeline._call_llm = MagicMock(return_value='{"category": "trash", "confidence": 0.95, "reasoning": "spam"}')
     return pipeline
 
@@ -1903,6 +2148,10 @@ class TestFullPipeline:
         assert row["category"] == "trash"
 
     def test_injection_flagged_email_skips_classification(self, mock_pipeline):
+        # Configure scanner mock to flag this email
+        mock_pipeline._scanner.scan.return_value = ScanResult(
+            is_clean=False, injection_score=0.95, flags=["body:prompt_injection (score=0.95)"]
+        )
         raw_email = {
             "message_id": "msg_inject",
             "account": "gmail",
@@ -1921,13 +2170,15 @@ class TestFullPipeline:
         assert result["category"] == "needs-attention"
         # LLM should NOT have been called
         mock_pipeline._call_llm.assert_not_called()
+        # Reset scanner to default clean for other tests
+        mock_pipeline._scanner.scan.return_value = ScanResult(is_clean=True, injection_score=0.0)
 
     def test_batch_report_sent_every_500(self, mock_pipeline):
         for i in range(501):
             mock_pipeline._batch_counter = i
         mock_pipeline._maybe_report(processed=500, total=22000)
-        mock_pipeline._send_to_bonny.assert_called_once()
-        msg = mock_pipeline._send_to_bonny.call_args[0][0]
+        mock_pipeline._do_send.assert_called_once()
+        msg = mock_pipeline._do_send.call_args[0][0]
         assert msg["type"] == "email_status"
         assert msg["progress"]["processed"] == 500
 
@@ -1954,7 +2205,7 @@ class TestFullPipeline:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_pipeline.py -v
+python3 -m pytesttest_pipeline.py -v
 ```
 
 Expected: FAIL
@@ -1967,6 +2218,7 @@ Expected: FAIL
 
 import json
 import logging
+import time
 from datetime import datetime, timezone
 
 from email_pipeline.sanitize import sanitize_email
@@ -1978,6 +2230,9 @@ from email_pipeline.schema import validate_boundary_message
 logger = logging.getLogger("mailroom")
 
 REPORT_INTERVAL = 500
+MAX_QUEUE_DEPTH = 10
+BACKOFF_SCHEDULE = [30, 60, 120, 300]  # seconds
+MAX_BACKOFF_CYCLES = 3
 
 
 class MailroomPipeline:
@@ -1990,10 +2245,16 @@ class MailroomPipeline:
         self._gmail = None
         self._graph = None
         self._batch_counter = 0
+        self._backoff_failures = 0
         self._batch_stats = {"trash": 0, "archive": 0, "keep": 0, "needs-attention": 0, "financial": 0, "legal": 0, "personal": 0, "duplicate": 0}
 
-    def process_email(self, raw: dict) -> dict:
-        """Process a single raw email through the full pipeline."""
+    def process_email(self, raw: dict, mode: str = "ingest") -> dict:
+        """Process a single raw email through the full pipeline.
+
+        Args:
+            raw: Raw email dict from fetch client
+            mode: "ingest" (bulk, no auto-action) or "monitor" (ongoing, auto-act on high confidence)
+        """
         # 1. Sanitize
         sanitized = sanitize_email(raw)
 
@@ -2047,8 +2308,9 @@ class MailroomPipeline:
         sanitized["confidence"] = result.confidence
         sanitized["model_used"] = result.model
         sanitized["injection_flag"] = False
-        sanitized["auto_acted"] = action in ("archive", "label")
-        sanitized["action_taken"] = action
+        # Only auto-act during monitoring, never during bulk ingestion
+        sanitized["auto_acted"] = mode == "monitor" and action in ("archive", "label")
+        sanitized["action_taken"] = action if mode == "monitor" else "none"
 
         # 7. Index
         self._index.insert_email(sanitized)
@@ -2061,10 +2323,40 @@ class MailroomPipeline:
         """Call the LLM for classification. Override in tests."""
         raise NotImplementedError("LLM integration implemented at runtime by OpenClaw agent framework")
 
+    def _check_queue_depth(self) -> int:
+        """Check Bonny's pending message queue depth. Override in tests."""
+        return 0  # Default: no backpressure. Overridden at runtime by OpenClaw framework.
+
     def _send_to_bonny(self, message: dict):
-        """Send structured message to Bonny via sessions_send. Override in tests."""
+        """Send structured message to Bonny via sessions_send with backpressure.
+
+        If Bonny's queue exceeds MAX_QUEUE_DEPTH, back off with exponential delay.
+        After MAX_BACKOFF_CYCLES consecutive failures, halt until next cron run.
+        """
         validate_boundary_message(message)
+
+        for attempt in range(MAX_BACKOFF_CYCLES):
+            queue_depth = self._check_queue_depth()
+            if queue_depth < MAX_QUEUE_DEPTH:
+                self._backoff_failures = 0
+                self._do_send(message)
+                return
+            backoff = BACKOFF_SCHEDULE[min(attempt, len(BACKOFF_SCHEDULE) - 1)]
+            logger.warning(f"Bonny queue depth {queue_depth} >= {MAX_QUEUE_DEPTH}, backing off {backoff}s (attempt {attempt + 1}/{MAX_BACKOFF_CYCLES})")
+            time.sleep(backoff)
+
+        self._backoff_failures += 1
+        logger.error(f"Bonny queue backpressure: {MAX_BACKOFF_CYCLES} consecutive backoff cycles. Halting until next cron run.")
+        raise BackpressureError("Bonny queue full after max backoff cycles")
+
+    def _do_send(self, message: dict):
+        """Actually send the message. Override in tests."""
         raise NotImplementedError("sessions_send implemented at runtime by OpenClaw agent framework")
+
+
+class BackpressureError(Exception):
+    """Raised when Bonny's queue is full after max backoff cycles."""
+    pass
 
     def _maybe_report(self, processed: int, total: int):
         """Send progress report to Bonny every REPORT_INTERVAL emails."""
@@ -2162,7 +2454,7 @@ class MailroomPipeline:
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/test_pipeline.py -v
+python3 -m pytesttest_pipeline.py -v
 ```
 
 Expected: all tests PASS
@@ -2512,7 +2804,7 @@ print('Both providers connected successfully')
 ```bash
 cd ~/.openclaw/agents/mailroom
 source .venv/bin/activate
-PYTHONPATH=agent/skills/email-pipeline python3 -m pytest agent/skills/email-pipeline/tests/ -v
+python3 -m pytest -v
 ```
 
 Expected: all tests PASS
