@@ -40,6 +40,10 @@ The current OpenClaw deployment has 18 agents but only 3 do real work. Paperclip
 
 Qwen and MiniMax demoted to last-resort or removed entirely. Two primary providers: OpenAI + Anthropic. Ollama for free local work.
 
+**Pre-requisite:** Validate that `openai-codex` is a working provider in OpenClaw v2026.3.13 before Phase 1 begins. Run `openclaw models list` and check for `openai-codex` provider. If unavailable or bug #38706 is unresolved, use CLIProxyAPI as bridge or fall back to `openai/gpt-4.1` (API-billed, ~$11/mo) for Dude until fixed. This changes budget ceiling to ~$50-70/mo.
+
+**GPT-4o-mini token budget:** ~$1/mo per specialist agent corresponds to ~1.5M output tokens/month. Specialists only wake on triggers, so this is generous. If any agent enters a verbose loop, the trigger daemon's deduplication + focus binding prevents runaway costs.
+
 ## 4. Agent Roster (12 Agents)
 
 ### 4.1 Agents CUT (7 removed)
@@ -77,9 +81,10 @@ Charlie (CEO)
 - Dispatches email triage results from Mailroom
 - Passes goals, ideas, and task progress to Dude
 - Does NOT bother Dude with trivial status checks — handles those herself
+- **Also the trusted half of Mailroom's Rule of Two**: Jr has Bonny's email skills (email-query, email-alert, email-action) installed. Mailroom sends structured JSON to Jr via inbox/; Jr acts on classifications with read-write OAuth tokens. The trust boundary is maintained because Jr never processes raw email content — only LLM Guard-scanned, sanitized snippets (max 200 chars) cross into Jr's inbox.
 - Model: GPT-4o-mini | Channels: Telegram (bonny), Slack (bonny)
-- Triggers: on_message (from Charlie), interval (30min status check)
-- Autonomy: L2 (auto-execute + notify)
+- Triggers: on_message (from Charlie + from Mailroom inbox), interval (30min status check)
+- Autonomy: L1 (heartbeats), L2 (research, email alerts), L3 (email actions, external comms)
 
 **Dude (Worker) — Chief of Staff / Quarterback**
 - Receives structured goals from Jr, breaks into tasks, assigns to specialists
@@ -165,15 +170,84 @@ Charlie (CEO)
 
 Single Python service (systemd) replacing all 16 legacy cron jobs.
 
-- Scans `triggers.json` for all 12 agents every 15 seconds
-- Six trigger types: cron, interval, poll, on_message, webhook, once
+**Architecture:** Two subsystems in one process:
+1. **Poll loop** (every 30 seconds): evaluates cron, interval, poll, and once triggers by reading each agent's `triggers.json`
+2. **Event listener** (async): HTTP server on `localhost:18800` for webhook triggers + inotify watcher on all agent `inbox/` directories for on_message triggers
+
 - Groups fired triggers by agent — invokes once per agent per cycle
 - 30-second deduplication window prevents duplicate invocations
-- Focus-trigger binding: every trigger references a focus.md goal
-- When focus item is completed, associated triggers auto-cancel
+- Focus-trigger binding: every trigger references a focus.md goal (system triggers like heartbeat exempt)
+- When focus item is completed (`[x]`), associated triggers auto-cancel
 - Failed triggers: log + retry next cycle (no "consecutive errors → disabled")
-- Health endpoint on localhost for Smokey to poll
+- Health endpoint: `GET localhost:18800/health` returns JSON status for Smokey to poll
+- Metrics endpoint: `GET localhost:18800/metrics` returns fire counts, latency, failure rates
 - Audit log: `~/.openclaw/triggers/audit.log`
+
+**triggers.json schema:**
+```json
+{
+  "triggers": [
+    {
+      "id": "dude-morning-brief",
+      "type": "cron",
+      "config": { "expr": "0 9 * * *", "tz": "America/New_York" },
+      "focus_ref": null,
+      "reason": "Daily morning brief to team",
+      "enabled": true,
+      "max_fires": null,
+      "cooldown_seconds": 300,
+      "prompt": "Run morning brief: review Plaza feed, Paperclip queue, agent status. Post summary."
+    },
+    {
+      "id": "dude-paperclip-check",
+      "type": "interval",
+      "config": { "minutes": 30 },
+      "focus_ref": "task-execution",
+      "reason": "Check Paperclip for new/stalled tasks",
+      "enabled": true
+    },
+    {
+      "id": "dude-github-webhook",
+      "type": "webhook",
+      "config": { "path": "/hook/dude-github", "secret": "${GITHUB_WEBHOOK_SECRET}" },
+      "focus_ref": null,
+      "reason": "React to GitHub push/PR events",
+      "enabled": true
+    },
+    {
+      "id": "dude-from-jr",
+      "type": "on_message",
+      "config": { "watch_inbox": true, "from_agents": ["jr"] },
+      "focus_ref": null,
+      "reason": "Receive goals and updates from Jr",
+      "enabled": true
+    },
+    {
+      "id": "walter-gateway-health",
+      "type": "poll",
+      "config": {
+        "url": "http://localhost:18789/health",
+        "json_path": "$.status",
+        "expect": "ok",
+        "interval_minutes": 5
+      },
+      "focus_ref": "infra-health",
+      "reason": "Monitor gateway health, alert on change",
+      "enabled": true
+    }
+  ]
+}
+```
+
+**on_message mechanics:** Daemon uses inotify to watch `~/.openclaw/agents/{name}/inbox/` directories. When a new `.md` file appears, the daemon reads the frontmatter (from_agent, subject, priority) and fires the matching on_message trigger. After agent processes the message, file moves to `inbox/archive/`.
+
+**webhook mechanics:** Daemon's HTTP server listens on `localhost:18800`. Webhook URLs follow pattern `/hook/{trigger-id}`. Payload is passed to the agent as trigger context. HMAC signature validation when `secret` is configured. Rate limited to 1 request per trigger per cooldown period.
+
+**Chain of command enforcement:** Each agent's `soul.md` instructs it to only accept direction from its designated superior (Jr from Charlie, Dude from Jr, Walter from Dude). The `on_message` trigger's `from_agents` filter ensures only messages from authorized agents fire the trigger. Direct Telegram messages still work (agents are accessible) but soul.md instructs agents to route unexpected requests through the proper chain.
+
+**Smokey's alerting:** Smokey operates at L1 for health checks (log only) and L2 for alerts (auto-send to Telegram + log). Health alerts to Telegram are classified as "monitoring notifications" not "external comms" — Smokey can autonomously notify Charlie when a service goes down without L3 approval.
+
+**Plaza posting enforcement:** The trigger daemon enforces max 1 post + 2 comments per agent per heartbeat cycle. The daemon tracks post counts in its state and drops excess posts with a warning in the audit log.
 
 ### 5.2 Agent File Structure (Standardized)
 
@@ -277,25 +351,31 @@ Shared directory + SQLite index where agents post discoveries:
 7. Paperclip systemd service — Create paperclip.service
 8. Verify — Goal flows from Charlie → Jr → Dude via Telegram
 
+**Phase 1 rollback:** Restore openclaw.json from backup (`~/.openclaw/backups/restore-config.sh --latest`). Cut agents are only deregistered from config, not deleted — directories remain for easy re-registration.
+
 ### Phase 2: Agent Intelligence (Session 2)
 
-9. memsearch install — Docker/local, RTX 5080 embeddings, index existing memory
-10. self-improving-agent skill — Install from ClawHub on all 12 agents
-11. Capability Evolver skill — Install fleet-wide
-12. soul.md for specialists — Maude, Brandt, Smokey, Da Fino, Donny
-13. Standardize agent file structure — All 12 agents get full layout
+9. Standardize agent file structure — All 12 agents get full layout (soul.md, memory.md, focus.md, .learnings/, inbox/, plaza/, workspace/)
+10. soul.md for specialists — Maude, Brandt, Smokey, Da Fino, Donny
+11. memsearch install — Docker/local, RTX 5080 embeddings, index existing memory (confirm GPU memory coexistence with Nemotron)
+12. self-improving-agent skill — Install from ClawHub on all 12 agents (requires .learnings/ from step 9)
+13. Capability Evolver skill — Install fleet-wide
 14. ClawSec install — Da Fino primary, available to all
+
+**Phase 2 rollback:** Remove skill files, revert agent directories to pre-step-9 state via backup. memsearch is a standalone service — stop it if problematic.
 
 ### Phase 3: Trigger Daemon & Paperclip Activation (Session 3)
 
-15. Write trigger-daemon.py — Systemd service, 15-second scan loop
-16. triggers.json per agent — All trigger assignments
-17. focus.md per agent — Seed from existing Paperclip tasks
-18. autonomy.json per agent — L1/L2/L3 matrix
-19. Paperclip activation — Budgets, clean roster, enable task checkout
+15. Write trigger-daemon.py — Systemd service, 30-second poll loop + async event listener on :18800
+16. Paperclip activation — Budgets, clean ghost agents, reclassify existing 53 tasks to new agent assignments, enable task checkout
+17. focus.md per agent — Seed from reclassified Paperclip tasks (depends on step 16)
+18. triggers.json per agent — All trigger assignments per schema in Section 5.1
+19. autonomy.json per agent — L1/L2/L3 matrix
 20. Decommission legacy crons — All 16 removed, daemon handles everything
 21. Plaza feed — Directory + SQLite + posting rules
 22. Verify — Trigger fires → agent wakes → Paperclip task → Plaza post
+
+**Phase 3 rollback:** Stop trigger daemon, re-enable legacy cron jobs from backup. Paperclip tasks are additive — no data loss.
 
 ### Phase 4: Force Multipliers (Session 4)
 
