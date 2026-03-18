@@ -10,7 +10,7 @@ A two-agent system for autonomous email triage, inventory, and searchable indexi
 
 **Problem:** 20K+ emails across Gmail and Microsoft 365 accounts. No inventory, no organization, no way to search. Important emails get buried. New important emails arrive without notification.
 
-**Solution:** A quarantined "Mailroom" agent fetches, sanitizes, scans, and classifies emails. A privileged "Bonny" (Jr admin) agent acts on classifications, answers queries, and sends Slack alerts. The two agents communicate only via structured JSON — raw email content never crosses the trust boundary.
+**Solution:** A quarantined "Mailroom" agent fetches, sanitizes, scans, and classifies emails. A privileged "Bonny" (Jr admin) agent acts on classifications, answers queries, and sends Slack alerts. The two agents communicate only via structured JSON — only LLM Guard-scanned, sanitized snippets (max 200 chars) cross the trust boundary; raw email bodies never do.
 
 ---
 
@@ -76,7 +76,7 @@ Bonny gains three new skills on top of her existing toolset:
 - **`email-alert`** — receives classified emails from Mailroom, posts high-priority ones to Slack
 - **`email-action`** — executes approve/reject decisions (archive, label, delete via Gmail/Graph APIs with read-write tokens)
 
-Bonny never sees raw email content. She receives structured JSON summaries only.
+Bonny never sees raw email bodies. She receives structured JSON summaries with LLM Guard-scanned, sanitized snippets (max 200 chars) only.
 
 ### Meta's Rule of Two — Enforcement
 
@@ -103,22 +103,25 @@ No agent ever holds all three powers simultaneously.
 2. SANITIZE (deterministic code, not LLM-based)
    - Strip HTML → plain text (whitelist approach via bleach or equivalent)
    - Remove tracking pixels, base64 blobs, embedded objects
-   - Extract structured fields: sender, recipients, date, subject, message-id, thread-id
+   - Extract structured fields: sender, reply-to, recipients, date, subject, message-id, thread-id
    - Keep plain text body truncated to 4K chars
-   - Attachments: metadata only (filename, size, type) — NOT content
+   - Attachments: metadata only (filename, size, type, has_attachments flag) — NOT content
    - Unicode normalization, zero-width character removal
    - Regex strip for known injection patterns
+   - Subject line scanned independently (short, high-density injection vector)
    │
    ▼
 3. SCAN (LLM Guard)
-   - PromptInjection scanner (BERT-based classifier)
+   - PromptInjection scanner (BERT-based classifier) — runs on body AND subject independently
    - InvisibleText scanner (zero-width chars, homoglyphs)
    - BanSubstrings scanner (blocklist: "ignore previous", "system prompt", "<|im_start|>", "[INST]")
    - Score > 0.7 → mark injection_flag, skip LLM classification, route to needs-review
+   - Snippet (first 200 chars) also scanned before inclusion in cross-boundary JSON
    │
    ▼
-4. CLASSIFY (tiered)
+4. CLASSIFY (tiered, one email per LLM call)
    - Nemotron first pass: categories = trash|archive|keep|needs-attention|financial|legal|personal
+   - One LLM call per email (Nemotron 4K output limit is fine for single-email structured JSON)
    - Confidence score 0.0–1.0
    - Confidence < 0.6 → escalate to Qwen for second opinion
    - Output: structured JSON per email
@@ -176,33 +179,61 @@ All of the following generate Slack notifications through Bonny:
 
 ```sql
 CREATE TABLE emails (
-    message_id    TEXT PRIMARY KEY,   -- Gmail/Graph message ID
-    account       TEXT NOT NULL,      -- 'gmail' or 'outlook'
-    thread_id     TEXT,               -- conversation threading
-    sender        TEXT NOT NULL,      -- normalized email address
-    sender_name   TEXT,               -- display name
-    recipients    TEXT,               -- JSON array
-    date          TEXT NOT NULL,      -- ISO 8601
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id    TEXT NOT NULL,       -- Gmail/Graph message ID (provider-specific)
+    account       TEXT NOT NULL,       -- 'gmail' or 'outlook'
+    thread_id     TEXT,                -- conversation threading
+    sender        TEXT NOT NULL,       -- normalized email address
+    sender_name   TEXT,                -- display name
+    reply_to      TEXT,                -- reply-to address (phishing detection: differs from sender)
+    recipients    TEXT,                -- JSON array
+    date          TEXT NOT NULL,       -- ISO 8601
     subject       TEXT,
-    category      TEXT NOT NULL,      -- trash|archive|keep|needs-attention|financial|legal|personal
-    confidence    REAL NOT NULL,      -- 0.0–1.0
-    model_used    TEXT,               -- nemotron|qwen
-    injection_flag BOOLEAN DEFAULT 0, -- LLM Guard flagged
-    auto_acted    BOOLEAN DEFAULT 0,  -- Mailroom took action
-    action_taken  TEXT,               -- archive|label|none|pending-review
-    user_decision TEXT,               -- approved|rejected|reclassified (from Bonny)
-    labels        TEXT,               -- JSON array of applied labels
-    snippet       TEXT,               -- first 200 chars, sanitized
-    indexed_at    TEXT NOT NULL       -- when we processed it
+    category      TEXT NOT NULL,       -- trash|archive|keep|needs-attention|financial|legal|personal
+    confidence    REAL NOT NULL,       -- 0.0–1.0
+    model_used    TEXT,                -- nemotron|qwen
+    has_attachments BOOLEAN DEFAULT 0, -- quick filter without full-text search
+    injection_flag BOOLEAN DEFAULT 0,  -- LLM Guard flagged
+    auto_acted    BOOLEAN DEFAULT 0,   -- Mailroom took action
+    action_taken  TEXT,                -- archive|label|none|pending-review
+    user_decision TEXT,                -- approved|rejected|reclassified (from Bonny)
+    labels        TEXT,                -- JSON array of applied labels
+    snippet       TEXT,                -- first 200 chars, sanitized + LLM Guard scanned
+    content_hash  TEXT,                -- SHA-256 of sanitized body (cross-account dedup)
+    indexed_at    TEXT NOT NULL,       -- when we processed it
+    UNIQUE(account, message_id)        -- composite key: same message_id can exist in both accounts
 );
 
+-- Deduplication: same email forwarded/synced across accounts
+CREATE INDEX idx_content_hash ON emails(content_hash);
 CREATE INDEX idx_sender ON emails(sender);
 CREATE INDEX idx_date ON emails(date);
 CREATE INDEX idx_category ON emails(category);
 CREATE INDEX idx_confidence ON emails(confidence);
 CREATE INDEX idx_account ON emails(account);
 CREATE INDEX idx_thread ON emails(thread_id);
+CREATE INDEX idx_has_attachments ON emails(has_attachments);
+
+-- Ingestion progress tracking (supports resume after interruption)
+CREATE TABLE ingestion_state (
+    account       TEXT PRIMARY KEY,    -- 'gmail' or 'outlook'
+    last_history_id TEXT,              -- Gmail historyId / Graph deltaLink
+    last_batch_offset INTEGER DEFAULT 0,
+    total_estimated INTEGER,
+    total_processed INTEGER DEFAULT 0,
+    status        TEXT DEFAULT 'pending', -- pending|in_progress|completed
+    updated_at    TEXT NOT NULL
+);
 ```
+
+### Deduplication Strategy
+
+Emails that exist in both Gmail and Outlook (forwarded/synced) are detected via `content_hash` (SHA-256 of the sanitized body text). When a duplicate is found:
+- The first copy is the canonical record
+- The second copy gets `category = 'duplicate'` and a reference to the canonical `id`
+- Both provider-specific `message_id` values are preserved for action routing (archive in Gmail vs. archive in Outlook)
+
+Bulk ingestion resumption: if interrupted, `ingestion_state` tracks progress per account. Restart picks up from `last_batch_offset`. The `UNIQUE(account, message_id)` constraint prevents re-indexing already-processed emails via `INSERT OR IGNORE`.
 
 ### QMD Markdown Format
 
@@ -228,6 +259,15 @@ the payment amount by end of week.
 ```
 
 **QMD path:** `~/.openclaw/agents/mailroom/qmd/emails/`
+
+**QMD sharding:** At 20K+ files, a flat directory may degrade filesystem and QMD indexing performance. Emails are sharded by year-month:
+```
+qmd/emails/2024-01/
+qmd/emails/2024-02/
+...
+qmd/emails/2026-03/
+```
+QMD indexes all subdirectories recursively. This keeps individual directories under ~1K files and makes date-range queries more efficient at the filesystem level.
 
 ### Query Flow (Bonny's email-query skill)
 
@@ -277,11 +317,13 @@ Flagged emails:
       "account": "gmail | outlook",
       "sender": "string",
       "sender_name": "string",
+      "reply_to": "string (if differs from sender — phishing indicator)",
       "date": "ISO 8601",
-      "subject": "string (max 200 chars)",
+      "subject": "string (max 200 chars, LLM Guard scanned)",
       "category": "enum",
       "confidence": "number 0-1",
-      "snippet": "string (max 200 chars)",
+      "snippet": "string (max 200 chars, sanitized + LLM Guard scanned)",
+      "has_attachments": "boolean",
       "injection_flag": "boolean",
       "recommended_action": "archive | label | review | alert"
     }
@@ -308,6 +350,13 @@ Flagged emails:
 
 Mailroom cannot modify email even if fully compromised — its tokens are read-only.
 
+**OAuth Token Refresh Lifecycle:**
+- Both Gmail and Graph OAuth tokens expire after ~1 hour
+- Refresh tokens stored in `credentials/` directory (encrypted at rest via OpenClaw credential store)
+- `fetch.py` handles automatic refresh before each batch using the refresh token
+- If refresh fails (revoked consent, expired refresh token): Mailroom logs the error, sets `ingestion_state.status = 'auth_failed'`, and sends a structured alert to Bonny → Bonny posts to Slack: "Mailroom lost access to [Gmail/Outlook] — re-authorize needed"
+- For client deployments: OAuth consent revocation is expected. The system degrades gracefully (stops fetching, alerts admin, does not crash)
+
 ### Layer 5 — Output Validation on Actions
 
 When Bonny auto-acts on high-confidence items:
@@ -315,6 +364,18 @@ When Bonny auto-acts on high-confidence items:
 - All actions logged to SQLite (`auto_acted = true`, `action_taken`)
 - Daily digest to Slack: "Auto-archived 47 emails today. 3 flagged for your review."
 - Undo capability: "undo the last batch" → Bonny moves archived emails back to inbox
+  - "Last batch" = the most recent auto-action set (identified by `indexed_at` timestamp range)
+  - Bonny applies an `auto-archived-by-mailroom` label before archiving, so undo = move all with that label back to inbox + remove label
+  - Undo window: 30 days (after that, auto-archived emails are considered final)
+  - User can also undo specific emails: "undo the archive on the email from X"
+
+### Backpressure & Queue Management
+
+- Mailroom sends batch summaries to Bonny via `sessions_send`. If Bonny's session queue exceeds 10 pending messages:
+  - Mailroom pauses processing and waits (exponential backoff: 30s, 60s, 120s, max 5min)
+  - After 3 consecutive backoff cycles with no progress, Mailroom logs a warning and halts until next cron run
+- Bonny processes Mailroom messages asynchronously — alerts are posted to Slack as they arrive, not batched
+- During bulk ingestion, Bonny rate-limits Slack posts to max 1 progress update per minute (avoids spamming the channel)
 
 ### Upgrade Path to Lakera Guard (Premium)
 
@@ -329,35 +390,36 @@ When ready, swap Layer 2:
 
 ### Mailroom Agent Definition
 
-New entry in `openclaw.json` under `agents`:
+New entry in `openclaw.json` `agents.list` array (matches actual OpenClaw config schema):
 
 ```json
 {
-  "mailroom": {
-    "name": "Mailroom",
-    "persona": "Silent email processor. Never interacts with users directly. Reports to Bonny only.",
-    "model": "ollama/nemotron-3-nano:latest",
-    "escalationModel": "qwen/qwen3.5-plus",
-    "tools": ["email_fetch", "index_write", "sessions_send"],
-    "toolRestrictions": {
-      "sessions_send": { "allowedTargets": ["jr"] },
-      "index_write": { "allowedPaths": ["~/.openclaw/agents/mailroom/qmd/emails/", "~/.openclaw/agents/mailroom/db/"] }
-    },
-    "contextTokens": 128000,
-    "channels": [],
-    "scheduling": {
-      "bulk": "manual",
-      "monitor": "*/5 * * * *"
-    }
+  "id": "mailroom",
+  "name": "Mailroom",
+  "persona": "Silent email processor. Never interacts with users directly. Reports to Bonny only.",
+  "model": {
+    "primary": "ollama/nemotron-3-nano:latest",
+    "fallbacks": ["qwen/qwen3.5-plus"]
+  },
+  "tools": {
+    "allow": ["email_fetch", "index_write", "sessions_send"]
   }
 }
 ```
 
+**Note:** The following are **proposed schema extensions** that would need to be added to OpenClaw's agent config schema, or implemented as application-level logic in the email-pipeline skill:
+
+- **Tool restrictions** (lock `sessions_send` to Bonny only, lock `index_write` to Mailroom's own dirs) — implement as validation logic inside the skill code rather than config-level, since `toolRestrictions` is not a current schema field
+- **Context window** — use `agents.defaults.contextTokens` (currently 1M globally). Mailroom doesn't need 1M but per-agent override is not a current schema field; 1M is safe
+- **No channels** — omit `channels` block entirely (no Telegram/Slack/Teams bindings)
+- **Scheduling** — cron is external (systemd timer or crontab), not an agent config field
+- **Escalation to Qwen** — implemented in `classify.py` application code: if Nemotron confidence < 0.6, re-classify with Qwen via the `fallbacks` model
+
 Key decisions:
 - **No channels** — Mailroom never talks to users
-- **128K context** — above the 100K safe floor
-- **`sessions_send` locked to Bonny only**
-- **`index_write` locked to its own directories**
+- **Tool restrictions enforced in skill code** — validates targets/paths at runtime
+- **`sessions_send` locked to Bonny only** — skill code rejects any other target
+- **`index_write` locked to its own directories** — skill code validates paths
 
 ### Bonny Skill Additions
 
@@ -375,6 +437,17 @@ Key decisions:
 ```
 
 Bulk ingestion triggered manually: `openclaw agent run mailroom --task ingest`
+
+**Log rotation:** Add to `/etc/logrotate.d/mailroom` (or systemd journal):
+```
+/home/ccubillas/.openclaw/agents/mailroom/logs/monitor.log {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+}
+```
 
 ### File Structure
 
