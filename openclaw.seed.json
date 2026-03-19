@@ -5,7 +5,7 @@
     "packageVersion": "1.0.0"
   },
   "env": {
-    "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+    "ANTHROPIC_API_KEY": "sk-ant-placeholder-routed-through-gatekeeper",
     "PAPERCLIP_API_KEY": "${PAPERCLIP_API_KEY}",
     "PAPERCLIP_API_URL": "${PAPERCLIP_API_URL}",
     "PAPERCLIP_COMPANY_ID": "${COMPANY_ID}"
@@ -31,7 +31,8 @@
         "workspace": "/home/ctg/.openclaw/agents/primary",
         "agentDir": "/home/ctg/.openclaw/agents/primary",
         "model": {
-          "primary": "anthropic/claude-sonnet-4-6"
+          "primary": "anthropic/claude-sonnet-4-6",
+          "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/primary"
         },
         "tools": {
           "allow": ["lobster", "messaging", "paperclip", "qmd"],
@@ -44,7 +45,8 @@
         "workspace": "/home/ctg/.openclaw/agents/engineer",
         "agentDir": "/home/ctg/.openclaw/agents/engineer",
         "model": {
-          "primary": "anthropic/claude-opus-4-6"
+          "primary": "anthropic/claude-opus-4-6",
+          "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/engineer"
         },
         "tools": {
           "allow": ["lobster", "coding", "paperclip", "qmd", "shell"],
@@ -57,7 +59,8 @@
         "workspace": "/home/ctg/.openclaw/agents/dispatch",
         "agentDir": "/home/ctg/.openclaw/agents/dispatch",
         "model": {
-          "primary": "anthropic/claude-haiku-4-5"
+          "primary": "anthropic/claude-haiku-4-5",
+          "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/dispatch"
         },
         "tools": {
           "allow": ["lobster", "shell", "paperclip", "qmd"],
