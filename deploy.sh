@@ -496,7 +496,7 @@ mkdir -p "$CTG_DIR"
 # ──────────────────────────────────────────────────
 # Fetch CTG Core files
 # ──────────────────────────────────────────────────
-CTG_REPO="https://raw.githubusercontent.com/ccubillas21/ctg-core/main"
+CTG_REPO="https://raw.githubusercontent.com/ccubillas21/ctg-core/master"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Try local source first, fall back to GitHub
