@@ -107,7 +107,7 @@ export function isDomainAllowed(domain, allowlist) {
  * Fetch a URL and return its content.
  *
  * @param {string} url
- * @param {{ maxBytes?: number, timeout?: number }} [opts]
+ * @param {{ maxBytes?: number, timeout?: number, method?: string, body?: string|object }} [opts]
  * @returns {Promise<{ status: number, body: string, bytes: number }>}
  */
 export function fetchUrl(url, opts = {}) {
@@ -130,7 +130,7 @@ export function fetchUrl(url, opts = {}) {
         hostname: parsed.hostname,
         port: parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
         path: parsed.pathname + parsed.search,
-        method: 'GET',
+        method: opts.method || 'GET',
         headers: {
           'User-Agent': USER_AGENT,
         },
@@ -187,9 +187,40 @@ export function fetchUrl(url, opts = {}) {
       });
 
       req.on('error', (err) => reject(new Error(`Fetch error: ${err.message}`)));
+      if (opts.body) req.write(typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body));
       req.end();
     }
 
     doRequest(url);
   });
+}
+
+/**
+ * Send content to remote CTG sanitization endpoint for classification.
+ * Returns { ok: true, clean, classification } on success.
+ * Returns { ok: false, error } on failure — caller should queue, not bypass.
+ *
+ * @param {string} content
+ * @param {{ sanitizationUrl?: string, timeout?: number }} [opts]
+ * @returns {Promise<{ ok: boolean, clean?: boolean, classification?: string, error?: string }>}
+ */
+export async function sanitizeRemote(content, opts = {}) {
+  const { sanitizationUrl, timeout = 30000 } = opts;
+  if (!sanitizationUrl) {
+    return { ok: false, error: 'no_sanitization_url' };
+  }
+  try {
+    const response = await fetchUrl(`${sanitizationUrl}/sanitize`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+      timeout,
+    });
+    if (response.status >= 200 && response.status < 300) {
+      const data = JSON.parse(response.body);
+      return { ok: true, clean: data.clean, classification: data.classification };
+    }
+    return { ok: false, error: `http_${response.status}` };
+  } catch (err) {
+    return { ok: false, error: err.message.includes('timeout') ? 'timeout' : 'fetch_error' };
+  }
 }

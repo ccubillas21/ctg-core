@@ -329,6 +329,19 @@ export async function start(overrides = {}) {
         return;
       }
 
+      // ── POST /sanitize ──────────────────────────────────────────────────────
+      if (method === 'POST' && pathname === '/sanitize') {
+        const chunks = [];
+        for await (const chunk of req) chunks.push(chunk);
+        const body = Buffer.concat(chunks).toString();
+        const parsed = JSON.parse(body);
+        const result = await sanitizer.sanitizeRemote(parsed.content, {
+          sanitizationUrl: env.CTG_SANITIZATION_URL || '',
+        });
+        sendJson(res, result.ok ? 200 : 502, result);
+        return;
+      }
+
       // ── /llm/* ──────────────────────────────────────────────────────────────
       if (pathname.startsWith('/llm/')) {
         // License check
