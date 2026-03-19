@@ -42,6 +42,7 @@ services:
       DATABASE_URL: "postgresql://${PG_USER:-ctgcore}:${PG_PASSWORD}@postgresql:5432/${PG_DB:-ctgcore}"
       SERVE_UI: "true"
       DEPLOYMENT_MODE: "local_trusted"
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-ctg-core-paperclip-secret}
     ports:
       - "${PAPERCLIP_PORT:-13100}:3100"
     depends_on:
