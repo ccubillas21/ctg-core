@@ -821,3 +821,52 @@ body {
 .activity-full { display: none; font-size: 12px; color: #94a3b8; line-height: 1.5; margin-top: 8px; padding-top: 8px; border-top: 1px solid #334155; white-space: pre-wrap; }
 .activity-item.expanded .activity-full { display: block; }
 .activity-item.expanded .activity-summary { display: none; }
+
+/* ── Clients / Agents / Usage Tabs ───────────────────────── */
+
+/* Forms */
+.form-card { padding: 1.5rem; }
+.form-card label { display: block; margin-bottom: 1rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.form-card input,
+.form-card select,
+.form-card textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  resize: vertical;
+}
+.form-card input:focus,
+.form-card select:focus,
+.form-card textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+.form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+
+/* Grids */
+.client-grid,
+.agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+
+/* Badges */
+.badge { font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 10px; font-weight: 600; display: inline-block; }
+.status-provisioned { background: #fef3c7; color: #92400e; }
+.status-configured  { background: #dbeafe; color: #1e40af; }
+.status-deployed    { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.status-live        { background: #10b981; color: white; }
+
+/* Usage bars */
+.usage-bar-bg { background: var(--border); border-radius: 4px; overflow: hidden; }
+.usage-bar    { height: 1.5rem; background: var(--accent); border-radius: 4px; transition: width 0.3s; min-width: 2px; }
+
+@media (max-width: 768px) {
+  .client-grid,
+  .agent-grid { grid-template-columns: 1fr; }
+}

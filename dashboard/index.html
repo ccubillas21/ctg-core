@@ -28,6 +28,9 @@
       <div class="tab-bar">
         <button class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
         <button class="tab" data-tab="memory" onclick="switchTab('memory')">Memory</button>
+        <button class="tab" data-tab="clients" onclick="switchTab('clients')">Clients</button>
+        <button class="tab" data-tab="agents-mgmt" onclick="switchTab('agents-mgmt')">Agents</button>
+        <button class="tab" data-tab="usage" onclick="switchTab('usage')">Usage</button>
       </div>
     </div>
     <div class="header-right">
@@ -207,6 +210,24 @@
       </div>
     </div>
 
+    <!-- Clients Section -->
+    <div class="section" id="clients-section" style="display:none">
+      <div class="section-title">Client Management</div>
+      <div id="clients-content"></div>
+    </div>
+
+    <!-- Agents Management Section -->
+    <div class="section" id="agents-mgmt-section" style="display:none">
+      <div class="section-title">Agent Management</div>
+      <div id="agents-mgmt-content"></div>
+    </div>
+
+    <!-- Usage Section -->
+    <div class="section" id="usage-section" style="display:none">
+      <div class="section-title">Usage &amp; Spending</div>
+      <div id="usage-content"></div>
+    </div>
+
   </main>
 
   <script src="config.js"></script>
@@ -214,5 +235,8 @@
   <script src="kanban.js"></script>
   <script src="memory.js"></script>
   <script src="activity.js"></script>
+  <script src="clients.js"></script>
+  <script src="agents-tab.js"></script>
+  <script src="usage.js"></script>
 </body>
 </html>

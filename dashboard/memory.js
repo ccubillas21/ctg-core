@@ -9,14 +9,31 @@ var memoryData = null;
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+
+  var allSections = ['health-section', 'cost-section', 'kanban-section', 'activity-section',
+                     'memory-section', 'clients-section', 'agents-mgmt-section', 'usage-section'];
   var dashSections = ['health-section', 'cost-section', 'kanban-section', 'activity-section'];
+
+  // Hide all first
+  allSections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
   if (tab === 'dashboard') {
     dashSections.forEach(function(id) { document.getElementById(id).style.display = ''; });
-    document.getElementById('memory-section').style.display = 'none';
   } else if (tab === 'memory') {
-    dashSections.forEach(function(id) { document.getElementById(id).style.display = 'none'; });
     document.getElementById('memory-section').style.display = '';
     loadMemoryData();
+  } else if (tab === 'clients') {
+    document.getElementById('clients-section').style.display = '';
+    if (typeof loadClients === 'function') loadClients();
+  } else if (tab === 'agents-mgmt') {
+    document.getElementById('agents-mgmt-section').style.display = '';
+    if (typeof loadAgentsTab === 'function') loadAgentsTab();
+  } else if (tab === 'usage') {
+    document.getElementById('usage-section').style.display = '';
+    if (typeof loadUsageTab === 'function') loadUsageTab();
   }
 }
 

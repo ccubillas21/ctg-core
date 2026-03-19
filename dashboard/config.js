@@ -60,6 +60,9 @@ const CONFIG = {
     ],
   },
 
+  // ── Hub API ─────────────────────────────────────────────
+  hubApiUrl: 'http://localhost:9100',
+
   // ── Shared Settings ─────────────────────────────────────
   pollIntervalMs: 15000,
   demoPassword: 'aimee2026',
