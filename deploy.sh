@@ -1,17 +1,26 @@
 #!/bin/bash
 # CTG Core — One-Line Client Deployment Script
-# Usage: bash <(curl -sL URL) or bash deploy.sh
+# Usage: bash <(curl -sL URL) or bash deploy.sh [--dry-run]
 #
 # Assesses the target machine, installs missing prerequisites,
-# and deploys the full CTG Core stack.
+# and deploys the 4-service CTG Core client stack (connects to CTG Hub via Tailscale).
 
 set -euo pipefail
+
+# ──────────────────────────────────────────────────
+# Args
+# ──────────────────────────────────────────────────
+DRY_RUN=false
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=true ;;
+  esac
+done
 
 # ──────────────────────────────────────────────────
 # Config
 # ──────────────────────────────────────────────────
 CTG_DIR="${CTG_DIR:-$HOME/.ctg-core}"
-TAILSCALE_REQUIRED=true
 MIN_DOCKER_VERSION="24.0"
 MIN_DISK_GB=10
 MIN_RAM_GB=4
@@ -37,6 +46,10 @@ header(){ echo -e "\n${BOLD}${CYAN}── $1 ──${NC}\n"; }
 MISSING=()
 INSTALLED=()
 WARNINGS=()
+
+if [ "$DRY_RUN" = "true" ]; then
+  echo -e "\n${BOLD}${YELLOW}[DRY RUN MODE — no changes will be made]${NC}\n"
+fi
 
 # ──────────────────────────────────────────────────
 # OS Detection
@@ -81,6 +94,24 @@ case "$(uname -s)" in
     exit 1
     ;;
 esac
+
+# ──────────────────────────────────────────────────
+# Tailscale Check (required)
+# ──────────────────────────────────────────────────
+if ! command -v tailscale &>/dev/null; then
+  fail "Tailscale is required but not installed"
+  echo "  Install: https://tailscale.com/download"
+  MISSING+=("tailscale")
+fi
+if command -v tailscale &>/dev/null; then
+  if tailscale status &>/dev/null; then
+    pass "Tailscale connected"
+    INSTALLED+=("tailscale")
+  else
+    warn "Tailscale installed but not connected — run: sudo tailscale up"
+    WARNINGS+=("tailscale-disconnected")
+  fi
+fi
 
 # ──────────────────────────────────────────────────
 # Hardware Check
@@ -158,23 +189,6 @@ else
   MISSING+=("docker-compose")
 fi
 
-# Tailscale
-if command -v tailscale &>/dev/null; then
-  TS_VER=$(tailscale version 2>/dev/null | head -1 || echo "unknown")
-  TS_STATUS=$(tailscale status --json 2>/dev/null | grep -o '"BackendState":"[^"]*"' | cut -d'"' -f4 || echo "unknown")
-  if [ "$TS_STATUS" = "Running" ]; then
-    TS_IP=$(tailscale ip -4 2>/dev/null || echo "unknown")
-    pass "Tailscale $TS_VER — connected (IP: $TS_IP)"
-    INSTALLED+=("tailscale")
-  else
-    warn "Tailscale $TS_VER installed but not connected (state: $TS_STATUS)"
-    MISSING+=("tailscale-connect")
-  fi
-else
-  fail "Tailscale — not installed"
-  MISSING+=("tailscale")
-fi
-
 # Git
 if command -v git &>/dev/null; then
   GIT_VER=$(git --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown")
@@ -239,11 +253,10 @@ check_port() {
   fi
 }
 
-check_port 13100 "Paperclip"
 check_port 14000 "Mission Control"
 check_port 28789 "Gateway"
 check_port 19090 "Gatekeeper"
-check_port 5678 "n8n"
+check_port 5678  "n8n"
 
 # ──────────────────────────────────────────────────
 # Existing Installation Check
@@ -300,7 +313,6 @@ else
           info "Tailscale: curl -fsSL https://tailscale.com/install.sh | sh"
         fi
         ;;
-      tailscale-connect) info "Connect Tailscale: sudo tailscale up" ;;
       git)            info "Git: brew install git (macOS) or sudo apt install git (Linux)" ;;
       curl)           info "curl: brew install curl (macOS) or sudo apt install curl (Linux)" ;;
       jq)             info "jq: brew install jq (macOS) or sudo apt install jq (Linux)" ;;
@@ -308,6 +320,12 @@ else
     esac
   done
   echo ""
+
+  # Block on missing Tailscale — it is required for the client stack
+  if printf '%s\n' "${MISSING[@]}" | grep -q "^tailscale$"; then
+    fail "Tailscale is required. Install it and re-run this script."
+    exit 1
+  fi
 
   # ──────────────────────────────────────────────
   # Offer to install missing prerequisites
@@ -369,25 +387,6 @@ else
               info "Starting Docker daemon..."
               sudo systemctl start docker 2>/dev/null || true
               pass "Docker started"
-            fi
-            ;;
-          tailscale)
-            if [ "$OS" = "macos" ]; then
-              info "Installing Tailscale..."
-              brew install --cask tailscale
-              pass "Tailscale installed — open from menu bar to sign in"
-            else
-              info "Installing Tailscale..."
-              curl -fsSL https://tailscale.com/install.sh | sh
-              pass "Tailscale installed"
-            fi
-            ;;
-          tailscale-connect)
-            info "Connecting to Tailscale..."
-            if [ "$OS" = "macos" ]; then
-              echo -e "  ${YELLOW}!${NC} Open Tailscale from the menu bar and sign in"
-            else
-              sudo tailscale up
             fi
             ;;
           git)
@@ -498,14 +497,16 @@ mkdir -p "$CTG_DIR"
 # ──────────────────────────────────────────────────
 CTG_REPO="https://raw.githubusercontent.com/ccubillas21/ctg-core/master"
 CTG_REGISTRY="ghcr.io/ccubillas21"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 # Try local source first, fall back to GitHub
-if [ -f "$SCRIPT_DIR/docker-compose.yml" ] && [ -f "$SCRIPT_DIR/.env.template" ]; then
+if [ -f "$SCRIPT_DIR/docker-compose.client.yml" ] && [ -f "$SCRIPT_DIR/.env.template" ]; then
   info "Deploying from local source: $SCRIPT_DIR"
 
   if [ "$SCRIPT_DIR" != "$CTG_DIR" ]; then
-    for f in docker-compose.yml openclaw.seed.json .env.template; do
+    cp "$SCRIPT_DIR/docker-compose.client.yml" "$CTG_DIR/docker-compose.yml"
+    pass "Copied docker-compose.client.yml → docker-compose.yml"
+    for f in openclaw.seed.json .env.template; do
       [ -f "$SCRIPT_DIR/$f" ] && cp "$SCRIPT_DIR/$f" "$CTG_DIR/"
     done
     for d in agents sops lobster skills gatekeeper; do
@@ -516,18 +517,63 @@ if [ -f "$SCRIPT_DIR/docker-compose.yml" ] && [ -f "$SCRIPT_DIR/.env.template" ]
 else
   info "Downloading deployment files from CTG..."
 
-  FETCH_FILES="docker-compose.yml openclaw.seed.json .env.template"
-  for f in $FETCH_FILES; do
-    if curl -sfL "$CTG_REPO/$f" -o "$CTG_DIR/$f" 2>/dev/null; then
-      pass "Downloaded $f"
-    else
-      fail "Failed to download $f"
-      echo "  Check your internet connection and try again."
-      exit 1
-    fi
-  done
+  # Download docker-compose.client.yml and save as docker-compose.yml
+  if curl -sfL "$CTG_REPO/docker-compose.client.yml" -o "$CTG_DIR/docker-compose.yml" 2>/dev/null; then
+    pass "Downloaded docker-compose.client.yml → docker-compose.yml"
+  else
+    fail "Failed to download docker-compose.client.yml"
+    echo "  Check your internet connection and try again."
+    exit 1
+  fi
+
+  # Download openclaw.seed.json
+  if curl -sfL "$CTG_REPO/openclaw.seed.json" -o "$CTG_DIR/openclaw.seed.json" 2>/dev/null; then
+    pass "Downloaded openclaw.seed.json"
+  else
+    fail "Failed to download openclaw.seed.json"
+    echo "  Check your internet connection and try again."
+    exit 1
+  fi
 
   pass "Deployment files downloaded"
+fi
+
+# ──────────────────────────────────────────────────
+# CTG Hub Configuration
+# ──────────────────────────────────────────────────
+if [ "$UPGRADE_MODE" = "false" ]; then
+  header "CTG Hub Configuration"
+  read -rp "  CTG Hub IP (Tailscale): " CTG_HUB_IP
+  read -rp "  Company ID: " COMPANY_ID
+  read -rp "  Hub Tenant Token: " HUB_TENANT_TOKEN
+
+  if [ -z "$CTG_HUB_IP" ] || [ -z "$COMPANY_ID" ] || [ -z "$HUB_TENANT_TOKEN" ]; then
+    fail "CTG Hub IP, Company ID, and Hub Tenant Token are required"
+    fail "Contact CTG to get these credentials"
+    exit 1
+  fi
+
+  # ──────────────────────────────────────────────────
+  # Connectivity Check
+  # ──────────────────────────────────────────────────
+  header "Connectivity Check"
+
+  if [ "$DRY_RUN" = "true" ]; then
+    warn "[DRY RUN] Skipping connectivity checks"
+  else
+    if curl -sf "http://${CTG_HUB_IP}:9100/health" &>/dev/null; then
+      pass "CTG Hub reachable at ${CTG_HUB_IP}:9100"
+    else
+      fail "Cannot reach CTG Hub at ${CTG_HUB_IP}:9100"
+      fail "Check Tailscale connection and Hub IP"
+      exit 1
+    fi
+    if curl -sf "http://${CTG_HUB_IP}:3101/api/health" &>/dev/null; then
+      pass "CTG Paperclip reachable at ${CTG_HUB_IP}:3101"
+    else
+      warn "Cannot reach CTG Paperclip at ${CTG_HUB_IP}:3101 — may not be running yet"
+    fi
+  fi
 fi
 
 # ──────────────────────────────────────────────────
@@ -536,77 +582,49 @@ fi
 if [ "$UPGRADE_MODE" = "false" ]; then
   header "Configuration"
 
-  cp "$CTG_DIR/.env.template" "$CTG_DIR/.env"
-
   # Generate secure credentials
-  PG_PASSWORD=$(openssl rand -hex 24)
   AUTH_TOKEN=$(openssl rand -hex 24)
   GK_TOKEN=$(openssl rand -hex 24)
   N8N_PASSWORD=$(openssl rand -hex 16)
   N8N_ENCRYPTION=$(openssl rand -hex 32)
 
-  # Generate UUID (macOS compatible)
-  if command -v uuidgen &>/dev/null; then
-    COMPANY_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-  else
-    COMPANY_ID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || openssl rand -hex 16 | sed 's/\(.\{8\}\)\(.\{4\}\)\(.\{4\}\)\(.\{4\}\)\(.\{12\}\)/\1-\2-\3-\4-\5/')
-  fi
+  # Write .env
+  cat > "$CTG_DIR/.env" <<EOF
+# CTG Core Client Configuration
+# Generated by deploy.sh on $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+# Do not share this file — it contains secrets.
 
-  # Write credentials to .env
-  if [ "$OS" = "macos" ]; then
-    sed -i '' "s/PG_PASSWORD=CHANGE_ME_GENERATE_WITH_OPENSSL/PG_PASSWORD=$PG_PASSWORD/" "$CTG_DIR/.env"
-    sed -i '' "s/OPENCLAW_AUTH_TOKEN=CHANGE_ME_GENERATE_WITH_OPENSSL/OPENCLAW_AUTH_TOKEN=$AUTH_TOKEN/" "$CTG_DIR/.env"
-    sed -i '' "s/COMPANY_ID=CHANGE_ME_UUID/COMPANY_ID=$COMPANY_ID/" "$CTG_DIR/.env"
-    sed -i '' "s/GATEKEEPER_INTERNAL_TOKEN=CHANGE_ME_GENERATE_WITH_OPENSSL/GATEKEEPER_INTERNAL_TOKEN=$GK_TOKEN/" "$CTG_DIR/.env"
-    sed -i '' "s/N8N_BASIC_AUTH_PASSWORD=CHANGE_ME_GENERATE_WITH_OPENSSL/N8N_BASIC_AUTH_PASSWORD=$N8N_PASSWORD/" "$CTG_DIR/.env"
-    sed -i '' "s/N8N_ENCRYPTION_KEY=CHANGE_ME_GENERATE_WITH_OPENSSL/N8N_ENCRYPTION_KEY=$N8N_ENCRYPTION/" "$CTG_DIR/.env"
-  else
-    sed -i "s/PG_PASSWORD=CHANGE_ME_GENERATE_WITH_OPENSSL/PG_PASSWORD=$PG_PASSWORD/" "$CTG_DIR/.env"
-    sed -i "s/OPENCLAW_AUTH_TOKEN=CHANGE_ME_GENERATE_WITH_OPENSSL/OPENCLAW_AUTH_TOKEN=$AUTH_TOKEN/" "$CTG_DIR/.env"
-    sed -i "s/COMPANY_ID=CHANGE_ME_UUID/COMPANY_ID=$COMPANY_ID/" "$CTG_DIR/.env"
-    sed -i "s/GATEKEEPER_INTERNAL_TOKEN=CHANGE_ME_GENERATE_WITH_OPENSSL/GATEKEEPER_INTERNAL_TOKEN=$GK_TOKEN/" "$CTG_DIR/.env"
-    sed -i "s/N8N_BASIC_AUTH_PASSWORD=CHANGE_ME_GENERATE_WITH_OPENSSL/N8N_BASIC_AUTH_PASSWORD=$N8N_PASSWORD/" "$CTG_DIR/.env"
-    sed -i "s/N8N_ENCRYPTION_KEY=CHANGE_ME_GENERATE_WITH_OPENSSL/N8N_ENCRYPTION_KEY=$N8N_ENCRYPTION/" "$CTG_DIR/.env"
-  fi
+# ── CTG Hub ──────────────────────────────────────
+CTG_HUB_IP=${CTG_HUB_IP}
+COMPANY_ID=${COMPANY_ID}
+HUB_TENANT_TOKEN=${HUB_TENANT_TOKEN}
 
-  pass "Credentials generated"
+# ── Auto-generated secrets ───────────────────────
+OPENCLAW_AUTH_TOKEN=${AUTH_TOKEN}
+GATEKEEPER_INTERNAL_TOKEN=${GK_TOKEN}
+
+# ── n8n ──────────────────────────────────────────
+N8N_BASIC_AUTH_USER=admin
+N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION}
+EOF
+
+  pass "Credentials generated and .env written"
   info "Company ID: $COMPANY_ID"
-
-  # API Key
-  echo ""
-  echo -e "${BOLD}Anthropic API Key${NC} (required for agents to work)"
-  read -rp "  sk-ant-...: " ANTHROPIC_KEY
-  if [ -n "$ANTHROPIC_KEY" ]; then
-    if [ "$OS" = "macos" ]; then
-      sed -i '' "s|ANTHROPIC_API_KEY=sk-ant-CHANGE_ME|ANTHROPIC_API_KEY=$ANTHROPIC_KEY|" "$CTG_DIR/.env"
-    else
-      sed -i "s|ANTHROPIC_API_KEY=sk-ant-CHANGE_ME|ANTHROPIC_API_KEY=$ANTHROPIC_KEY|" "$CTG_DIR/.env"
-    fi
-    pass "API key set"
-  else
-    warn "No API key — agents won't work until you set ANTHROPIC_API_KEY in $CTG_DIR/.env"
-  fi
-
-  # Parent Hub
-  echo ""
-  echo -e "${BOLD}Parent Hub${NC} (for remote management by CTG)"
-  read -rp "  Hub token (press Enter to skip): " HUB_TOKEN
-  if [ -n "$HUB_TOKEN" ]; then
-    if [ "$OS" = "macos" ]; then
-      sed -i '' "s|PARENT_HUB_TOKEN=CHANGE_ME_PROVIDED_BY_CTG|PARENT_HUB_TOKEN=$HUB_TOKEN|" "$CTG_DIR/.env"
-    else
-      sed -i "s|PARENT_HUB_TOKEN=CHANGE_ME_PROVIDED_BY_CTG|PARENT_HUB_TOKEN=$HUB_TOKEN|" "$CTG_DIR/.env"
-    fi
-    pass "Hub token set"
-  else
-    info "Skipped — can be configured later in $CTG_DIR/.env"
-  fi
+  info "CTG Hub IP: $CTG_HUB_IP"
 fi
 
 # ──────────────────────────────────────────────────
 # Build & Launch
 # ──────────────────────────────────────────────────
-header "Building & Starting Stack"
+if [ "$DRY_RUN" = "true" ]; then
+  header "Dry Run Complete"
+  info "Would start 4 services from $CTG_DIR/docker-compose.yml"
+  info "No changes were made."
+  exit 0
+fi
+
+header "Building & Starting Stack (4 services)"
 
 cd "$CTG_DIR"
 
@@ -627,7 +645,7 @@ while [ $ELAPSED -lt $TIMEOUT ]; do
   TOTAL=$(docker compose ps --format json 2>/dev/null | jq -r '.Name' 2>/dev/null | wc -l | tr -d ' ' || echo "0")
 
   if [ "$HEALTHY" -ge 4 ]; then
-    pass "All core services healthy ($HEALTHY/$TOTAL)"
+    pass "All 4 services healthy ($HEALTHY/$TOTAL)"
     break
   fi
 
@@ -642,45 +660,6 @@ if [ $ELAPSED -ge $TIMEOUT ]; then
 fi
 
 # ──────────────────────────────────────────────────
-# Seed Paperclip
-# ──────────────────────────────────────────────────
-if [ "$UPGRADE_MODE" = "false" ]; then
-  echo ""
-  info "Seeding Paperclip with agents..."
-
-  PAPERCLIP_PORT=$(grep '^PAPERCLIP_PORT=' "$CTG_DIR/.env" 2>/dev/null | cut -d= -f2 || echo "13100")
-  PAPERCLIP_URL="http://localhost:${PAPERCLIP_PORT}"
-  COMPANY_ID=$(grep '^COMPANY_ID=' "$CTG_DIR/.env" | cut -d= -f2)
-
-  # Wait for Paperclip API
-  for i in $(seq 1 15); do
-    if curl -sf "$PAPERCLIP_URL/api/health" &>/dev/null; then
-      break
-    fi
-    sleep 2
-  done
-
-  # Create company
-  curl -sf -X POST "$PAPERCLIP_URL/api/companies" \
-    -H "Content-Type: application/json" \
-    -d "{\"id\":\"$COMPANY_ID\",\"name\":\"Client Deployment\"}" &>/dev/null || true
-
-  # Register agents
-  for AGENT in primary engineer dispatch; do
-    case $AGENT in
-      primary)  DISPLAY_NAME="Aimee"; TITLE="Communications & Triage Lead" ;;
-      engineer) DISPLAY_NAME="Engineer"; TITLE="Technical Specialist" ;;
-      dispatch) DISPLAY_NAME="Dispatch"; TITLE="Operations & Automation Specialist" ;;
-    esac
-    curl -sf -X POST "$PAPERCLIP_URL/api/companies/$COMPANY_ID/agents" \
-      -H "Content-Type: application/json" \
-      -d "{\"name\":\"$AGENT\",\"displayName\":\"$DISPLAY_NAME\",\"title\":\"$TITLE\",\"role\":\"general\",\"adapterType\":\"openclaw_gateway\"}" &>/dev/null || true
-  done
-
-  pass "Agents registered: Aimee (primary), Engineer, Dispatch"
-fi
-
-# ──────────────────────────────────────────────────
 # Final Report
 # ──────────────────────────────────────────────────
 header "Deployment Complete"
@@ -691,21 +670,28 @@ if command -v tailscale &>/dev/null; then
   TS_IP=$(tailscale ip -4 2>/dev/null || echo "")
 fi
 
-PAPERCLIP_PORT=$(grep '^PAPERCLIP_PORT=' "$CTG_DIR/.env" 2>/dev/null | cut -d= -f2 || echo "13100")
 MC_PORT=$(grep '^MC_PORT=' "$CTG_DIR/.env" 2>/dev/null | cut -d= -f2 || echo "14000")
 GW_PORT=$(grep '^GW_PORT=' "$CTG_DIR/.env" 2>/dev/null | cut -d= -f2 || echo "28789")
-RELAY_PORT=$(grep '^RELAY_PORT=' "$CTG_DIR/.env" 2>/dev/null | cut -d= -f2 || echo "19090")
+GK_PORT=$(grep '^GK_PORT=' "$CTG_DIR/.env" 2>/dev/null | cut -d= -f2 || echo "19090")
+N8N_PORT=5678
 
-echo -e "${BOLD}Services:${NC}"
-echo "  Paperclip:        http://localhost:$PAPERCLIP_PORT"
+echo -e "${BOLD}Services (4):${NC}"
 echo "  Mission Control:  http://localhost:$MC_PORT"
 echo "  Gateway:          http://localhost:$GW_PORT"
-echo "  Parent Relay:     http://localhost:$RELAY_PORT"
+echo "  Gatekeeper:       http://localhost:$GK_PORT"
+echo "  n8n:              http://localhost:$N8N_PORT"
+
+CTG_HUB_IP_DISPLAY=$(grep '^CTG_HUB_IP=' "$CTG_DIR/.env" 2>/dev/null | cut -d= -f2 || echo "")
+if [ -n "$CTG_HUB_IP_DISPLAY" ]; then
+  echo ""
+  echo -e "${BOLD}CTG Hub (via Tailscale):${NC}"
+  echo "  Hub Gateway:      http://${CTG_HUB_IP_DISPLAY}:9100"
+  echo "  Paperclip:        http://${CTG_HUB_IP_DISPLAY}:3101"
+fi
 
 if [ -n "$TS_IP" ]; then
   echo ""
   echo -e "${BOLD}Tailscale Access (from your network):${NC}"
-  echo "  Paperclip:        http://$TS_IP:$PAPERCLIP_PORT"
   echo "  Mission Control:  http://$TS_IP:$MC_PORT"
   echo "  Gateway:          http://$TS_IP:$GW_PORT"
 fi
@@ -716,4 +702,4 @@ echo -e "${BOLD}Logs:${NC}    cd $CTG_DIR && docker compose logs -f"
 echo -e "${BOLD}Stop:${NC}    cd $CTG_DIR && docker compose down"
 echo -e "${BOLD}Restart:${NC} cd $CTG_DIR && docker compose restart"
 echo ""
-pass "CTG Core is live."
+pass "CTG Core client stack is live — connected to CTG Hub via Tailscale."
