@@ -149,6 +149,8 @@ services:
       OPENCLAW_URL: "http://openclaw:18789"
       PAPERCLIP_URL: "http://paperclip:3100"
       N8N_URL: "http://n8n:5678"
+      MC_URL: "http://mission-control:4000"
+      SOPS_DIR: "/home/node/.openclaw/sops"
     ports:
       - "${GATEKEEPER_HOST_PORT:-19090}:9090"
     volumes:

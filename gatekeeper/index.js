@@ -122,15 +122,33 @@ export async function start(overrides = {}) {
 
   const hub = new Hub({
     companyId: env.COMPANY_ID,
-    parentHubUrl: env.PARENT_HUB_URL,
-    parentHubToken: env.PARENT_HUB_TOKEN,
-    licenseGraceHours: env.LICENSE_GRACE_HOURS ? parseInt(env.LICENSE_GRACE_HOURS, 10) : undefined,
+    hubUrl: env.PARENT_HUB_URL,
+    hubToken: env.PARENT_HUB_TOKEN,
+    graceHours: env.LICENSE_GRACE_HOURS ? parseInt(env.LICENSE_GRACE_HOURS, 10) : undefined,
+    openclawUrl: env.OPENCLAW_URL || 'http://openclaw:18789',
+    paperclipUrl: env.PAPERCLIP_URL || 'http://paperclip:3100',
+    n8nUrl: env.N8N_URL || 'http://n8n:5678',
+    mcUrl: env.MC_URL || 'http://mission-control:4000',
+    sopsDir: env.SOPS_DIR || '/home/node/.openclaw/sops',
   });
 
   // Periodic hub check-in
   const checkinInterval = setInterval(async () => {
     try {
-      await hub.checkIn();
+      const [services, agents, botRequests] = await Promise.all([
+        hub.collectHealth(),
+        hub.getAgentList(),
+        hub.getBotRequests(),
+      ]);
+      const payload = hub.buildCheckinPayload({
+        services,
+        agents,
+        usageToday: ledger.getUsageToday(),
+        contentToday: ledger.getContentToday(),
+        spendingMtd: ledger.getSpendingMtd(),
+        botRequests,
+      });
+      await hub.checkin(payload);
     } catch (err) {
       console.error('[gatekeeper] hub check-in error:', err.message);
     }
@@ -145,7 +163,8 @@ export async function start(overrides = {}) {
 
     // ── Auth gate ─────────────────────────────────────────────────────────────
     if (internalToken && requiresAuth(pathname)) {
-      if (!validateToken(req.headers['authorization'], internalToken)) {
+      if (!validateToken(req.headers['authorization'], internalToken) &&
+          req.headers['x-api-key'] !== internalToken) {
         sendError(res, 401, 'unauthorized', 'Missing or invalid Authorization token');
         return;
       }
@@ -199,8 +218,21 @@ export async function start(overrides = {}) {
 
       // ── POST /checkin ───────────────────────────────────────────────────────
       if (method === 'POST' && pathname === '/checkin') {
-        const result = await hub.checkIn();
-        sendJson(res, 200, { status: 'ok', checkin: result });
+        const [services, agents, botRequests] = await Promise.all([
+          hub.collectHealth(),
+          hub.getAgentList(),
+          hub.getBotRequests(),
+        ]);
+        const payload = hub.buildCheckinPayload({
+          services,
+          agents,
+          usageToday: ledger.getUsageToday(),
+          contentToday: ledger.getContentToday(),
+          spendingMtd: ledger.getSpendingMtd(),
+          botRequests,
+        });
+        await hub.checkin(payload);
+        sendJson(res, 200, { status: 'ok', checkin: hub.getStatus() });
         return;
       }
 
