@@ -435,3 +435,70 @@ Vanilla HTML/CSS/JS app with 2 tabs (Dashboard, Memory). Tab system already impl
 - Test full stack on Charlie's Mac first
 - Deploy to 2 client Macs (M4)
 - End-to-end validation: Slack conversations, agent collaboration, Paperclip connectivity, Hub check-ins, sanitization flow, subagent spawning
+
+---
+
+## 11. Known Risks & Mitigations
+
+### Hub as single point of failure
+
+CTG Hub (WSL) hosts Paperclip, Hub API, and sanitization. If it goes down:
+
+| Service | Impact | Mitigation |
+|---------|--------|------------|
+| **LLM calls** | Continue working — 72-hour license grace period | Built into Gatekeeper |
+| **Paperclip (tasks)** | Fails — agents can't read/write task state | Gatekeeper caches last-known agent roster locally; agents degrade to stateless mode |
+| **Sanitization** | Fails — subagents can't classify dirty content | Block dirty-content processing until Hub returns; agents queue work rather than bypass sanitization |
+
+**Future**: Move Hub services to a VPS or cloud instance for higher availability. For v1.0, CTG Hub uptime is Charlie's responsibility as part of the managed service.
+
+### Paperclip multi-tenant isolation
+
+Paperclip uses company-scoped API paths (`/api/companies/{companyId}/...`). For v1.0:
+
+- Each client's OpenClaw is configured with ONLY their company ID
+- Client read-only API key is scoped to their company (verify Paperclip supports this; if not, Gatekeeper proxies Paperclip requests and enforces company scoping)
+- CTG admin key has cross-company access
+
+**Must verify**: Does Paperclip enforce tenant isolation at the API key level, or only URL-level? If URL-only, add a Paperclip proxy layer in Gatekeeper that locks company ID per client token.
+
+### n8n internet bypass
+
+n8n sits on both `internal-net` and `gateway-net`. Agents on `internal-net` could potentially reach the internet through n8n, bypassing Gatekeeper. Mitigation:
+
+- n8n only on `gateway-net` — agents reach n8n through Gatekeeper, which logs and controls the access
+- OR: restrict n8n's internal-net access to webhook-only (no arbitrary HTTP from agents)
+- Resolve during implementation — document the chosen approach
+
+### Remote update integrity
+
+Hub can push skill updates and SOP changes to client stacks. A compromised Hub could push malicious content. For v1.0:
+
+- All pushes are manual (Charlie triggers them)
+- Hub-to-client commands are authenticated via Gatekeeper internal token
+- **Future**: Add content signing for pushed updates (hash verification before applying)
+
+### Rollback
+
+No automated rollback for v1.0. Mitigation:
+
+- Docker images are tagged — can roll back to previous tag
+- Agent configs are versioned in git (ctg-core repo)
+- Manual rollback process documented in internal tech doc
+- **Future**: Hub tracks config versions per client, supports rollback command
+
+---
+
+## 12. Open Decisions
+
+These need answers before or during implementation:
+
+1. **Slack app ownership**: CTG creates the apps, CTG holds the tokens. Client grants workspace access. CTG can maintain and update bots without client involvement. Document this in the client agreement.
+
+2. **Billing**: Manual for v1.0. Usage data from Gatekeeper ledger feeds into invoicing. Hub dashboard shows spending. No automated billing integration yet.
+
+3. **Exec permissions**: Current seed config has `exec.security: "full"` with `ask: "off"`. For client deployments, restrict to specific commands or require approval. Resolve per-agent during implementation.
+
+4. **Client Mac remote access**: Gateway RPC over Tailscale for agent diagnostics. No SSH to client Macs unless client grants it. Sufficient for v1.0.
+
+5. **Sanitization fallback**: When Hub is unreachable, agents BLOCK dirty-content processing (don't bypass). Queue work for when Hub returns. This is the safe default for a security-focused product.
