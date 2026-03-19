@@ -50,3 +50,65 @@ describe('requiresAuth', () => {
     assert.equal(requiresAuth('/checkin'), true);
   });
 });
+
+// ── x-api-key alternative auth (mirrors handler logic) ───────────────────────
+//
+// The handler gate is:
+//   if (!validateToken(headers['authorization'], token) &&
+//       headers['x-api-key'] !== token) → reject
+//
+// We test the combined boolean expression that determines whether a request
+// is allowed through, matching the exact logic in index.js ~line 147-152.
+
+function isAllowed(headers, token) {
+  return validateToken(headers['authorization'], token) ||
+         headers['x-api-key'] === token;
+}
+
+describe('x-api-key alternative auth', () => {
+  const TOKEN = 'supersecret-token';
+
+  it('accepts a valid x-api-key header with no Authorization header', () => {
+    const headers = { 'x-api-key': TOKEN };
+    assert.equal(isAllowed(headers, TOKEN), true);
+  });
+
+  it('rejects an invalid x-api-key with no Authorization header', () => {
+    const headers = { 'x-api-key': 'wrong-token' };
+    assert.equal(isAllowed(headers, TOKEN), false);
+  });
+
+  it('rejects missing x-api-key and missing Authorization header', () => {
+    const headers = {};
+    assert.equal(isAllowed(headers, TOKEN), false);
+  });
+
+  it('rejects an invalid x-api-key AND an invalid Authorization header', () => {
+    const headers = {
+      'authorization': 'Bearer wrong-token',
+      'x-api-key': 'also-wrong',
+    };
+    assert.equal(isAllowed(headers, TOKEN), false);
+  });
+
+  it('accepts a valid Authorization: Bearer header (existing behavior)', () => {
+    const headers = { 'authorization': `Bearer ${TOKEN}` };
+    assert.equal(isAllowed(headers, TOKEN), true);
+  });
+
+  it('accepts when both Authorization and x-api-key are valid', () => {
+    const headers = {
+      'authorization': `Bearer ${TOKEN}`,
+      'x-api-key': TOKEN,
+    };
+    assert.equal(isAllowed(headers, TOKEN), true);
+  });
+
+  it('accepts a valid Authorization even when x-api-key is wrong', () => {
+    const headers = {
+      'authorization': `Bearer ${TOKEN}`,
+      'x-api-key': 'bad-key',
+    };
+    assert.equal(isAllowed(headers, TOKEN), true);
+  });
+});
