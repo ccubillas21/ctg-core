@@ -1,0 +1,13 @@
+{
+  "name": "ctg-gatekeeper",
+  "version": "1.0.0",
+  "description": "CTG Core Gatekeeper — LLM proxy, content sanitizer, usage ledger, hub reporter",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  }
+}
