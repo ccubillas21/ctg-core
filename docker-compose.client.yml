@@ -88,24 +88,16 @@ services:
 
   # ---------- Mission Control (Dashboard) ----------
   mission-control:
-    image: node:22-alpine
+    image: ghcr.io/ccubillas21/ctg-mission-control:${CTG_VERSION:-latest}
     container_name: ctg-mc
     restart: unless-stopped
-    working_dir: /app
-    command: ["npx", "openclaw-mission-control", "--port", "4000", "--no-wizard"]
-    environment:
-      NODE_ENV: production
-      PORT: "4000"
-      # Paperclip lives on Hub (Tailscale)
-      PAPERCLIP_URL: "http://${CTG_HUB_IP}:3101"
-      OPENCLAW_GATEWAY_URL: "ws://openclaw:18789"
     ports:
-      - "${MC_PORT:-14000}:4000"
+      - "${MC_PORT:-14000}:8080"
     networks:
       - internal-net
       - gateway-net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/status || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5

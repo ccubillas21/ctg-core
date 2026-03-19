@@ -13,24 +13,46 @@ TAG="${1:-latest}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "Building and pushing CTG Core images to $REGISTRY..."
+PLATFORMS="linux/amd64,linux/arm64"
+BUILDER="multiarch"
+
+# Ensure buildx builder exists
+if ! docker buildx inspect "$BUILDER" &>/dev/null; then
+  echo "Creating buildx builder '$BUILDER'..."
+  docker buildx create --name "$BUILDER" --use
+else
+  docker buildx use "$BUILDER"
+fi
+
+echo "Building and pushing CTG Core images to $REGISTRY (platforms: $PLATFORMS)..."
 echo ""
 
-# Build Gatekeeper
-echo "→ Building gatekeeper..."
-docker build -f Dockerfile.gatekeeper -t "$REGISTRY/ctg-gatekeeper:$TAG" .
-echo "→ Pushing gatekeeper..."
-docker push "$REGISTRY/ctg-gatekeeper:$TAG"
+# Build + push Gatekeeper
+echo "→ Building + pushing gatekeeper..."
+docker buildx build --platform "$PLATFORMS" \
+  -f Dockerfile.gatekeeper \
+  -t "$REGISTRY/ctg-gatekeeper:$TAG" \
+  --push .
 echo "✓ gatekeeper:$TAG pushed"
 echo ""
 
-# Build OpenClaw
-echo "→ Building openclaw..."
-docker build -f Dockerfile.openclaw -t "$REGISTRY/ctg-openclaw:$TAG" .
-echo "→ Pushing openclaw..."
-docker push "$REGISTRY/ctg-openclaw:$TAG"
+# Build + push OpenClaw
+echo "→ Building + pushing openclaw..."
+docker buildx build --platform "$PLATFORMS" \
+  -f Dockerfile.openclaw \
+  -t "$REGISTRY/ctg-openclaw:$TAG" \
+  --push .
 echo "✓ openclaw:$TAG pushed"
 echo ""
 
+# Build + push Mission Control
+echo "→ Building + pushing mission-control..."
+docker buildx build --platform "$PLATFORMS" \
+  -f Dockerfile.mission-control \
+  -t "$REGISTRY/ctg-mission-control:$TAG" \
+  --push .
+echo "✓ mission-control:$TAG pushed"
+echo ""
+
 echo "Done. Clients can deploy with:"
-echo "  curl -sL https://raw.githubusercontent.com/ccubillas21/ctg-core/main/deploy.sh | bash"
+echo "  curl -sfL https://raw.githubusercontent.com/ccubillas21/ctg-core/master/deploy.sh | bash"
