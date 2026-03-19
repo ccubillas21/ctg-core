@@ -1,9 +1,9 @@
 # CTG Core — Corporate Deployment Stack
-# Version: 1.0.0
-# Architecture: Option B (independent tenant stack + parent relay)
+# Version: 1.1.0
+# Architecture: Option B (independent tenant stack + gatekeeper)
 #
-# Services: PostgreSQL, Paperclip, OpenClaw, Mission Control, Parent Relay
-# Network: Isolated bridge (ctg-core-net)
+# Services: PostgreSQL, Paperclip, OpenClaw, Mission Control, Gatekeeper, n8n
+# Networks: internal-net (isolated), gateway-net (internet access)
 # Ports: Offset +10000 from container ports
 
 services:
@@ -19,7 +19,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - ctg-core-net
+      - internal-net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-ctgcore}"]
       interval: 10s
@@ -50,7 +50,7 @@ services:
       postgresql:
         condition: service_healthy
     networks:
-      - ctg-core-net
+      - internal-net
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3100/api/health || exit 1"]
       interval: 15s
@@ -81,6 +81,7 @@ services:
       COMPANY_ID: ${COMPANY_ID}
       PARENT_HUB_URL: ${PARENT_HUB_URL:-}
       PARENT_HUB_TOKEN: ${PARENT_HUB_TOKEN:-}
+      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN}
     ports:
       - "${GW_PORT:-28789}:18789"
     volumes:
@@ -90,7 +91,7 @@ services:
       paperclip:
         condition: service_healthy
     networks:
-      - ctg-core-net
+      - internal-net
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:18789/health || exit 1"]
       interval: 15s
@@ -120,7 +121,7 @@ services:
       paperclip:
         condition: service_healthy
     networks:
-      - ctg-core-net
+      - internal-net
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/status || exit 1"]
       interval: 15s
@@ -133,32 +134,71 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # ---------- Parent Relay (Hub Communication Sidecar) ----------
-  parent-relay:
+  # ---------- Gatekeeper (Egress Control + Hub Relay) ----------
+  gatekeeper:
     build:
-      context: ./parent-relay
-      dockerfile: Dockerfile
-    container_name: ctg-core-relay
+      context: .
+      dockerfile: Dockerfile.gatekeeper
+    container_name: ctg-core-gatekeeper
     restart: unless-stopped
     environment:
+      GATEKEEPER_PORT: ${GATEKEEPER_PORT:-9090}
+      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN}
+      GATEKEEPER_DB_PATH: /data/gatekeeper.db
+      GATEKEEPER_PRICING_PATH: /data/pricing.json
+      GATEKEEPER_DOMAIN_ALLOWLIST: ${GATEKEEPER_DOMAIN_ALLOWLIST:-}
+      LICENSE_GRACE_HOURS: ${LICENSE_GRACE_HOURS:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      COMPANY_ID: ${COMPANY_ID}
       PARENT_HUB_URL: ${PARENT_HUB_URL:-}
       PARENT_HUB_TOKEN: ${PARENT_HUB_TOKEN:-}
-      COMPANY_ID: ${COMPANY_ID:-}
+      CHECKIN_INTERVAL_MS: ${CHECKIN_INTERVAL_MS:-300000}
       OPENCLAW_URL: "http://openclaw:18789"
       PAPERCLIP_URL: "http://paperclip:3100"
-      CHECKIN_INTERVAL_MS: ${CHECKIN_INTERVAL_MS:-300000}
-      RELAY_PORT: "9090"
+      N8N_URL: "http://n8n:5678"
     ports:
-      - "${RELAY_PORT:-19090}:9090"
+      - "${GATEKEEPER_HOST_PORT:-19090}:9090"
+    volumes:
+      - gatekeeper-data:/data
     depends_on:
-      openclaw:
-        condition: service_healthy
-      paperclip:
+      postgresql:
         condition: service_healthy
     networks:
-      - ctg-core-net
+      - internal-net
+      - gateway-net
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:9090/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    user: "1000:1000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- n8n (Workflow Automation) ----------
+  n8n:
+    image: n8nio/n8n:1.76.1
+    container_name: ctg-core-n8n
+    restart: unless-stopped
+    environment:
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      WEBHOOK_URL: "http://localhost:${N8N_PORT:-5678}/"
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - internal-net
+      - gateway-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -176,10 +216,14 @@ volumes:
     driver: local
   openclaw-config:
     driver: local
+  gatekeeper-data:
+    driver: local
+  n8n-data:
+    driver: local
 
 networks:
-  ctg-core-net:
+  internal-net:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.29.0.0/16
+    internal: true
+  gateway-net:
+    driver: bridge
