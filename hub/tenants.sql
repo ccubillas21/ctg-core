@@ -62,3 +62,17 @@ CREATE TABLE IF NOT EXISTS bot_requests (
 );
 
 CREATE INDEX IF NOT EXISTS idx_bot_requests_tenant ON bot_requests(tenant_id, status);
+
+CREATE TABLE IF NOT EXISTS agents (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT,
+  model_tier TEXT DEFAULT 'sonnet',
+  job_description TEXT,
+  status TEXT DEFAULT 'drafted',
+  created_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (tenant_id) REFERENCES tenants(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_agents_tenant ON agents(tenant_id);

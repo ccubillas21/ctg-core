@@ -11,6 +11,7 @@
 const http = require("node:http");
 const path = require("node:path");
 const fs = require("node:fs");
+const crypto = require("node:crypto");
 
 const PORT = parseInt(process.env.HUB_PORT || "9100", 10);
 const HUB_ADMIN_TOKEN = process.env.HUB_ADMIN_TOKEN;
@@ -28,9 +29,12 @@ function initDb() {
   db.pragma("journal_mode = WAL");
   const schema = fs.readFileSync(path.join(__dirname, "tenants.sql"), "utf8");
   db.exec(schema);
-  // Migrations: add license columns if not present (idempotent)
+  // Migrations: add columns if not present (idempotent)
   try { db.exec("ALTER TABLE tenants ADD COLUMN license_status TEXT DEFAULT 'active'"); } catch {}
   try { db.exec("ALTER TABLE tenants ADD COLUMN license_expires TEXT"); } catch {}
+  try { db.exec("ALTER TABLE tenants ADD COLUMN status TEXT DEFAULT 'provisioned'"); } catch {}
+  try { db.exec("ALTER TABLE tenants ADD COLUMN tailscale_ip TEXT"); } catch {}
+  try { db.exec("ALTER TABLE tenants ADD COLUMN slack_workspace TEXT"); } catch {}
   console.log(`[hub] Database initialized at ${DB_PATH}`);
 }
 
@@ -103,10 +107,75 @@ async function handleRequest(req, res) {
     }
   }
 
+  // ── GET /api/usage ──────────────────────────────────────────────
+  if (req.method === "GET" && url.pathname === "/api/usage") {
+    if (!isAdmin(token)) return json(res, 401, { error: "unauthorized" });
+
+    const now = new Date();
+    const defaultFrom = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+    const defaultTo = now.toISOString().slice(0, 10);
+    const from = url.searchParams.get("from") || defaultFrom;
+    const to = url.searchParams.get("to") || defaultTo;
+
+    const tenantRows = db.prepare("SELECT id, name FROM tenants").all();
+    const result = tenantRows.map((t) => {
+      const usage = db.prepare(`
+        SELECT
+          COALESCE(SUM(llm_calls), 0) as total_llm_calls,
+          COALESCE(SUM(tokens_in), 0) as total_tokens_in,
+          COALESCE(SUM(tokens_out), 0) as total_tokens_out,
+          COALESCE(SUM(provider_cost_cents), 0) as total_provider_cost_cents,
+          COALESCE(SUM(billed_cost_cents), 0) as total_billed_cost_cents,
+          COALESCE(SUM(content_requests), 0) as total_content_requests,
+          COALESCE(SUM(content_blocked), 0) as total_content_blocked,
+          COUNT(DISTINCT agent_id) as agent_count
+        FROM usage_daily
+        WHERE tenant_id = ? AND date >= ? AND date <= ?
+      `).get(t.id, from, to);
+      return {
+        tenant_id: t.id,
+        tenant_name: t.name,
+        from,
+        to,
+        ...usage,
+      };
+    });
+
+    return json(res, 200, result);
+  }
+
   // Route: /api/tenants/:id/...
   if (parts[0] === "api" && parts[1] === "tenants" && parts[2]) {
     const tenantId = parts[2];
     const action = parts[3];
+
+    // ── GET /api/tenants/:id ──────────────────────────────────────
+    if (req.method === "GET" && !action) {
+      if (!isAdmin(token)) return json(res, 401, { error: "unauthorized" });
+      const tenant = db.prepare(
+        "SELECT id, name, contact_email, status, tailscale_ip, slack_workspace, license_status, license_expires, relay_url, created_at, updated_at FROM tenants WHERE id = ?"
+      ).get(tenantId);
+      if (!tenant) return json(res, 404, { error: "tenant not found" });
+      return json(res, 200, tenant);
+    }
+
+    // ── PATCH /api/tenants/:id ────────────────────────────────────
+    if (req.method === "PATCH" && !action) {
+      if (!isAdmin(token)) return json(res, 401, { error: "unauthorized" });
+      const body = await parseBody(req);
+      if (!body) return json(res, 400, { error: "invalid payload" });
+
+      const allowed = ["status", "tailscale_ip", "contact_email", "slack_workspace"];
+      const fields = allowed.filter((f) => Object.prototype.hasOwnProperty.call(body, f));
+      if (fields.length === 0) return json(res, 400, { error: "no updatable fields provided" });
+
+      const setClauses = fields.map((f) => `${f} = ?`).join(", ");
+      const values = fields.map((f) => body[f]);
+      db.prepare(`UPDATE tenants SET ${setClauses}, updated_at = datetime('now') WHERE id = ?`)
+        .run(...values, tenantId);
+
+      return json(res, 200, { ok: true });
+    }
 
     // ── POST /api/tenants/:id/checkin (from relay) ────────────────
     if (req.method === "POST" && action === "checkin") {
@@ -213,16 +282,37 @@ async function handleRequest(req, res) {
 
     // ── GET /api/tenants/:id/agents ───────────────────────────────
     if (req.method === "GET" && action === "agents") {
+      if (!isAdmin(token) && !isTenant(token, tenantId)) return json(res, 401, { error: "unauthorized" });
+
+      const agents = db.prepare(
+        "SELECT id, tenant_id, name, role, model_tier, job_description, status, created_at FROM agents WHERE tenant_id = ? ORDER BY created_at ASC"
+      ).all(tenantId);
+
+      return json(res, 200, agents);
+    }
+
+    // ── POST /api/tenants/:id/agents ──────────────────────────────
+    if (req.method === "POST" && action === "agents") {
       if (!isAdmin(token)) return json(res, 401, { error: "unauthorized" });
+      const body = await parseBody(req);
+      if (!body || !body.name) return json(res, 400, { error: "name is required" });
 
-      const latest = db.prepare(
-        "SELECT payload FROM checkins WHERE tenant_id = ? ORDER BY timestamp DESC LIMIT 1"
-      ).get(tenantId);
+      const tenant = db.prepare("SELECT id FROM tenants WHERE id = ?").get(tenantId);
+      if (!tenant) return json(res, 404, { error: "tenant not found" });
 
-      if (!latest) return json(res, 404, { error: "no check-ins found" });
+      const id = crypto.randomUUID();
+      db.prepare(
+        "INSERT INTO agents (id, tenant_id, name, role, model_tier, job_description) VALUES (?, ?, ?, ?, ?, ?)"
+      ).run(
+        id,
+        tenantId,
+        body.name,
+        body.role || null,
+        body.model_tier || "sonnet",
+        body.job_description || null,
+      );
 
-      const data = JSON.parse(latest.payload);
-      return json(res, 200, data.agents || []);
+      return json(res, 201, { ok: true, id, name: body.name, role: body.role || null });
     }
 
     // ── POST /api/tenants/:id/config ──────────────────────────────
