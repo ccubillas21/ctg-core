@@ -25,8 +25,9 @@ RUN apk add --no-cache \
 
 # Copy globally installed packages from builder
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
-COPY --from=builder /usr/local/bin/openclaw /usr/local/bin/openclaw
-COPY --from=builder /usr/local/bin/qmd /usr/local/bin/qmd
+# Recreate symlinks (COPY breaks them — binary needs to resolve relative to package dir)
+RUN ln -sf /usr/local/lib/node_modules/openclaw/openclaw.mjs /usr/local/bin/openclaw && \
+    ln -sf /usr/local/lib/node_modules/@tobilu/qmd/bin/qmd /usr/local/bin/qmd
 
 # Create workspace directories
 RUN mkdir -p /home/node/.openclaw/workspace \

@@ -104,7 +104,7 @@ services:
     container_name: ctg-core-mc
     restart: unless-stopped
     working_dir: /app
-    command: ["npx", "@openclaw/mission-control", "--port", "4000"]
+    command: ["npx", "openclaw-mission-control", "--port", "4000"]
     environment:
       NODE_ENV: production
       PORT: "4000"
