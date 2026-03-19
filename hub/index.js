@@ -28,6 +28,9 @@ function initDb() {
   db.pragma("journal_mode = WAL");
   const schema = fs.readFileSync(path.join(__dirname, "tenants.sql"), "utf8");
   db.exec(schema);
+  // Migrations: add license columns if not present (idempotent)
+  try { db.exec("ALTER TABLE tenants ADD COLUMN license_status TEXT DEFAULT 'active'"); } catch {}
+  try { db.exec("ALTER TABLE tenants ADD COLUMN license_expires TEXT"); } catch {}
   console.log(`[hub] Database initialized at ${DB_PATH}`);
 }
 
@@ -117,6 +120,51 @@ async function handleRequest(req, res) {
 
       db.prepare("UPDATE tenants SET updated_at = datetime('now') WHERE id = ?").run(tenantId);
 
+      // Upsert usage_daily from check-in payload
+      if (body.usage_today && typeof body.usage_today === "object") {
+        const today = body.timestamp ? body.timestamp.slice(0, 10) : new Date().toISOString().slice(0, 10);
+        const upsertUsage = db.prepare(`
+          INSERT INTO usage_daily (tenant_id, date, agent_id, model, llm_calls, tokens_in, tokens_out,
+            provider_cost_cents, billed_cost_cents, content_requests, content_blocked)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(tenant_id, date, agent_id, model) DO UPDATE SET
+            llm_calls = llm_calls + excluded.llm_calls,
+            tokens_in = tokens_in + excluded.tokens_in,
+            tokens_out = tokens_out + excluded.tokens_out,
+            provider_cost_cents = provider_cost_cents + excluded.provider_cost_cents,
+            billed_cost_cents = billed_cost_cents + excluded.billed_cost_cents,
+            content_requests = content_requests + excluded.content_requests,
+            content_blocked = content_blocked + excluded.content_blocked
+        `);
+        for (const [agentId, models] of Object.entries(body.usage_today)) {
+          if (typeof models !== "object" || models === null) continue;
+          for (const [model, data] of Object.entries(models)) {
+            if (typeof data !== "object" || data === null) continue;
+            upsertUsage.run(
+              tenantId, today, agentId, model,
+              data.llm_calls || 0,
+              data.tokens_in || 0,
+              data.tokens_out || 0,
+              data.provider_cost_cents || 0,
+              data.billed_cost_cents || 0,
+              data.content_requests || 0,
+              data.content_blocked || 0,
+            );
+          }
+        }
+      }
+
+      // Store bot_requests if provided
+      if (Array.isArray(body.bot_requests) && body.bot_requests.length > 0) {
+        const insertBotReq = db.prepare(
+          "INSERT INTO bot_requests (tenant_id, agent_id, request_type, payload) VALUES (?, ?, ?, ?)"
+        );
+        for (const req of body.bot_requests) {
+          if (typeof req !== "object" || req === null) continue;
+          insertBotReq.run(tenantId, req.agent_id || null, req.type || null, JSON.stringify(req));
+        }
+      }
+
       // Return any pending commands
       const commands = db.prepare(
         "SELECT id, command_type as type, payload FROM pending_commands WHERE tenant_id = ? AND status = 'pending'"
@@ -134,7 +182,16 @@ async function handleRequest(req, res) {
         payload: JSON.parse(c.payload),
       }));
 
-      return json(res, 200, { received: true, commands: parsed });
+      // Include license info in response
+      const tenantRow = db.prepare("SELECT license_status, license_expires FROM tenants WHERE id = ?").get(tenantId);
+      return json(res, 200, {
+        received: true,
+        license: {
+          status: tenantRow?.license_status || "active",
+          expires: tenantRow?.license_expires || null,
+        },
+        commands: parsed,
+      });
     }
 
     // ── GET /api/tenants/:id/health ───────────────────────────────
@@ -204,6 +261,87 @@ async function handleRequest(req, res) {
         .run(tenantId, JSON.stringify(body));
       return json(res, 202, { queued: true, type: "deploy-bot" });
     }
+
+    // ── GET /api/tenants/:id/usage ────────────────────────────────
+    if (req.method === "GET" && action === "usage") {
+      if (!isAdmin(token)) return json(res, 401, { error: "unauthorized" });
+
+      const now = new Date();
+      const defaultFrom = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+      const defaultTo = now.toISOString().slice(0, 10);
+      const from = url.searchParams.get("from") || defaultFrom;
+      const to = url.searchParams.get("to") || defaultTo;
+
+      const rows = db.prepare(`
+        SELECT date, agent_id, model, llm_calls, tokens_in, tokens_out,
+               provider_cost_cents, billed_cost_cents, content_requests, content_blocked
+        FROM usage_daily
+        WHERE tenant_id = ? AND date >= ? AND date <= ?
+        ORDER BY date DESC, agent_id, model
+      `).all(tenantId, from, to);
+
+      const totals = rows.reduce((acc, r) => {
+        acc.llm_calls += r.llm_calls;
+        acc.tokens_in += r.tokens_in;
+        acc.tokens_out += r.tokens_out;
+        acc.provider_cost_cents += r.provider_cost_cents;
+        acc.billed_cost_cents += r.billed_cost_cents;
+        acc.content_requests += r.content_requests;
+        acc.content_blocked += r.content_blocked;
+        return acc;
+      }, { llm_calls: 0, tokens_in: 0, tokens_out: 0, provider_cost_cents: 0, billed_cost_cents: 0, content_requests: 0, content_blocked: 0 });
+
+      return json(res, 200, { tenantId, from, to, totals, rows });
+    }
+  }
+
+  // ── GET /api/dashboard ──────────────────────────────────────────
+  if (req.method === "GET" && url.pathname === "/api/dashboard") {
+    if (!isAdmin(token)) return json(res, 401, { error: "unauthorized" });
+
+    const tenants = db.prepare(
+      "SELECT id, name, license_status, license_expires FROM tenants"
+    ).all();
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    const dashboard = tenants.map((t) => {
+      // Latest check-in timestamp
+      const latestCheckin = db.prepare(
+        "SELECT timestamp, payload FROM checkins WHERE tenant_id = ? ORDER BY timestamp DESC LIMIT 1"
+      ).get(t.id);
+
+      // Today's spending
+      const spending = db.prepare(`
+        SELECT COALESCE(SUM(billed_cost_cents), 0) as billed_cost_cents,
+               COALESCE(SUM(provider_cost_cents), 0) as provider_cost_cents,
+               COALESCE(SUM(llm_calls), 0) as llm_calls
+        FROM usage_daily WHERE tenant_id = ? AND date = ?
+      `).get(t.id, today);
+
+      // Agent count from latest check-in payload
+      let agentCount = 0;
+      if (latestCheckin) {
+        try {
+          const payload = JSON.parse(latestCheckin.payload);
+          if (Array.isArray(payload.agents)) agentCount = payload.agents.length;
+        } catch {}
+      }
+
+      return {
+        id: t.id,
+        name: t.name,
+        license_status: t.license_status || "active",
+        license_expires: t.license_expires || null,
+        last_checkin: latestCheckin ? latestCheckin.timestamp : null,
+        today_billed_cost_cents: spending ? spending.billed_cost_cents : 0,
+        today_provider_cost_cents: spending ? spending.provider_cost_cents : 0,
+        today_llm_calls: spending ? spending.llm_calls : 0,
+        agent_count: agentCount,
+      };
+    });
+
+    return json(res, 200, { date: today, tenants: dashboard });
   }
 
   // 404
