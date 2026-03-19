@@ -1,73 +1,208 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.3.13",
-    "package": "ctg-core",
-    "packageVersion": "1.0.0"
+    "lastTouchedAt": "2026-03-19T00:00:00.000Z"
   },
   "env": {
-    "ANTHROPIC_API_KEY": "sk-ant-placeholder-routed-through-gatekeeper",
-    "PAPERCLIP_API_KEY": "${PAPERCLIP_API_KEY}",
-    "PAPERCLIP_API_URL": "${PAPERCLIP_API_URL}",
-    "PAPERCLIP_COMPANY_ID": "${COMPANY_ID}"
+    "GATEKEEPER_INTERNAL_TOKEN": "${GATEKEEPER_INTERNAL_TOKEN}"
+  },
+  "auth": {
+    "profiles": {
+      "openai:default": {
+        "provider": "openai",
+        "mode": "api_key"
+      },
+      "anthropic:default": {
+        "provider": "anthropic",
+        "mode": "api_key"
+      }
+    }
   },
   "models": {
     "mode": "merge",
-    "providers": {}
+    "providers": {
+      "gk-aimee": {
+        "baseUrl": "http://gatekeeper:9090/llm/openai/agents/primary",
+        "apiKey": "${GATEKEEPER_INTERNAL_TOKEN}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gpt-5.4",
+            "name": "GPT-5.4 via Gatekeeper (Aimee)",
+            "reasoning": true,
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 16384
+          }
+        ]
+      },
+      "gk-cto": {
+        "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/cto",
+        "apiKey": "${GATEKEEPER_INTERNAL_TOKEN}",
+        "api": "anthropic-messages",
+        "models": [
+          {
+            "id": "claude-sonnet-4-6",
+            "name": "Claude Sonnet 4.6 via Gatekeeper (CTO)",
+            "reasoning": true,
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "claude-opus-4-6",
+            "name": "Claude Opus 4.6 via Gatekeeper (CTO fallback)",
+            "reasoning": true,
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "gk-jr": {
+        "baseUrl": "http://gatekeeper:9090/llm/openai/agents/jr",
+        "apiKey": "${GATEKEEPER_INTERNAL_TOKEN}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gpt-4o-mini",
+            "name": "GPT-4o Mini via Gatekeeper (Jr)",
+            "reasoning": false,
+            "input": ["text", "image"],
+            "contextWindow": 128000,
+            "maxTokens": 16384
+          }
+        ]
+      }
+    }
   },
   "agents": {
     "defaults": {
       "model": {
-        "primary": "anthropic/claude-sonnet-4-6"
+        "primary": "gk-jr/gpt-4o-mini",
+        "fallbacks": []
       },
-      "tools": {
-        "allow": ["lobster"],
-        "fs": { "workspaceOnly": true }
-      }
+      "workspace": "/home/node/.openclaw/workspace",
+      "contextTokens": 128000
     },
     "list": [
       {
         "id": "primary",
         "name": "Aimee",
-        "workspace": "/home/ctg/.openclaw/agents/primary",
-        "agentDir": "/home/ctg/.openclaw/agents/primary",
+        "workspace": "/home/node/.openclaw/agents/primary",
+        "agentDir": "/home/node/.openclaw/agents/primary",
         "model": {
-          "primary": "anthropic/claude-sonnet-4-6",
-          "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/primary"
+          "primary": "gk-aimee/gpt-5.4",
+          "fallbacks": []
         },
         "tools": {
-          "allow": ["lobster", "messaging", "paperclip", "qmd"],
+          "allow": [
+            "lobster",
+            "sessions_send",
+            "sessions_list",
+            "memory_search",
+            "memory_get",
+            "web_search",
+            "web_fetch",
+            "read",
+            "write",
+            "edit",
+            "exec"
+          ],
           "fs": { "workspaceOnly": true }
         }
       },
       {
-        "id": "engineer",
-        "name": "Engineer",
-        "workspace": "/home/ctg/.openclaw/agents/engineer",
-        "agentDir": "/home/ctg/.openclaw/agents/engineer",
+        "id": "cto",
+        "name": "CTO",
+        "workspace": "/home/node/.openclaw/agents/cto",
+        "agentDir": "/home/node/.openclaw/agents/cto",
         "model": {
-          "primary": "anthropic/claude-opus-4-6",
-          "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/engineer"
+          "primary": "gk-cto/claude-sonnet-4-6",
+          "fallbacks": [
+            "gk-cto/claude-opus-4-6"
+          ]
         },
         "tools": {
-          "allow": ["lobster", "coding", "paperclip", "qmd", "shell"],
+          "allow": [
+            "lobster",
+            "sessions_send",
+            "sessions_list",
+            "memory_search",
+            "memory_get",
+            "web_search",
+            "web_fetch",
+            "read",
+            "write",
+            "edit",
+            "exec"
+          ],
           "fs": { "workspaceOnly": true }
         }
       },
       {
-        "id": "dispatch",
-        "name": "Dispatch",
-        "workspace": "/home/ctg/.openclaw/agents/dispatch",
-        "agentDir": "/home/ctg/.openclaw/agents/dispatch",
+        "id": "jr",
+        "name": "Jr",
+        "workspace": "/home/node/.openclaw/agents/jr",
+        "agentDir": "/home/node/.openclaw/agents/jr",
         "model": {
-          "primary": "anthropic/claude-haiku-4-5",
-          "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/dispatch"
+          "primary": "gk-jr/gpt-4o-mini",
+          "fallbacks": []
         },
         "tools": {
-          "allow": ["lobster", "shell", "paperclip", "qmd"],
+          "allow": [
+            "lobster",
+            "sessions_send",
+            "sessions_list",
+            "memory_search",
+            "memory_get",
+            "web_fetch",
+            "read",
+            "write"
+          ],
           "fs": { "workspaceOnly": true }
         }
       }
     ]
+  },
+  "tools": {
+    "profile": "coding",
+    "sessions": {
+      "visibility": "all"
+    },
+    "agentToAgent": {
+      "enabled": true
+    },
+    "exec": {
+      "security": "sandbox",
+      "ask": "on"
+    },
+    "fs": {
+      "workspaceOnly": true
+    }
+  },
+  "bindings": [],
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true
+  },
+  "session": {
+    "dmScope": "per-channel-peer",
+    "maintenance": {
+      "mode": "enforce",
+      "pruneAfter": "3d",
+      "maxEntries": 100
+    }
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "boot-md": { "enabled": true },
+        "session-memory": { "enabled": true }
+      }
+    }
   },
   "channels": {
     "slack": {
@@ -77,11 +212,9 @@
       "defaultAccount": ""
     },
     "msteams": {
-      "enabled": false,
-      "accounts": {}
+      "enabled": false
     }
   },
-  "bindings": [],
   "gateway": {
     "port": 18789,
     "mode": "local",
@@ -99,12 +232,12 @@
       "includeDefaultMemory": true,
       "paths": [
         {
-          "path": "/home/ctg/.openclaw/sops",
+          "path": "/home/node/.openclaw/sops",
           "name": "corporate-sops",
           "pattern": "**/*.md"
         },
         {
-          "path": "/home/ctg/.openclaw/lobster",
+          "path": "/home/node/.openclaw/lobster",
           "name": "workflows",
           "pattern": "**/*.lobster"
         }
@@ -116,15 +249,10 @@
     }
   },
   "plugins": {
-    "lobster": {
-      "enabled": true,
-      "workflowDir": "/home/ctg/.openclaw/lobster"
-    },
-    "paperclip": {
-      "enabled": true,
-      "url": "${PAPERCLIP_API_URL}",
-      "apiKey": "${PAPERCLIP_API_KEY}",
-      "companyId": "${COMPANY_ID}"
+    "entries": {
+      "lobster": {
+        "enabled": true
+      }
     }
   }
 }

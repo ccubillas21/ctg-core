@@ -11,7 +11,8 @@ if [ ! -f "$CONFIG" ]; then
 
   # Substitute environment variables into config
   for var in ANTHROPIC_API_KEY PAPERCLIP_API_KEY PAPERCLIP_API_URL \
-             OPENCLAW_AUTH_TOKEN COMPANY_ID PARENT_HUB_URL PARENT_HUB_TOKEN; do
+             OPENCLAW_AUTH_TOKEN COMPANY_ID PARENT_HUB_URL PARENT_HUB_TOKEN \
+             GATEKEEPER_INTERNAL_TOKEN CTG_HUB_IP; do
     val="${!var}"
     if [ -n "$val" ]; then
       sed -i "s|\${${var}}|${val}|g" "$CONFIG"
