@@ -1,10 +1,9 @@
 # CTG Core — Corporate Deployment Stack
-# Version: 1.1.0
-# Architecture: Option B (independent tenant stack + gatekeeper)
+# Version: 1.2.0
+# Architecture: Gatekeeper + internal network isolation
 #
 # Services: PostgreSQL, Paperclip, OpenClaw, Mission Control, Gatekeeper, n8n
-# Networks: internal-net (isolated), gateway-net (internet access)
-# Ports: Offset +10000 from container ports
+# Networks: internal-net (isolated, no internet), gateway-net (internet access)
 
 services:
   # ---------- Database ----------
@@ -25,7 +24,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # user: "999:999"  # removed — let postgres use its default internal user
     logging:
       driver: json-file
       options:
@@ -55,8 +53,7 @@ services:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3100/api/health || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 3
-    user: "1000:1000"
+      retries: 5
     logging:
       driver: json-file
       options:
@@ -72,19 +69,17 @@ services:
       NODE_ENV: production
       OPENCLAW_PORT: "18789"
       OPENCLAW_BIND: "0.0.0.0"
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY in .env}
-      OPENCLAW_AUTH_TOKEN: ${OPENCLAW_AUTH_TOKEN}
+      ANTHROPIC_API_KEY: "sk-ant-placeholder-routed-through-gatekeeper"
+      OPENCLAW_AUTH_TOKEN: ${OPENCLAW_AUTH_TOKEN:-}
       PAPERCLIP_API_URL: "http://paperclip:3100"
       PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-}
-      COMPANY_ID: ${COMPANY_ID}
-      PARENT_HUB_URL: ${PARENT_HUB_URL:-}
-      PARENT_HUB_TOKEN: ${PARENT_HUB_TOKEN:-}
-      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN}
+      COMPANY_ID: ${COMPANY_ID:-}
+      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN:-}
     ports:
       - "${GW_PORT:-28789}:18789"
     volumes:
-      - openclaw-data:/home/ctg/.openclaw/workspace
-      - openclaw-config:/home/ctg/.openclaw
+      - openclaw-data:/home/node/.openclaw/workspace
+      - openclaw-config:/home/node/.openclaw
     depends_on:
       paperclip:
         condition: service_healthy
@@ -94,8 +89,7 @@ services:
       test: ["CMD-SHELL", "wget -qO- http://localhost:18789/health || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 3
-    user: "1000:1000"
+      retries: 5
     logging:
       driver: json-file
       options:
@@ -124,29 +118,28 @@ services:
       test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/status || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 3
-    user: "1000:1000"
+      retries: 5
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
 
-  # ---------- Gatekeeper (Egress Control + Hub Relay) ----------
+  # ---------- Gatekeeper (LLM Proxy + Content Sanitizer + Usage Ledger) ----------
   gatekeeper:
     image: ghcr.io/ccubillas21/ctg-gatekeeper:${CTG_VERSION:-latest}
     container_name: ctg-core-gatekeeper
     restart: unless-stopped
     environment:
-      GATEKEEPER_PORT: ${GATEKEEPER_PORT:-9090}
-      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN}
+      GATEKEEPER_PORT: "9090"
+      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN:-}
       GATEKEEPER_DB_PATH: /data/gatekeeper.db
       GATEKEEPER_PRICING_PATH: /data/pricing.json
-      GATEKEEPER_DOMAIN_ALLOWLIST: ${GATEKEEPER_DOMAIN_ALLOWLIST:-}
-      LICENSE_GRACE_HOURS: ${LICENSE_GRACE_HOURS:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GATEKEEPER_DOMAIN_ALLOWLIST: ${GATEKEEPER_DOMAIN_ALLOWLIST:-*}
+      LICENSE_GRACE_HOURS: ${LICENSE_GRACE_HOURS:-72}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      COMPANY_ID: ${COMPANY_ID}
+      COMPANY_ID: ${COMPANY_ID:-}
       PARENT_HUB_URL: ${PARENT_HUB_URL:-}
       PARENT_HUB_TOKEN: ${PARENT_HUB_TOKEN:-}
       CHECKIN_INTERVAL_MS: ${CHECKIN_INTERVAL_MS:-300000}
@@ -168,23 +161,22 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-    user: "1000:1000"
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
 
-  # ---------- n8n (Workflow Automation) ----------
+  # ---------- n8n (Credential Isolation + Workflow Automation) ----------
   n8n:
     image: n8nio/n8n:1.76.1
     container_name: ctg-core-n8n
     restart: unless-stopped
     environment:
       N8N_BASIC_AUTH_ACTIVE: "true"
-      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
-      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
-      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-default-change-me}
       WEBHOOK_URL: "http://localhost:${N8N_PORT:-5678}/"
     ports:
       - "${N8N_PORT:-5678}:5678"
@@ -198,7 +190,6 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-    user: "1000:1000"
     logging:
       driver: json-file
       options:
@@ -207,15 +198,10 @@ services:
 
 volumes:
   pgdata:
-    driver: local
   openclaw-data:
-    driver: local
   openclaw-config:
-    driver: local
   gatekeeper-data:
-    driver: local
   n8n-data:
-    driver: local
 
 networks:
   internal-net:

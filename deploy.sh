@@ -500,11 +500,6 @@ CTG_REPO="https://raw.githubusercontent.com/ccubillas21/ctg-core/master"
 CTG_REGISTRY="ghcr.io/ccubillas21"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# ──────────────────────────────────────────────
-# CTG deployment token (for private repo access)
-# ──────────────────────────────────────────────
-CTG_TOKEN="${CTG_TOKEN:-}"
-
 # Try local source first, fall back to GitHub
 if [ -f "$SCRIPT_DIR/docker-compose.yml" ] && [ -f "$SCRIPT_DIR/.env.template" ]; then
   info "Deploying from local source: $SCRIPT_DIR"
@@ -519,47 +514,18 @@ if [ -f "$SCRIPT_DIR/docker-compose.yml" ] && [ -f "$SCRIPT_DIR/.env.template" ]
     pass "Files copied to $CTG_DIR"
   fi
 else
-  # Need token for private repo
-  if [ -z "$CTG_TOKEN" ]; then
-    echo ""
-    echo -e "${BOLD}CTG Deployment Token${NC} (provided by CTG during onboarding)"
-    read -rp "  Token: " CTG_TOKEN
-    if [ -z "$CTG_TOKEN" ]; then
-      fail "Deployment token is required to download CTG Core."
-      echo "  Contact CTG support for your deployment token."
-      exit 1
-    fi
-  fi
-
-  CURL_AUTH=(-H "Authorization: token $CTG_TOKEN")
-
-  info "Fetching deployment files from CTG registry..."
+  info "Downloading deployment files from CTG..."
 
   FETCH_FILES="docker-compose.yml openclaw.seed.json .env.template"
   for f in $FETCH_FILES; do
-    if curl -sfL "${CURL_AUTH[@]}" "$CTG_REPO/$f" -o "$CTG_DIR/$f" 2>/dev/null; then
+    if curl -sfL "$CTG_REPO/$f" -o "$CTG_DIR/$f" 2>/dev/null; then
       pass "Downloaded $f"
     else
-      fail "Failed to download $f — check your deployment token"
+      fail "Failed to download $f"
+      echo "  Check your internet connection and try again."
       exit 1
     fi
   done
-
-  # Download agent/sops directories
-  for d in agents/primary agents/engineer agents/dispatch sops; do
-    mkdir -p "$CTG_DIR/$d"
-    for ext in SOUL.md AGENTS.md IDENTITY.md; do
-      curl -sfL "${CURL_AUTH[@]}" "$CTG_REPO/$d/$ext" -o "$CTG_DIR/$d/$ext" 2>/dev/null || true
-    done
-  done
-
-  # Download SOP files
-  for sop in onboarding.md channel-setup.md daily-ops.md escalation.md incident-response.md; do
-    curl -sfL "${CURL_AUTH[@]}" "$CTG_REPO/sops/$sop" -o "$CTG_DIR/sops/$sop" 2>/dev/null || true
-  done
-
-  # Login to container registry for image pulls
-  echo "$CTG_TOKEN" | docker login ghcr.io -u deploy --password-stdin 2>/dev/null || true
 
   pass "Deployment files downloaded"
 fi
