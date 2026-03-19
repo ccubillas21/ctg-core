@@ -27,4 +27,4 @@ if command -v qmd &>/dev/null; then
 fi
 
 echo "[ctg-core] Starting OpenClaw gateway..."
-exec openclaw serve --bind 0.0.0.0 --port "${OPENCLAW_PORT:-18789}"
+exec openclaw gateway --port "${OPENCLAW_PORT:-18789}"
