@@ -51,6 +51,24 @@ describe("parseRoute", () => {
     const result = parseRoute("/health");
     assert.equal(result, null);
   });
+
+  it("accepts dynamic subagent IDs", () => {
+    const result = parseRoute("/llm/openai/agents/subagent-abc123/v1/chat/completions");
+    assert.deepEqual(result, {
+      provider: "openai",
+      agentId: "subagent-abc123",
+      upstreamPath: "/v1/chat/completions",
+    });
+  });
+
+  it("accepts subagent IDs with underscores and dots", () => {
+    const result = parseRoute("/llm/openai/agents/jr.task_42/v1/chat/completions");
+    assert.deepEqual(result, {
+      provider: "openai",
+      agentId: "jr.task_42",
+      upstreamPath: "/v1/chat/completions",
+    });
+  });
 });
 
 // ── getUpstreamUrl ───────────────────────────────────────────────────

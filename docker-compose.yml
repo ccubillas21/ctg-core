@@ -151,6 +151,7 @@ services:
       N8N_URL: "http://n8n:5678"
       MC_URL: "http://mission-control:4000"
       SOPS_DIR: "/home/node/.openclaw/sops"
+      CTG_SANITIZATION_URL: ${CTG_SANITIZATION_URL:-}
     ports:
       - "${GATEKEEPER_HOST_PORT:-19090}:9090"
     volumes:
