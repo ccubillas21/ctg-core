@@ -666,16 +666,16 @@ if [ "$UPGRADE_MODE" = "false" ]; then
   # Register agents
   for AGENT in primary engineer dispatch; do
     case $AGENT in
-      primary)  TITLE="Communications & Triage Lead" ;;
-      engineer) TITLE="Technical Specialist" ;;
-      dispatch) TITLE="Operations & Automation Specialist" ;;
+      primary)  DISPLAY_NAME="Aimee"; TITLE="Communications & Triage Lead" ;;
+      engineer) DISPLAY_NAME="Engineer"; TITLE="Technical Specialist" ;;
+      dispatch) DISPLAY_NAME="Dispatch"; TITLE="Operations & Automation Specialist" ;;
     esac
     curl -sf -X POST "$PAPERCLIP_URL/api/companies/$COMPANY_ID/agents" \
       -H "Content-Type: application/json" \
-      -d "{\"name\":\"$AGENT\",\"title\":\"$TITLE\",\"role\":\"general\",\"adapterType\":\"openclaw_gateway\"}" &>/dev/null || true
+      -d "{\"name\":\"$AGENT\",\"displayName\":\"$DISPLAY_NAME\",\"title\":\"$TITLE\",\"role\":\"general\",\"adapterType\":\"openclaw_gateway\"}" &>/dev/null || true
   done
 
-  pass "Agents registered: primary, engineer, dispatch"
+  pass "Agents registered: Aimee (primary), Engineer, Dispatch"
 fi
 
 # ──────────────────────────────────────────────────
