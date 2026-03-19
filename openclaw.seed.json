@@ -174,8 +174,8 @@
       "enabled": true
     },
     "exec": {
-      "security": "sandbox",
-      "ask": "on"
+      "security": "allowlist",
+      "ask": "on-miss"
     },
     "fs": {
       "workspaceOnly": true
