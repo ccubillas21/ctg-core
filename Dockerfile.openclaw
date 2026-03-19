@@ -1,6 +1,5 @@
 # CTG Core — OpenClaw + QMD + Lobster Container
 # Multi-stage build for production deployment
-# Author: CTG Core Package
 
 # ---- Stage 1: Build dependencies ----
 FROM node:22-alpine AS builder
@@ -29,10 +28,6 @@ COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=builder /usr/local/bin/openclaw /usr/local/bin/openclaw
 COPY --from=builder /usr/local/bin/qmd /usr/local/bin/qmd
 
-# Lobster is bundled with OpenClaw — no separate install needed
-
-# Use the existing node user (uid 1000) from node:22-alpine
-
 # Create workspace directories
 RUN mkdir -p /home/node/.openclaw/workspace \
              /home/node/.openclaw/agents \
@@ -42,47 +37,15 @@ RUN mkdir -p /home/node/.openclaw/workspace \
              /home/node/.openclaw/skills && \
     chown -R node:node /home/node
 
-# Copy seed configs (populated at build time or via volume mount)
+# Copy seed configs
 COPY --chown=node:node agents/ /home/node/.openclaw/agents/
 COPY --chown=node:node sops/ /home/node/.openclaw/sops/
 COPY --chown=node:node lobster/ /home/node/.openclaw/lobster/
 COPY --chown=node:node skills/ /home/node/.openclaw/skills/
 COPY --chown=node:node openclaw.seed.json /home/node/.openclaw/openclaw.seed.json
 
-# First-boot entrypoint: copies seed config if no config exists
-COPY --chown=node:node <<'ENTRYPOINT' /home/node/entrypoint.sh
-#!/bin/bash
-set -e
-
-CONFIG="/home/node/.openclaw/openclaw.json"
-SEED="/home/node/.openclaw/openclaw.seed.json"
-
-# First boot: seed config if none exists
-if [ ! -f "$CONFIG" ]; then
-  echo "[ctg-core] First boot — seeding config from template..."
-  cp "$SEED" "$CONFIG"
-
-  # Substitute environment variables into config
-  for var in ANTHROPIC_API_KEY PAPERCLIP_API_KEY PAPERCLIP_API_URL \
-             OPENCLAW_AUTH_TOKEN COMPANY_ID PARENT_HUB_URL PARENT_HUB_TOKEN; do
-    val="${!var}"
-    if [ -n "$val" ]; then
-      sed -i "s|\${${var}}|${val}|g" "$CONFIG"
-    fi
-  done
-  echo "[ctg-core] Config seeded."
-fi
-
-# Index SOPs into QMD
-if command -v qmd &>/dev/null; then
-  echo "[ctg-core] Indexing SOPs into QMD..."
-  qmd index /home/node/.openclaw/sops --collection corporate-sops 2>/dev/null || true
-fi
-
-echo "[ctg-core] Starting OpenClaw gateway..."
-exec openclaw serve --bind 0.0.0.0 --port "${OPENCLAW_PORT:-18789}"
-ENTRYPOINT
-
+# Copy entrypoint script (external file, not heredoc)
+COPY --chown=node:node openclaw-entrypoint.sh /home/node/entrypoint.sh
 RUN chmod +x /home/node/entrypoint.sh
 
 USER node

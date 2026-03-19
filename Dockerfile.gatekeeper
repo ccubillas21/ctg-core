@@ -15,8 +15,6 @@ FROM node:22-alpine
 
 RUN apk add --no-cache tini wget bash
 
-# node:22-alpine already has node user (uid 1000)
-
 WORKDIR /app
 
 # Copy dependencies from builder
@@ -27,8 +25,12 @@ COPY gatekeeper/index.js gatekeeper/proxy.js gatekeeper/sanitizer.js \
      gatekeeper/ledger.js gatekeeper/hub.js gatekeeper/schema.sql \
      gatekeeper/package.json ./
 
-# Pricing is mounted as a volume, but include default
+# Default pricing (copied to /data/ on first boot by entrypoint)
 COPY gatekeeper/pricing.json /app/pricing.json.default
+
+# Entrypoint script
+COPY gatekeeper/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # Data directory for SQLite
 RUN mkdir -p /data && chown -R node:node /data /app
@@ -41,4 +43,4 @@ HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
   CMD wget -qO- http://localhost:9090/health || exit 1
 
 ENTRYPOINT ["tini", "--"]
-CMD ["node", "index.js"]
+CMD ["/app/entrypoint.sh"]
