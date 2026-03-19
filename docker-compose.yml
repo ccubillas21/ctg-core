@@ -188,7 +188,6 @@ services:
     volumes:
       - n8n-data:/home/node/.n8n
     networks:
-      - internal-net
       - gateway-net
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
