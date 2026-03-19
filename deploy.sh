@@ -494,38 +494,54 @@ UPGRADE_MODE="${UPGRADE_MODE:-false}"
 mkdir -p "$CTG_DIR"
 
 # ──────────────────────────────────────────────────
-# Copy/extract CTG Core files
+# Fetch CTG Core files
 # ──────────────────────────────────────────────────
-# Check if we're running from a CTG Core source directory
+CTG_REPO="https://raw.githubusercontent.com/ccubillas21/ctg-core/main"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ -f "$SCRIPT_DIR/docker-compose.yml" ] && [ -f "$SCRIPT_DIR/Dockerfile.openclaw" ]; then
+# Try local source first, fall back to GitHub
+if [ -f "$SCRIPT_DIR/docker-compose.yml" ] && [ -f "$SCRIPT_DIR/.env.template" ]; then
   info "Deploying from local source: $SCRIPT_DIR"
 
-  # Copy all CTG Core files to deployment dir (skip if same dir)
   if [ "$SCRIPT_DIR" != "$CTG_DIR" ]; then
-    cp -r "$SCRIPT_DIR"/docker-compose.yml "$CTG_DIR/"
-    cp -r "$SCRIPT_DIR"/Dockerfile.openclaw "$CTG_DIR/"
-    cp -r "$SCRIPT_DIR"/openclaw.seed.json "$CTG_DIR/"
-    cp -r "$SCRIPT_DIR"/.env.template "$CTG_DIR/"
-    cp -r "$SCRIPT_DIR"/agents "$CTG_DIR/"
-    cp -r "$SCRIPT_DIR"/sops "$CTG_DIR/"
-    cp -r "$SCRIPT_DIR"/lobster "$CTG_DIR/"
-    cp -r "$SCRIPT_DIR"/skills "$CTG_DIR/"
-
-    # Copy parent-relay if it has a Dockerfile
-    if [ -d "$SCRIPT_DIR/parent-relay" ]; then
-      cp -r "$SCRIPT_DIR"/parent-relay "$CTG_DIR/"
-    fi
-
+    for f in docker-compose.yml openclaw.seed.json .env.template; do
+      [ -f "$SCRIPT_DIR/$f" ] && cp "$SCRIPT_DIR/$f" "$CTG_DIR/"
+    done
+    for d in agents sops lobster skills gatekeeper; do
+      [ -d "$SCRIPT_DIR/$d" ] && cp -r "$SCRIPT_DIR/$d" "$CTG_DIR/"
+    done
     pass "Files copied to $CTG_DIR"
   fi
 else
-  fail "Cannot find CTG Core source files."
-  echo ""
-  echo "  Run this script from the ctg-core directory, or set the source path:"
-  echo "    CTG_DIR=$HOME/.ctg-core bash deploy.sh"
-  exit 1
+  info "Fetching deployment files from CTG registry..."
+
+  FETCH_FILES="docker-compose.yml openclaw.seed.json .env.template"
+  for f in $FETCH_FILES; do
+    if curl -sfL "$CTG_REPO/$f" -o "$CTG_DIR/$f" 2>/dev/null; then
+      pass "Downloaded $f"
+    else
+      fail "Failed to download $f from $CTG_REPO"
+      echo ""
+      echo "  If you have the ctg-core files locally, run:"
+      echo "    cd /path/to/ctg-core && bash deploy.sh"
+      exit 1
+    fi
+  done
+
+  # Download agent/sops directories
+  for d in agents/primary agents/engineer agents/dispatch sops; do
+    mkdir -p "$CTG_DIR/$d"
+    for ext in SOUL.md AGENTS.md IDENTITY.md; do
+      curl -sfL "$CTG_REPO/$d/$ext" -o "$CTG_DIR/$d/$ext" 2>/dev/null || true
+    done
+  done
+
+  # Download SOP files
+  for sop in onboarding.md channel-setup.md daily-ops.md escalation.md incident-response.md; do
+    curl -sfL "$CTG_REPO/sops/$sop" -o "$CTG_DIR/sops/$sop" 2>/dev/null || true
+  done
+
+  pass "Deployment files downloaded"
 fi
 
 # ──────────────────────────────────────────────────
@@ -608,8 +624,8 @@ header "Building & Starting Stack"
 
 cd "$CTG_DIR"
 
-info "Building OpenClaw image (this may take a few minutes)..."
-docker compose build openclaw 2>&1 | tail -5
+info "Pulling container images (this may take a few minutes)..."
+docker compose pull 2>&1 | tail -10
 
 echo ""
 info "Starting all services..."

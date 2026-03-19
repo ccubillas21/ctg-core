@@ -65,9 +65,7 @@ services:
 
   # ---------- OpenClaw (Gateway + Agents) ----------
   openclaw:
-    build:
-      context: .
-      dockerfile: Dockerfile.openclaw
+    image: ghcr.io/ccubillas21/ctg-openclaw:${CTG_VERSION:-latest}
     container_name: ctg-core-openclaw
     restart: unless-stopped
     environment:
@@ -136,9 +134,7 @@ services:
 
   # ---------- Gatekeeper (Egress Control + Hub Relay) ----------
   gatekeeper:
-    build:
-      context: .
-      dockerfile: Dockerfile.gatekeeper
+    image: ghcr.io/ccubillas21/ctg-gatekeeper:${CTG_VERSION:-latest}
     container_name: ctg-core-gatekeeper
     restart: unless-stopped
     environment:
