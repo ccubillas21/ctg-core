@@ -1,0 +1,157 @@
+# CTG Core — Client Deployment Stack
+# Version: 1.0.0
+#
+# This is the CLIENT-SIDE stack. It does NOT include PostgreSQL or Paperclip —
+# those services live on the CTG Hub. This client connects to Hub services over
+# Tailscale (set CTG_HUB_IP in .env to the Hub's Tailscale IP).
+#
+# Services: OpenClaw, Gatekeeper, Mission Control, n8n
+# Networks: internal-net (isolated, no internet), gateway-net (internet access)
+# Requires: CTG_HUB_IP set in .env (e.g. CTG_HUB_IP=100.64.0.1)
+
+services:
+  # ---------- OpenClaw (Gateway + Agents) ----------
+  openclaw:
+    image: ghcr.io/ccubillas21/ctg-openclaw:${CTG_VERSION:-latest}
+    container_name: ctg-openclaw
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      OPENCLAW_PORT: "18789"
+      OPENCLAW_BIND: "0.0.0.0"
+      # Placeholder — agents route LLM calls through Gatekeeper, not directly
+      ANTHROPIC_API_KEY: "routed-through-gatekeeper"
+      OPENCLAW_AUTH_TOKEN: ${OPENCLAW_AUTH_TOKEN:-}
+      # Hub connection via Tailscale
+      PAPERCLIP_API_URL: "http://${CTG_HUB_IP:?Set CTG_HUB_IP in .env}:3101"
+      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-}
+      COMPANY_ID: ${COMPANY_ID:?Set COMPANY_ID in .env}
+      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN:-}
+    ports:
+      - "${GW_PORT:-28789}:18789"
+    volumes:
+      - openclaw-data:/home/node/.openclaw/workspace
+      - openclaw-config:/home/node/.openclaw
+    networks:
+      - internal-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:18789/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- Gatekeeper (LLM Proxy + Content Sanitizer + Usage Ledger) ----------
+  gatekeeper:
+    image: ghcr.io/ccubillas21/ctg-gatekeeper:${CTG_VERSION:-latest}
+    container_name: ctg-gatekeeper
+    restart: unless-stopped
+    environment:
+      GATEKEEPER_PORT: "9090"
+      GATEKEEPER_INTERNAL_TOKEN: ${GATEKEEPER_INTERNAL_TOKEN:-}
+      GATEKEEPER_DB_PATH: /data/gatekeeper.db
+      GATEKEEPER_PRICING_PATH: /data/pricing.json
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      COMPANY_ID: ${COMPANY_ID:-}
+      # Hub reporting endpoint (Tailscale)
+      PARENT_HUB_URL: "http://${CTG_HUB_IP}:9100"
+      PARENT_HUB_TOKEN: ${HUB_TENANT_TOKEN:-}
+      CHECKIN_INTERVAL_MS: ${CHECKIN_INTERVAL_MS:-300000}
+      OPENCLAW_URL: "http://openclaw:18789"
+      N8N_URL: "http://n8n:5678"
+      MC_URL: "http://mission-control:4000"
+      SOPS_DIR: "/home/node/.openclaw/sops"
+      # Sanitization service on Hub (Tailscale)
+      CTG_SANITIZATION_URL: "http://${CTG_HUB_IP}:9200"
+    ports:
+      - "${GATEKEEPER_HOST_PORT:-19090}:9090"
+    volumes:
+      - gatekeeper-data:/data
+    networks:
+      - internal-net
+      - gateway-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- Mission Control (Dashboard) ----------
+  mission-control:
+    image: node:22-alpine
+    container_name: ctg-mc
+    restart: unless-stopped
+    working_dir: /app
+    command: ["npx", "openclaw-mission-control", "--port", "4000"]
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      # Paperclip lives on Hub (Tailscale)
+      PAPERCLIP_URL: "http://${CTG_HUB_IP}:3101"
+    ports:
+      - "${MC_PORT:-14000}:4000"
+    networks:
+      - gateway-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/status || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- n8n (Credential Isolation + Workflow Automation) ----------
+  # NOTE: n8n is on gateway-net ONLY — keeping it off internal-net prevents
+  # workflows from bypassing Gatekeeper to reach OpenClaw directly.
+  n8n:
+    image: n8nio/n8n:1.76.1
+    container_name: ctg-n8n
+    restart: unless-stopped
+    environment:
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-default-change-me}
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - gateway-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  openclaw-data:
+  openclaw-config:
+  gatekeeper-data:
+  n8n-data:
+
+networks:
+  internal-net:
+    driver: bridge
+    internal: true
+  gateway-net:
+    driver: bridge
