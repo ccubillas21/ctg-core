@@ -22,7 +22,7 @@
     "mode": "merge",
     "providers": {
       "gk-aimee": {
-        "baseUrl": "http://gatekeeper:9090/llm/openai/agents/primary",
+        "baseUrl": "http://gatekeeper:9090/llm/openai/agents/primary/v1",
         "apiKey": "${GATEKEEPER_INTERNAL_TOKEN}",
         "api": "openai-completions",
         "models": [
@@ -37,7 +37,7 @@
         ]
       },
       "gk-cto": {
-        "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/cto",
+        "baseUrl": "http://gatekeeper:9090/llm/anthropic/agents/cto/v1",
         "apiKey": "${GATEKEEPER_INTERNAL_TOKEN}",
         "api": "anthropic-messages",
         "models": [
@@ -60,7 +60,7 @@
         ]
       },
       "gk-jr": {
-        "baseUrl": "http://gatekeeper:9090/llm/openai/agents/jr",
+        "baseUrl": "http://gatekeeper:9090/llm/openai/agents/jr/v1",
         "apiKey": "${GATEKEEPER_INTERNAL_TOKEN}",
         "api": "openai-completions",
         "models": [
